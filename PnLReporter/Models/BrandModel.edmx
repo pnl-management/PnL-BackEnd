@@ -1,0 +1,608 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+      <Schema Namespace="PLSystemModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="AccountingPeriod">
+          <Key>
+            <PropertyRef Name="periodId" />
+          </Key>
+          <Property Name="periodId" Type="numeric" Precision="18" Scale="0" Nullable="false" />
+          <Property Name="title" Type="nvarchar" MaxLength="100" />
+          <Property Name="startDate" Type="date" />
+          <Property Name="endDate" Type="date" />
+          <Property Name="deadline" Type="datetime" />
+          <Property Name="createTime" Type="datetime" />
+          <Property Name="brandId" Type="varchar" MaxLength="10" />
+          <Property Name="lastModifed" Type="datetime" />
+        </EntityType>
+        <EntityType Name="Brand">
+          <Key>
+            <PropertyRef Name="brandId" />
+          </Key>
+          <Property Name="brandId" Type="varchar" MaxLength="10" Nullable="false" />
+          <Property Name="name" Type="nvarchar" MaxLength="100" />
+          <Property Name="status" Type="bit" />
+          <Property Name="createdTime" Type="datetime" />
+        </EntityType>
+        <EntityType Name="Evidence">
+          <Key>
+            <PropertyRef Name="url" />
+          </Key>
+          <Property Name="url" Type="varchar" MaxLength="256" Nullable="false" />
+          <Property Name="title" Type="varchar" MaxLength="50" />
+          <Property Name="transactionVersion" Type="int" />
+          <Property Name="transactionId" Type="varchar" MaxLength="500" />
+          <Property Name="description" Type="nvarchar(max)" />
+        </EntityType>
+        <EntityType Name="Participant">
+          <Key>
+            <PropertyRef Name="username" />
+          </Key>
+          <Property Name="username" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="fullname" Type="nvarchar" MaxLength="20" />
+          <Property Name="role" Type="int" />
+          <Property Name="description" Type="nvarchar" MaxLength="500" />
+          <Property Name="status" Type="bit" />
+          <Property Name="createdTime" Type="datetime" />
+          <Property Name="brandId" Type="varchar" MaxLength="10" />
+          <Property Name="lastModified" Type="datetime" />
+        </EntityType>
+        <EntityType Name="Transaction">
+          <Key>
+            <PropertyRef Name="transactionId" />
+            <PropertyRef Name="version" />
+          </Key>
+          <Property Name="transactionId" Type="varchar" MaxLength="500" Nullable="false" />
+          <Property Name="version" Type="int" Nullable="false" />
+          <Property Name="name" Type="nvarchar" MaxLength="50" />
+          <Property Name="value" Type="varchar" MaxLength="20" />
+          <Property Name="status" Type="int" />
+          <Property Name="description" Type="nvarchar(max)" />
+          <Property Name="masterTransactionId" Type="varchar" MaxLength="500" />
+          <Property Name="masterTransactionVersion" Type="int" />
+          <Property Name="categoryId" Type="numeric" Precision="18" Scale="0" />
+          <Property Name="periodId" Type="numeric" Precision="18" Scale="0" />
+          <Property Name="createdTime" Type="datetime" />
+          <Property Name="createdBy" Type="varchar" MaxLength="50" />
+          <Property Name="confirmedBy" Type="varchar" MaxLength="50" />
+          <Property Name="confirmedTime" Type="datetime" />
+        </EntityType>
+        <EntityType Name="TransactionCategory">
+          <Key>
+            <PropertyRef Name="categoryId" />
+          </Key>
+          <Property Name="categoryId" Type="numeric" Precision="18" Scale="0" Nullable="false" />
+          <Property Name="name" Type="nvarchar" MaxLength="1000" />
+          <Property Name="type" Type="int" />
+          <Property Name="status" Type="bit" />
+          <Property Name="brandId" Type="varchar" MaxLength="10" />
+          <Property Name="createdTime" Type="datetime" />
+          <Property Name="lastModified" Type="datetime" />
+        </EntityType>
+        <Association Name="FK_Accounting Period_Brand">
+          <End Role="Brand" Type="Self.Brand" Multiplicity="0..1" />
+          <End Role="AccountingPeriod" Type="Self.AccountingPeriod" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Brand">
+              <PropertyRef Name="brandId" />
+            </Principal>
+            <Dependent Role="AccountingPeriod">
+              <PropertyRef Name="brandId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Evidence_Transaction">
+          <End Role="Transaction" Type="Self.Transaction" Multiplicity="0..1" />
+          <End Role="Evidence" Type="Self.Evidence" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Transaction">
+              <PropertyRef Name="transactionId" />
+              <PropertyRef Name="version" />
+            </Principal>
+            <Dependent Role="Evidence">
+              <PropertyRef Name="transactionId" />
+              <PropertyRef Name="transactionVersion" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Participant_Brand">
+          <End Role="Brand" Type="Self.Brand" Multiplicity="0..1" />
+          <End Role="Participant" Type="Self.Participant" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Brand">
+              <PropertyRef Name="brandId" />
+            </Principal>
+            <Dependent Role="Participant">
+              <PropertyRef Name="brandId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Transaction Category_Brand">
+          <End Role="Brand" Type="Self.Brand" Multiplicity="0..1" />
+          <End Role="TransactionCategory" Type="Self.TransactionCategory" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Brand">
+              <PropertyRef Name="brandId" />
+            </Principal>
+            <Dependent Role="TransactionCategory">
+              <PropertyRef Name="brandId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Transaction_Accounting Period">
+          <End Role="AccountingPeriod" Type="Self.AccountingPeriod" Multiplicity="0..1" />
+          <End Role="Transaction" Type="Self.Transaction" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="AccountingPeriod">
+              <PropertyRef Name="periodId" />
+            </Principal>
+            <Dependent Role="Transaction">
+              <PropertyRef Name="periodId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Transaction_Participant">
+          <End Role="Participant" Type="Self.Participant" Multiplicity="0..1" />
+          <End Role="Transaction" Type="Self.Transaction" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Participant">
+              <PropertyRef Name="username" />
+            </Principal>
+            <Dependent Role="Transaction">
+              <PropertyRef Name="createdBy" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Transaction_Participant1">
+          <End Role="Participant" Type="Self.Participant" Multiplicity="0..1" />
+          <End Role="Transaction" Type="Self.Transaction" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Participant">
+              <PropertyRef Name="username" />
+            </Principal>
+            <Dependent Role="Transaction">
+              <PropertyRef Name="confirmedBy" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Transaction_Transaction">
+          <End Role="Transaction" Type="Self.Transaction" Multiplicity="0..1" />
+          <End Role="Transaction1" Type="Self.Transaction" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Transaction">
+              <PropertyRef Name="transactionId" />
+              <PropertyRef Name="version" />
+            </Principal>
+            <Dependent Role="Transaction1">
+              <PropertyRef Name="masterTransactionId" />
+              <PropertyRef Name="masterTransactionVersion" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Transaction_Transaction Category">
+          <End Role="TransactionCategory" Type="Self.TransactionCategory" Multiplicity="0..1" />
+          <End Role="Transaction" Type="Self.Transaction" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="TransactionCategory">
+              <PropertyRef Name="categoryId" />
+            </Principal>
+            <Dependent Role="Transaction">
+              <PropertyRef Name="categoryId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="PLSystemModelStoreContainer">
+          <EntitySet Name="AccountingPeriod" EntityType="Self.AccountingPeriod" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Brand" EntityType="Self.Brand" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Evidence" EntityType="Self.Evidence" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Participant" EntityType="Self.Participant" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Transaction" EntityType="Self.Transaction" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="TransactionCategory" EntityType="Self.TransactionCategory" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK_Accounting Period_Brand" Association="Self.FK_Accounting Period_Brand">
+            <End Role="Brand" EntitySet="Brand" />
+            <End Role="AccountingPeriod" EntitySet="AccountingPeriod" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Evidence_Transaction" Association="Self.FK_Evidence_Transaction">
+            <End Role="Transaction" EntitySet="Transaction" />
+            <End Role="Evidence" EntitySet="Evidence" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Participant_Brand" Association="Self.FK_Participant_Brand">
+            <End Role="Brand" EntitySet="Brand" />
+            <End Role="Participant" EntitySet="Participant" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Transaction Category_Brand" Association="Self.FK_Transaction Category_Brand">
+            <End Role="Brand" EntitySet="Brand" />
+            <End Role="TransactionCategory" EntitySet="TransactionCategory" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Transaction_Accounting Period" Association="Self.FK_Transaction_Accounting Period">
+            <End Role="AccountingPeriod" EntitySet="AccountingPeriod" />
+            <End Role="Transaction" EntitySet="Transaction" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Transaction_Participant" Association="Self.FK_Transaction_Participant">
+            <End Role="Participant" EntitySet="Participant" />
+            <End Role="Transaction" EntitySet="Transaction" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Transaction_Participant1" Association="Self.FK_Transaction_Participant1">
+            <End Role="Participant" EntitySet="Participant" />
+            <End Role="Transaction" EntitySet="Transaction" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Transaction_Transaction" Association="Self.FK_Transaction_Transaction">
+            <End Role="Transaction" EntitySet="Transaction" />
+            <End Role="Transaction1" EntitySet="Transaction" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Transaction_Transaction Category" Association="Self.FK_Transaction_Transaction Category">
+            <End Role="TransactionCategory" EntitySet="TransactionCategory" />
+            <End Role="Transaction" EntitySet="Transaction" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="PLSystemModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="AccountingPeriod">
+          <Key>
+            <PropertyRef Name="periodId" />
+          </Key>
+          <Property Name="periodId" Type="Decimal" Precision="18" Scale="0" Nullable="false" />
+          <Property Name="title" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="startDate" Type="DateTime" Precision="0" />
+          <Property Name="endDate" Type="DateTime" Precision="0" />
+          <Property Name="deadline" Type="DateTime" Precision="3" />
+          <Property Name="createTime" Type="DateTime" Precision="3" />
+          <Property Name="brandId" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="lastModifed" Type="DateTime" Precision="3" />
+          <NavigationProperty Name="Brand" Relationship="Self.FK_Accounting_Period_Brand" FromRole="AccountingPeriod" ToRole="Brand" />
+          <NavigationProperty Name="Transactions" Relationship="Self.FK_Transaction_Accounting_Period" FromRole="AccountingPeriod" ToRole="Transaction" />
+        </EntityType>
+        <EntityType Name="Brand">
+          <Key>
+            <PropertyRef Name="brandId" />
+          </Key>
+          <Property Name="brandId" Type="String" MaxLength="10" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="name" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="status" Type="Boolean" />
+          <Property Name="createdTime" Type="DateTime" Precision="3" />
+          <NavigationProperty Name="AccountingPeriods" Relationship="Self.FK_Accounting_Period_Brand" FromRole="Brand" ToRole="AccountingPeriod" />
+          <NavigationProperty Name="Participants" Relationship="Self.FK_Participant_Brand" FromRole="Brand" ToRole="Participant" />
+          <NavigationProperty Name="TransactionCategories" Relationship="Self.FK_Transaction_Category_Brand" FromRole="Brand" ToRole="TransactionCategory" />
+        </EntityType>
+        <EntityType Name="Evidence">
+          <Key>
+            <PropertyRef Name="url" />
+          </Key>
+          <Property Name="url" Type="String" MaxLength="256" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="title" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="transactionVersion" Type="Int32" />
+          <Property Name="transactionId" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="description" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="Transaction" Relationship="Self.FK_Evidence_Transaction" FromRole="Evidence" ToRole="Transaction" />
+        </EntityType>
+        <EntityType Name="Participant">
+          <Key>
+            <PropertyRef Name="username" />
+          </Key>
+          <Property Name="username" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="fullname" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
+          <Property Name="role" Type="Int32" />
+          <Property Name="description" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="status" Type="Boolean" />
+          <Property Name="createdTime" Type="DateTime" Precision="3" />
+          <Property Name="brandId" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="lastModified" Type="DateTime" Precision="3" />
+          <NavigationProperty Name="Brand" Relationship="Self.FK_Participant_Brand" FromRole="Participant" ToRole="Brand" />
+          <NavigationProperty Name="Transactions" Relationship="Self.FK_Transaction_Participant" FromRole="Participant" ToRole="Transaction" />
+          <NavigationProperty Name="Transactions1" Relationship="Self.FK_Transaction_Participant1" FromRole="Participant" ToRole="Transaction" />
+        </EntityType>
+        <EntityType Name="Transaction">
+          <Key>
+            <PropertyRef Name="transactionId" />
+            <PropertyRef Name="version" />
+          </Key>
+          <Property Name="transactionId" Type="String" MaxLength="500" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="version" Type="Int32" Nullable="false" />
+          <Property Name="name" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="value" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="status" Type="Int32" />
+          <Property Name="description" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="masterTransactionId" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="masterTransactionVersion" Type="Int32" />
+          <Property Name="categoryId" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="periodId" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="createdTime" Type="DateTime" Precision="3" />
+          <Property Name="createdBy" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="confirmedBy" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="confirmedTime" Type="DateTime" Precision="3" />
+          <NavigationProperty Name="AccountingPeriod" Relationship="Self.FK_Transaction_Accounting_Period" FromRole="Transaction" ToRole="AccountingPeriod" />
+          <NavigationProperty Name="Evidences" Relationship="Self.FK_Evidence_Transaction" FromRole="Transaction" ToRole="Evidence" />
+          <NavigationProperty Name="Participant" Relationship="Self.FK_Transaction_Participant" FromRole="Transaction" ToRole="Participant" />
+          <NavigationProperty Name="Participant1" Relationship="Self.FK_Transaction_Participant1" FromRole="Transaction" ToRole="Participant" />
+          <NavigationProperty Name="Transaction1" Relationship="Self.FK_Transaction_Transaction" FromRole="Transaction" ToRole="Transaction1" />
+          <NavigationProperty Name="Transaction2" Relationship="Self.FK_Transaction_Transaction" FromRole="Transaction1" ToRole="Transaction" />
+          <NavigationProperty Name="TransactionCategory" Relationship="Self.FK_Transaction_Transaction_Category" FromRole="Transaction" ToRole="TransactionCategory" />
+        </EntityType>
+        <EntityType Name="TransactionCategory">
+          <Key>
+            <PropertyRef Name="categoryId" />
+          </Key>
+          <Property Name="categoryId" Type="Decimal" Precision="18" Scale="0" Nullable="false" />
+          <Property Name="name" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
+          <Property Name="type" Type="Int32" />
+          <Property Name="status" Type="Boolean" />
+          <Property Name="brandId" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="createdTime" Type="DateTime" Precision="3" />
+          <Property Name="lastModified" Type="DateTime" Precision="3" />
+          <NavigationProperty Name="Brand" Relationship="Self.FK_Transaction_Category_Brand" FromRole="TransactionCategory" ToRole="Brand" />
+          <NavigationProperty Name="Transactions" Relationship="Self.FK_Transaction_Transaction_Category" FromRole="TransactionCategory" ToRole="Transaction" />
+        </EntityType>
+        <Association Name="FK_Accounting_Period_Brand">
+          <End Role="Brand" Type="Self.Brand" Multiplicity="0..1" />
+          <End Role="AccountingPeriod" Type="Self.AccountingPeriod" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Brand">
+              <PropertyRef Name="brandId" />
+            </Principal>
+            <Dependent Role="AccountingPeriod">
+              <PropertyRef Name="brandId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Transaction_Accounting_Period">
+          <End Role="AccountingPeriod" Type="Self.AccountingPeriod" Multiplicity="0..1" />
+          <End Role="Transaction" Type="Self.Transaction" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="AccountingPeriod">
+              <PropertyRef Name="periodId" />
+            </Principal>
+            <Dependent Role="Transaction">
+              <PropertyRef Name="periodId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Participant_Brand">
+          <End Role="Brand" Type="Self.Brand" Multiplicity="0..1" />
+          <End Role="Participant" Type="Self.Participant" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Brand">
+              <PropertyRef Name="brandId" />
+            </Principal>
+            <Dependent Role="Participant">
+              <PropertyRef Name="brandId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Transaction_Category_Brand">
+          <End Role="Brand" Type="Self.Brand" Multiplicity="0..1" />
+          <End Role="TransactionCategory" Type="Self.TransactionCategory" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Brand">
+              <PropertyRef Name="brandId" />
+            </Principal>
+            <Dependent Role="TransactionCategory">
+              <PropertyRef Name="brandId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Evidence_Transaction">
+          <End Role="Transaction" Type="Self.Transaction" Multiplicity="0..1" />
+          <End Role="Evidence" Type="Self.Evidence" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Transaction">
+              <PropertyRef Name="transactionId" />
+              <PropertyRef Name="version" />
+            </Principal>
+            <Dependent Role="Evidence">
+              <PropertyRef Name="transactionId" />
+              <PropertyRef Name="transactionVersion" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Transaction_Participant">
+          <End Role="Participant" Type="Self.Participant" Multiplicity="0..1" />
+          <End Role="Transaction" Type="Self.Transaction" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Participant">
+              <PropertyRef Name="username" />
+            </Principal>
+            <Dependent Role="Transaction">
+              <PropertyRef Name="createdBy" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Transaction_Participant1">
+          <End Role="Participant" Type="Self.Participant" Multiplicity="0..1" />
+          <End Role="Transaction" Type="Self.Transaction" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Participant">
+              <PropertyRef Name="username" />
+            </Principal>
+            <Dependent Role="Transaction">
+              <PropertyRef Name="confirmedBy" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Transaction_Transaction">
+          <End Role="Transaction" Type="Self.Transaction" Multiplicity="0..1" />
+          <End Role="Transaction1" Type="Self.Transaction" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Transaction">
+              <PropertyRef Name="transactionId" />
+              <PropertyRef Name="version" />
+            </Principal>
+            <Dependent Role="Transaction1">
+              <PropertyRef Name="masterTransactionId" />
+              <PropertyRef Name="masterTransactionVersion" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Transaction_Transaction_Category">
+          <End Role="TransactionCategory" Type="Self.TransactionCategory" Multiplicity="0..1" />
+          <End Role="Transaction" Type="Self.Transaction" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="TransactionCategory">
+              <PropertyRef Name="categoryId" />
+            </Principal>
+            <Dependent Role="Transaction">
+              <PropertyRef Name="categoryId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="Entities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="AccountingPeriods" EntityType="Self.AccountingPeriod" />
+          <EntitySet Name="Brands" EntityType="Self.Brand" />
+          <EntitySet Name="Evidences" EntityType="Self.Evidence" />
+          <EntitySet Name="Participants" EntityType="Self.Participant" />
+          <EntitySet Name="Transactions" EntityType="Self.Transaction" />
+          <EntitySet Name="TransactionCategories" EntityType="Self.TransactionCategory" />
+          <AssociationSet Name="FK_Accounting_Period_Brand" Association="Self.FK_Accounting_Period_Brand">
+            <End Role="Brand" EntitySet="Brands" />
+            <End Role="AccountingPeriod" EntitySet="AccountingPeriods" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Transaction_Accounting_Period" Association="Self.FK_Transaction_Accounting_Period">
+            <End Role="AccountingPeriod" EntitySet="AccountingPeriods" />
+            <End Role="Transaction" EntitySet="Transactions" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Participant_Brand" Association="Self.FK_Participant_Brand">
+            <End Role="Brand" EntitySet="Brands" />
+            <End Role="Participant" EntitySet="Participants" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Transaction_Category_Brand" Association="Self.FK_Transaction_Category_Brand">
+            <End Role="Brand" EntitySet="Brands" />
+            <End Role="TransactionCategory" EntitySet="TransactionCategories" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Evidence_Transaction" Association="Self.FK_Evidence_Transaction">
+            <End Role="Transaction" EntitySet="Transactions" />
+            <End Role="Evidence" EntitySet="Evidences" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Transaction_Participant" Association="Self.FK_Transaction_Participant">
+            <End Role="Participant" EntitySet="Participants" />
+            <End Role="Transaction" EntitySet="Transactions" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Transaction_Participant1" Association="Self.FK_Transaction_Participant1">
+            <End Role="Participant" EntitySet="Participants" />
+            <End Role="Transaction" EntitySet="Transactions" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Transaction_Transaction" Association="Self.FK_Transaction_Transaction">
+            <End Role="Transaction" EntitySet="Transactions" />
+            <End Role="Transaction1" EntitySet="Transactions" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Transaction_Transaction_Category" Association="Self.FK_Transaction_Transaction_Category">
+            <End Role="TransactionCategory" EntitySet="TransactionCategories" />
+            <End Role="Transaction" EntitySet="Transactions" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="PLSystemModelStoreContainer" CdmEntityContainer="Entities">
+          <EntitySetMapping Name="AccountingPeriods">
+            <EntityTypeMapping TypeName="PLSystemModel.AccountingPeriod">
+              <MappingFragment StoreEntitySet="AccountingPeriod">
+                <ScalarProperty Name="periodId" ColumnName="periodId" />
+                <ScalarProperty Name="title" ColumnName="title" />
+                <ScalarProperty Name="startDate" ColumnName="startDate" />
+                <ScalarProperty Name="endDate" ColumnName="endDate" />
+                <ScalarProperty Name="deadline" ColumnName="deadline" />
+                <ScalarProperty Name="createTime" ColumnName="createTime" />
+                <ScalarProperty Name="brandId" ColumnName="brandId" />
+                <ScalarProperty Name="lastModifed" ColumnName="lastModifed" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Brands">
+            <EntityTypeMapping TypeName="PLSystemModel.Brand">
+              <MappingFragment StoreEntitySet="Brand">
+                <ScalarProperty Name="brandId" ColumnName="brandId" />
+                <ScalarProperty Name="name" ColumnName="name" />
+                <ScalarProperty Name="status" ColumnName="status" />
+                <ScalarProperty Name="createdTime" ColumnName="createdTime" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Evidences">
+            <EntityTypeMapping TypeName="PLSystemModel.Evidence">
+              <MappingFragment StoreEntitySet="Evidence">
+                <ScalarProperty Name="url" ColumnName="url" />
+                <ScalarProperty Name="title" ColumnName="title" />
+                <ScalarProperty Name="transactionVersion" ColumnName="transactionVersion" />
+                <ScalarProperty Name="transactionId" ColumnName="transactionId" />
+                <ScalarProperty Name="description" ColumnName="description" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Participants">
+            <EntityTypeMapping TypeName="PLSystemModel.Participant">
+              <MappingFragment StoreEntitySet="Participant">
+                <ScalarProperty Name="username" ColumnName="username" />
+                <ScalarProperty Name="fullname" ColumnName="fullname" />
+                <ScalarProperty Name="role" ColumnName="role" />
+                <ScalarProperty Name="description" ColumnName="description" />
+                <ScalarProperty Name="status" ColumnName="status" />
+                <ScalarProperty Name="createdTime" ColumnName="createdTime" />
+                <ScalarProperty Name="brandId" ColumnName="brandId" />
+                <ScalarProperty Name="lastModified" ColumnName="lastModified" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Transactions">
+            <EntityTypeMapping TypeName="PLSystemModel.Transaction">
+              <MappingFragment StoreEntitySet="Transaction">
+                <ScalarProperty Name="transactionId" ColumnName="transactionId" />
+                <ScalarProperty Name="version" ColumnName="version" />
+                <ScalarProperty Name="name" ColumnName="name" />
+                <ScalarProperty Name="value" ColumnName="value" />
+                <ScalarProperty Name="status" ColumnName="status" />
+                <ScalarProperty Name="description" ColumnName="description" />
+                <ScalarProperty Name="masterTransactionId" ColumnName="masterTransactionId" />
+                <ScalarProperty Name="masterTransactionVersion" ColumnName="masterTransactionVersion" />
+                <ScalarProperty Name="categoryId" ColumnName="categoryId" />
+                <ScalarProperty Name="periodId" ColumnName="periodId" />
+                <ScalarProperty Name="createdTime" ColumnName="createdTime" />
+                <ScalarProperty Name="createdBy" ColumnName="createdBy" />
+                <ScalarProperty Name="confirmedBy" ColumnName="confirmedBy" />
+                <ScalarProperty Name="confirmedTime" ColumnName="confirmedTime" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="TransactionCategories">
+            <EntityTypeMapping TypeName="PLSystemModel.TransactionCategory">
+              <MappingFragment StoreEntitySet="TransactionCategory">
+                <ScalarProperty Name="categoryId" ColumnName="categoryId" />
+                <ScalarProperty Name="name" ColumnName="name" />
+                <ScalarProperty Name="type" ColumnName="type" />
+                <ScalarProperty Name="status" ColumnName="status" />
+                <ScalarProperty Name="brandId" ColumnName="brandId" />
+                <ScalarProperty Name="createdTime" ColumnName="createdTime" />
+                <ScalarProperty Name="lastModified" ColumnName="lastModified" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>
