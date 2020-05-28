@@ -1,59 +1,60 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Data.Entity;
-using System.Data.Entity.Infrastructure;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Web.Http;
-using System.Web.Http.Description;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using PnLReporter.Models;
 
 namespace PnLReporter.Controllers
 {
-    public class BrandsController : ApiController
+    [Route("api/[controller]")]
+    [ApiController]
+    public class BrandsController : ControllerBase
     {
-        private Entities db = new Entities();
+        private readonly BrandContext _context;
+
+        public BrandsController(BrandContext context)
+        {
+            _context = context;
+        }
 
         // GET: api/Brands
-        public IQueryable<Brand> GetBrands()
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Brand>>> GetBrands()
         {
-            return db.Brands;
+            return await _context.Brands.ToListAsync();
         }
 
         // GET: api/Brands/5
-        [ResponseType(typeof(Brand))]
-        public IHttpActionResult GetBrand(string id)
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Brand>> GetBrand(string id)
         {
-            Brand brand = db.Brands.Find(id);
+            var brand = await _context.Brands.FindAsync(id);
+
             if (brand == null)
             {
                 return NotFound();
             }
 
-            return Ok(brand);
+            return brand;
         }
 
         // PUT: api/Brands/5
-        [ResponseType(typeof(void))]
-        public IHttpActionResult PutBrand(string id, Brand brand)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutBrand(string id, Brand brand)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            if (id != brand.brandId)
+            if (id != brand.BrandId)
             {
                 return BadRequest();
             }
 
-            db.Entry(brand).State = EntityState.Modified;
+            _context.Entry(brand).State = EntityState.Modified;
 
             try
             {
-                db.SaveChanges();
+                await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -67,67 +68,38 @@ namespace PnLReporter.Controllers
                 }
             }
 
-            return StatusCode(HttpStatusCode.NoContent);
+            return NoContent();
         }
 
         // POST: api/Brands
-        [ResponseType(typeof(Brand))]
-        public IHttpActionResult PostBrand(Brand brand)
+        [HttpPost]
+        public async Task<ActionResult<Brand>> PostBrand(Brand brand)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+            _context.Brands.Add(brand);
+            await _context.SaveChangesAsync();
 
-            db.Brands.Add(brand);
-
-            try
-            {
-                db.SaveChanges();
-            }
-            catch (DbUpdateException)
-            {
-                if (BrandExists(brand.brandId))
-                {
-                    return Conflict();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return CreatedAtRoute("DefaultApi", new { id = brand.brandId }, brand);
+            return CreatedAtAction(nameof(GetBrand), new { id = brand.BrandId }, brand);
         }
 
         // DELETE: api/Brands/5
-        [ResponseType(typeof(Brand))]
-        public IHttpActionResult DeleteBrand(string id)
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<Brand>> DeleteBrand(string id)
         {
-            Brand brand = db.Brands.Find(id);
+            var brand = await _context.Brands.FindAsync(id);
             if (brand == null)
             {
                 return NotFound();
             }
 
-            db.Brands.Remove(brand);
-            db.SaveChanges();
+            _context.Brands.Remove(brand);
+            await _context.SaveChangesAsync();
 
-            return Ok(brand);
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                db.Dispose();
-            }
-            base.Dispose(disposing);
+            return brand;
         }
 
         private bool BrandExists(string id)
         {
-            return db.Brands.Count(e => e.brandId == id) > 0;
+            return _context.Brands.Any(e => e.BrandId == id);
         }
     }
 }
