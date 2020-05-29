@@ -44,7 +44,8 @@ namespace PnLReporter
                 });
 
             services.AddDbContext<PLSystemContext>(opt =>
-               opt.UseInMemoryDatabase("BrandList"));
+               opt.UseSqlServer(
+                    Configuration.GetConnectionString("PLSystemContext")));
 
             services.AddSwaggerGen(c =>
             {
