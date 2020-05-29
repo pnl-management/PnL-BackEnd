@@ -43,7 +43,7 @@ namespace PnLReporter
                     };
                 });
 
-            services.AddDbContext<BrandContext>(opt =>
+            services.AddDbContext<PLSystemContext>(opt =>
                opt.UseInMemoryDatabase("BrandList"));
 
             services.AddSwaggerGen(c =>

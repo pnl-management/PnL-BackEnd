@@ -13,25 +13,25 @@ namespace PnLReporter.Controllers
     [ApiController]
     public class BrandsController : ControllerBase
     {
-        private readonly BrandContext _context;
+        private readonly PLSystemContext _context;
 
-        public BrandsController(BrandContext context)
+        public BrandsController(PLSystemContext context)
         {
             _context = context;
         }
 
         // GET: api/Brands
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Brand>>> GetBrands()
+        public async Task<ActionResult<IEnumerable<Brand>>> GetBrand()
         {
-            return await _context.Brands.ToListAsync();
+            return await _context.Brand.ToListAsync();
         }
 
         // GET: api/Brands/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Brand>> GetBrand(string id)
         {
-            var brand = await _context.Brands.FindAsync(id);
+            var brand = await _context.Brand.FindAsync(id);
 
             if (brand == null)
             {
@@ -75,23 +75,37 @@ namespace PnLReporter.Controllers
         [HttpPost]
         public async Task<ActionResult<Brand>> PostBrand(Brand brand)
         {
-            _context.Brands.Add(brand);
-            await _context.SaveChangesAsync();
+            _context.Brand.Add(brand);
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException)
+            {
+                if (BrandExists(brand.BrandId))
+                {
+                    return Conflict();
+                }
+                else
+                {
+                    throw;
+                }
+            }
 
-            return CreatedAtAction(nameof(GetBrand), new { id = brand.BrandId }, brand);
+            return CreatedAtAction("GetBrand", new { id = brand.BrandId }, brand);
         }
 
         // DELETE: api/Brands/5
         [HttpDelete("{id}")]
         public async Task<ActionResult<Brand>> DeleteBrand(string id)
         {
-            var brand = await _context.Brands.FindAsync(id);
+            var brand = await _context.Brand.FindAsync(id);
             if (brand == null)
             {
                 return NotFound();
             }
 
-            _context.Brands.Remove(brand);
+            _context.Brand.Remove(brand);
             await _context.SaveChangesAsync();
 
             return brand;
@@ -99,7 +113,7 @@ namespace PnLReporter.Controllers
 
         private bool BrandExists(string id)
         {
-            return _context.Brands.Any(e => e.BrandId == id);
+            return _context.Brand.Any(e => e.BrandId == id);
         }
     }
 }
