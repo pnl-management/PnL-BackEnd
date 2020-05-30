@@ -49,8 +49,10 @@ namespace PnLReporter.Controllers
             {
                 return BadRequest();
             }
-
-            _context.Entry(brand).State = EntityState.Modified;
+            var currBrand = await _context.Brand.FindAsync(id);
+            currBrand.Name = brand.Name;
+            currBrand.Status = brand.Status;
+            _context.Entry(currBrand).State = EntityState.Modified;
 
             try
             {
@@ -75,6 +77,7 @@ namespace PnLReporter.Controllers
         [HttpPost]
         public async Task<ActionResult<Brand>> PostBrand(Brand brand)
         {
+            brand.CreatedTime = DateTime.Now;
             _context.Brand.Add(brand);
             try
             {
