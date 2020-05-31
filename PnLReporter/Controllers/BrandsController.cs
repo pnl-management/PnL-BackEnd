@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using PnLReporter.Models;
 
@@ -29,6 +30,7 @@ namespace PnLReporter.Controllers
 
         // GET: api/Brands/5
         [HttpGet("{id}")]
+        [Authorize]
         public async Task<ActionResult<Brand>> GetBrand(string id)
         {
             var brand = await _context.Brand.FindAsync(id);
