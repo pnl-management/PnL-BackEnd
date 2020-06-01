@@ -14,8 +14,11 @@ using Microsoft.EntityFrameworkCore;
 using FirebaseAdmin;
 using FirebaseAdmin.Auth;
 using Google.Apis.Auth.OAuth2;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using PnLReporter.Models;
 using Microsoft.OpenApi.Models;
+using System.Text;
 
 namespace PnLReporter
 {
@@ -35,18 +38,19 @@ namespace PnLReporter
             {
                 Credential = GoogleCredential.FromFile("./pnlrepoter-firebase-adminsdk-rcn5u-ccaabfc170.json"),
             });
-            services
-                .AddAuthentication(Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)
+
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
-                    options.Authority = "https://securetoken.google.com/pnlrepoter";
-                    options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+                    options.TokenValidationParameters = new TokenValidationParameters
                     {
                         ValidateIssuer = true,
-                        ValidIssuer = "https://securetoken.google.com/pnlrepoter",
                         ValidateAudience = true,
-                        ValidAudience = "pnlrepoter",
-                        ValidateLifetime = true
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidIssuer = Configuration["Jwt:Issuer"],
+                        ValidAudience = Configuration["Jwt:Issuer"],
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Configuration["Jwt:Key"]))
                     };
                 });
 

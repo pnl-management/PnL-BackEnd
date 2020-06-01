@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using PnLReporter.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace PnLReporter.Controllers
 {
@@ -30,7 +31,7 @@ namespace PnLReporter.Controllers
 
         // GET: api/Brands/5
         [HttpGet("{id}")]
-        [Authorize]
+        [Authorize(Roles = "admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<ActionResult<Brand>> GetBrand(string id)
         {
             var brand = await _context.Brand.FindAsync(id);
