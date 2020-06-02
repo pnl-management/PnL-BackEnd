@@ -21,9 +21,15 @@ namespace PnLReporter.Models
         public virtual DbSet<Participant> Participant { get; set; }
         public virtual DbSet<Transaction> Transaction { get; set; }
         public virtual DbSet<TransactionCategory> TransactionCategory { get; set; }
+        public virtual DbSet<TransactionJorney> TransactionJorney { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
+            if (!optionsBuilder.IsConfigured)
+            {
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
+                optionsBuilder.UseSqlServer("Server=SE130139\\SQLEXPRESS2014;Database=P&LSystem;uid=sa;password=19091999+");
+            }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -32,14 +38,11 @@ namespace PnLReporter.Models
 
             modelBuilder.Entity<AccountingPeriod>(entity =>
             {
-                entity.HasKey(e => new { e.PeriodId, e.PeriodVersion })
-                    .HasName("PK_Accounting Period");
+                entity.HasKey(e => e.PeriodId);
 
                 entity.Property(e => e.PeriodId)
                     .HasColumnName("periodId")
                     .HasColumnType("numeric(18, 0)");
-
-                entity.Property(e => e.PeriodVersion).HasColumnName("periodVersion");
 
                 entity.Property(e => e.BrandId)
                     .HasColumnName("brandId")
@@ -116,14 +119,12 @@ namespace PnLReporter.Models
 
                 entity.Property(e => e.TransactionId)
                     .HasColumnName("transactionId")
-                    .HasMaxLength(500)
+                    .HasMaxLength(50)
                     .IsUnicode(false);
-
-                entity.Property(e => e.TransactionVersion).HasColumnName("transactionVersion");
 
                 entity.HasOne(d => d.Transaction)
                     .WithMany(p => p.Evidence)
-                    .HasForeignKey(d => new { d.TransactionId, d.TransactionVersion })
+                    .HasForeignKey(d => d.TransactionId)
                     .HasConstraintName("FK_Evidence_Transaction");
             });
 
@@ -170,18 +171,11 @@ namespace PnLReporter.Models
 
             modelBuilder.Entity<Transaction>(entity =>
             {
-                entity.HasKey(e => new { e.TransactionId, e.Version });
-
                 entity.Property(e => e.TransactionId)
                     .HasColumnName("transactionId")
-                    .HasMaxLength(500)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.Version).HasColumnName("version");
-
-                entity.Property(e => e.AccountantConfirmedTime)
-                    .HasColumnName("accountantConfirmedTime")
-                    .HasColumnType("datetime");
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .ValueGeneratedNever();
 
                 entity.Property(e => e.CategoryId)
                     .HasColumnName("categoryId")
@@ -198,21 +192,10 @@ namespace PnLReporter.Models
 
                 entity.Property(e => e.Description).HasColumnName("description");
 
-                entity.Property(e => e.InvestorConfirmed)
-                    .HasColumnName("investorConfirmed")
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.InvestorConfirmedTime)
-                    .HasColumnName("investorConfirmedTime")
-                    .HasColumnType("datetime");
-
                 entity.Property(e => e.MasterTransactionId)
                     .HasColumnName("masterTransactionId")
-                    .HasMaxLength(500)
+                    .HasMaxLength(50)
                     .IsUnicode(false);
-
-                entity.Property(e => e.MasterTransactionVersion).HasColumnName("masterTransactionVersion");
 
                 entity.Property(e => e.Name)
                     .HasColumnName("name")
@@ -221,10 +204,6 @@ namespace PnLReporter.Models
                 entity.Property(e => e.PeriodId)
                     .HasColumnName("periodId")
                     .HasColumnType("numeric(18, 0)");
-
-                entity.Property(e => e.PeriodVersion).HasColumnName("periodVersion");
-
-                entity.Property(e => e.Status).HasColumnName("status");
 
                 entity.Property(e => e.Value)
                     .HasColumnName("value")
@@ -237,23 +216,13 @@ namespace PnLReporter.Models
                     .HasConstraintName("FK_Transaction_Transaction Category");
 
                 entity.HasOne(d => d.CreatedByNavigation)
-                    .WithMany(p => p.TransactionCreatedByNavigation)
+                    .WithMany(p => p.Transaction)
                     .HasForeignKey(d => d.CreatedBy)
                     .HasConstraintName("FK_Transaction_Participant");
 
-                entity.HasOne(d => d.InvestorConfirmedNavigation)
-                    .WithMany(p => p.TransactionInvestorConfirmedNavigation)
-                    .HasForeignKey(d => d.InvestorConfirmed)
-                    .HasConstraintName("FK_Transaction_Participant1");
-
-                entity.HasOne(d => d.MasterTransaction)
-                    .WithMany(p => p.InverseMasterTransaction)
-                    .HasForeignKey(d => new { d.MasterTransactionId, d.MasterTransactionVersion })
-                    .HasConstraintName("FK_Transaction_Transaction");
-
                 entity.HasOne(d => d.Period)
                     .WithMany(p => p.Transaction)
-                    .HasForeignKey(d => new { d.PeriodId, d.PeriodVersion })
+                    .HasForeignKey(d => d.PeriodId)
                     .HasConstraintName("FK_Transaction_AccountingPeriod");
             });
 
@@ -283,6 +252,8 @@ namespace PnLReporter.Models
                     .HasColumnName("name")
                     .HasMaxLength(1000);
 
+                entity.Property(e => e.Required).HasColumnName("required");
+
                 entity.Property(e => e.Status).HasColumnName("status");
 
                 entity.Property(e => e.Type).HasColumnName("type");
@@ -291,6 +262,40 @@ namespace PnLReporter.Models
                     .WithMany(p => p.TransactionCategory)
                     .HasForeignKey(d => d.BrandId)
                     .HasConstraintName("FK_Transaction Category_Brand");
+            });
+
+            modelBuilder.Entity<TransactionJorney>(entity =>
+            {
+                entity.HasKey(e => e.JorneyId);
+
+                entity.Property(e => e.JorneyId)
+                    .HasColumnName("jorneyId")
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .ValueGeneratedNever();
+
+                entity.Property(e => e.CreatedBy)
+                    .HasColumnName("createdBy")
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.CreatedTime)
+                    .HasColumnName("createdTime")
+                    .HasColumnType("datetime");
+
+                entity.Property(e => e.FeedBack).HasColumnName("feedBack");
+
+                entity.Property(e => e.Status).HasColumnName("status");
+
+                entity.Property(e => e.TransactionId)
+                    .HasColumnName("transactionId")
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.HasOne(d => d.Transaction)
+                    .WithMany(p => p.TransactionJorney)
+                    .HasForeignKey(d => d.TransactionId)
+                    .HasConstraintName("FK_TransactionJorney_Transaction");
             });
         }
     }

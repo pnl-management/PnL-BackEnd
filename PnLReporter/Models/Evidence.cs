@@ -7,7 +7,6 @@ namespace PnLReporter.Models
     {
         public string Url { get; set; }
         public string Title { get; set; }
-        public int? TransactionVersion { get; set; }
         public string TransactionId { get; set; }
         public string Description { get; set; }
 

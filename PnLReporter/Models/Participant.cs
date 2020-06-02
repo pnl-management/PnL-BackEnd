@@ -7,8 +7,7 @@ namespace PnLReporter.Models
     {
         public Participant()
         {
-            TransactionCreatedByNavigation = new HashSet<Transaction>();
-            TransactionInvestorConfirmedNavigation = new HashSet<Transaction>();
+            Transaction = new HashSet<Transaction>();
         }
 
         public string Username { get; set; }
@@ -21,7 +20,6 @@ namespace PnLReporter.Models
         public DateTime? LastModified { get; set; }
 
         public virtual Brand Brand { get; set; }
-        public virtual ICollection<Transaction> TransactionCreatedByNavigation { get; set; }
-        public virtual ICollection<Transaction> TransactionInvestorConfirmedNavigation { get; set; }
+        public virtual ICollection<Transaction> Transaction { get; set; }
     }
 }
