@@ -9,21 +9,27 @@ using System.Text;
 using FirebaseAdmin.Auth;
 using Microsoft.Net.Http.Headers;
 using System.Threading.Tasks;
+using PnLReporter.Models;
+using PnLReporter.EnumInfo;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace JWTAuthentication.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
     public class LoginController : Controller
     {
         private IConfiguration _config;
+        private readonly PLSystemContext _context;
 
-        public LoginController(IConfiguration config)
+        public LoginController(IConfiguration config, PLSystemContext context)
         {
             _config = config;
+            _context = context;
         }
+
         [AllowAnonymous]
         [HttpPost]
+        [Route("api/login")]
         public async Task<IActionResult> Login()
         {
             IActionResult response = Unauthorized();
@@ -33,32 +39,35 @@ namespace JWTAuthentication.Controllers
             string uid = decodedToken.Uid;
             UserRecord userRecord = await FirebaseAuth.DefaultInstance.GetUserAsync(uid);
 
-            if (userRecord != null)
+            var participant = await _context.Participant.FindAsync(userRecord.Email);
+
+            if (participant != null)
             {
-                var tokenString = GenerateJSONWebToken(userRecord);
-                response = Ok(new { token = tokenString });
+                var tokenString = GenerateJSONWebToken(participant);
+                response = Ok(new { token = tokenString, participant = participant });
+            }
+            else
+            {
+                response = NotFound();
             }
 
             return response;
         }
 
-        private string GenerateJSONWebToken(UserRecord userInfo)
+        private string GenerateJSONWebToken(Participant participant)
         {
-            //var securityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_config["Jwt:Key"]));
-            //var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_config["Jwt:Key"]);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimTypes.NameIdentifier, userInfo.Uid),
-                    new Claim(ClaimTypes.Role, "admin")
+                    new Claim(ClaimTypes.NameIdentifier, participant.Username),
+                    new Claim(ClaimTypes.Role, ParticipantsRoleEnum.GetRole(participant.Role))
                 }),
                 Audience = _config["Jwt:Issuer"],
                 Issuer = _config["Jwt:Issuer"],
-                Expires = DateTime.Now.AddDays(1),
+                Expires = DateTime.Now.AddDays(7),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256)
             };
 
@@ -66,5 +75,16 @@ namespace JWTAuthentication.Controllers
 
             return tokenHandler.WriteToken(token);
         }
+
+        //[HttpGet]
+        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        //[Route("/logininfo")]
+        //public IActionResult GetLoginInfo()
+        //{
+        //    var identity = HttpContext.User.Identity as ClaimsIdentity;
+        //    string name = identity.FindFirst(ClaimTypes.NameIdentifier).Value;
+        //    string role = identity.FindFirst(ClaimTypes.Role).Value;
+        //    return Ok(new { name = name, role = role});
+        //}
     }
 }

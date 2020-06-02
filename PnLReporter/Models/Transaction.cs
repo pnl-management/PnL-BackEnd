@@ -21,14 +21,16 @@ namespace PnLReporter.Models
         public int? MasterTransactionVersion { get; set; }
         public decimal? CategoryId { get; set; }
         public decimal? PeriodId { get; set; }
+        public int? PeriodVersion { get; set; }
         public DateTime? CreatedTime { get; set; }
         public string CreatedBy { get; set; }
-        public string ConfirmedBy { get; set; }
-        public DateTime? ConfirmedTime { get; set; }
+        public string InvestorConfirmed { get; set; }
+        public DateTime? InvestorConfirmedTime { get; set; }
+        public DateTime? AccountantConfirmedTime { get; set; }
 
         public virtual TransactionCategory Category { get; set; }
-        public virtual Participant ConfirmedByNavigation { get; set; }
         public virtual Participant CreatedByNavigation { get; set; }
+        public virtual Participant InvestorConfirmedNavigation { get; set; }
         public virtual Transaction MasterTransaction { get; set; }
         public virtual AccountingPeriod Period { get; set; }
         public virtual ICollection<Evidence> Evidence { get; set; }

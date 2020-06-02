@@ -31,7 +31,7 @@ namespace PnLReporter.Controllers
 
         // GET: api/Brands/5
         [HttpGet("{id}")]
-        [Authorize(Roles = "admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(Roles = "admin2", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<ActionResult<Brand>> GetBrand(string id)
         {
             var brand = await _context.Brand.FindAsync(id);

@@ -24,10 +24,6 @@ namespace PnLReporter.Models
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            //if (!optionsBuilder.IsConfigured)
-            //{
-            //    optionsBuilder.UseSqlServer("Server=SE130139\\SQLEXPRESS2014;Database=P&LSystem;uid=sa;password=19091999+");
-            //}
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -36,12 +32,14 @@ namespace PnLReporter.Models
 
             modelBuilder.Entity<AccountingPeriod>(entity =>
             {
-                entity.HasKey(e => e.PeriodId)
+                entity.HasKey(e => new { e.PeriodId, e.PeriodVersion })
                     .HasName("PK_Accounting Period");
 
                 entity.Property(e => e.PeriodId)
                     .HasColumnName("periodId")
                     .HasColumnType("numeric(18, 0)");
+
+                entity.Property(e => e.PeriodVersion).HasColumnName("periodVersion");
 
                 entity.Property(e => e.BrandId)
                     .HasColumnName("brandId")
@@ -67,6 +65,8 @@ namespace PnLReporter.Models
                 entity.Property(e => e.StartDate)
                     .HasColumnName("startDate")
                     .HasColumnType("date");
+
+                entity.Property(e => e.Status).HasColumnName("status");
 
                 entity.Property(e => e.Title)
                     .HasColumnName("title")
@@ -179,18 +179,13 @@ namespace PnLReporter.Models
 
                 entity.Property(e => e.Version).HasColumnName("version");
 
+                entity.Property(e => e.AccountantConfirmedTime)
+                    .HasColumnName("accountantConfirmedTime")
+                    .HasColumnType("datetime");
+
                 entity.Property(e => e.CategoryId)
                     .HasColumnName("categoryId")
                     .HasColumnType("numeric(18, 0)");
-
-                entity.Property(e => e.ConfirmedBy)
-                    .HasColumnName("confirmedBy")
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.ConfirmedTime)
-                    .HasColumnName("confirmedTime")
-                    .HasColumnType("datetime");
 
                 entity.Property(e => e.CreatedBy)
                     .HasColumnName("createdBy")
@@ -202,6 +197,15 @@ namespace PnLReporter.Models
                     .HasColumnType("datetime");
 
                 entity.Property(e => e.Description).HasColumnName("description");
+
+                entity.Property(e => e.InvestorConfirmed)
+                    .HasColumnName("investorConfirmed")
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.InvestorConfirmedTime)
+                    .HasColumnName("investorConfirmedTime")
+                    .HasColumnType("datetime");
 
                 entity.Property(e => e.MasterTransactionId)
                     .HasColumnName("masterTransactionId")
@@ -218,6 +222,8 @@ namespace PnLReporter.Models
                     .HasColumnName("periodId")
                     .HasColumnType("numeric(18, 0)");
 
+                entity.Property(e => e.PeriodVersion).HasColumnName("periodVersion");
+
                 entity.Property(e => e.Status).HasColumnName("status");
 
                 entity.Property(e => e.Value)
@@ -230,25 +236,25 @@ namespace PnLReporter.Models
                     .HasForeignKey(d => d.CategoryId)
                     .HasConstraintName("FK_Transaction_Transaction Category");
 
-                entity.HasOne(d => d.ConfirmedByNavigation)
-                    .WithMany(p => p.TransactionConfirmedByNavigation)
-                    .HasForeignKey(d => d.ConfirmedBy)
-                    .HasConstraintName("FK_Transaction_Participant1");
-
                 entity.HasOne(d => d.CreatedByNavigation)
                     .WithMany(p => p.TransactionCreatedByNavigation)
                     .HasForeignKey(d => d.CreatedBy)
                     .HasConstraintName("FK_Transaction_Participant");
 
-                entity.HasOne(d => d.Period)
-                    .WithMany(p => p.Transaction)
-                    .HasForeignKey(d => d.PeriodId)
-                    .HasConstraintName("FK_Transaction_Accounting Period");
+                entity.HasOne(d => d.InvestorConfirmedNavigation)
+                    .WithMany(p => p.TransactionInvestorConfirmedNavigation)
+                    .HasForeignKey(d => d.InvestorConfirmed)
+                    .HasConstraintName("FK_Transaction_Participant1");
 
                 entity.HasOne(d => d.MasterTransaction)
                     .WithMany(p => p.InverseMasterTransaction)
                     .HasForeignKey(d => new { d.MasterTransactionId, d.MasterTransactionVersion })
                     .HasConstraintName("FK_Transaction_Transaction");
+
+                entity.HasOne(d => d.Period)
+                    .WithMany(p => p.Transaction)
+                    .HasForeignKey(d => new { d.PeriodId, d.PeriodVersion })
+                    .HasConstraintName("FK_Transaction_AccountingPeriod");
             });
 
             modelBuilder.Entity<TransactionCategory>(entity =>
