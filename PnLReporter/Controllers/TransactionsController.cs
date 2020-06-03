@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PnLReporter.Models;
-using PnLReporter.Repository;
 using PnLReporter.Service;
+using PnLReporter.Repository;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace PnLReporter.Controllers
 {
@@ -25,39 +25,43 @@ namespace PnLReporter.Controllers
         public TransactionsController(PLSystemContext context)
         {
             _context = context;
-            _service = new TransactionService(new TransactionRepository(context));
+            _service = new TransactionService(new TransactionRepository(_context));
         }
 
         // GET: api/Transactions
         [HttpGet]
-        public IEnumerable<Transaction> GetTransaction(int? offset, int? limit, int? status)
+        public async Task<ActionResult<IEnumerable<Transaction>>> GetTransaction()
         {
-            return _service.ListTransactions();
+            return await _context.Transaction.ToListAsync();
         }
 
-        // GET: api/Transactions/index
-        [HttpGet("index")]
-        public ActionResult<IEnumerable<Transaction>> GetIndexTransaction()
+        [HttpGet]
+        [Route("Index")]
+        public ActionResult<IEnumerable<Transaction>> GetTransactionOnIndexPg()
         {
             var identity = HttpContext.User.Identity as ClaimsIdentity;
             string role = identity.FindFirst(ClaimTypes.Role).Value;
-            string username = identity.FindFirst(ClaimTypes.NameIdentifier).Value;
-
-            switch (role)
-            {
-                case "investor":
-                    return Ok(_service.ListInvestorIndexTransactions(username));
-                case "store-manager":
-                    break;
-                case "accountant":
-                    break;
+            string participantIdVal = identity.FindFirst(ClaimTypes.NameIdentifier).Value;
+            
+            int participantId;
+            if (int.TryParse(participantIdVal, out participantId)) {
+                switch (role)
+                {
+                    case "investor":
+                        return Ok(_service.ListInvestorIndexTransactions(participantId));
+                    case "store-manager":
+                        return Ok(_service.ListStoreTransactionInCurrentPeroid(participantId));
+                    case "accountant":
+                        break;
+                }
             }
-            return BadRequest();
+
+            return BadRequest(new { role = role, id = participantId });
         }
 
         // GET: api/Transactions/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Transaction>> GetTransaction(string id)
+        public async Task<ActionResult<Transaction>> GetTransaction(long id)
         {
             var transaction = await _context.Transaction.FindAsync(id);
 
@@ -71,9 +75,9 @@ namespace PnLReporter.Controllers
 
         // PUT: api/Transactions/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutTransaction(string id, Transaction transaction)
+        public async Task<IActionResult> PutTransaction(long id, Transaction transaction)
         {
-            if (id != transaction.TransactionId)
+            if (id != transaction.Id)
             {
                 return BadRequest();
             }
@@ -104,28 +108,14 @@ namespace PnLReporter.Controllers
         public async Task<ActionResult<Transaction>> PostTransaction(Transaction transaction)
         {
             _context.Transaction.Add(transaction);
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateException)
-            {
-                if (TransactionExists(transaction.TransactionId))
-                {
-                    return Conflict();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetTransaction", new { id = transaction.TransactionId }, transaction);
+            return CreatedAtAction("GetTransaction", new { id = transaction.Id }, transaction);
         }
 
         // DELETE: api/Transactions/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Transaction>> DeleteTransaction(string id)
+        public async Task<ActionResult<Transaction>> DeleteTransaction(long id)
         {
             var transaction = await _context.Transaction.FindAsync(id);
             if (transaction == null)
@@ -139,9 +129,9 @@ namespace PnLReporter.Controllers
             return transaction;
         }
 
-        private bool TransactionExists(string id)
+        private bool TransactionExists(long id)
         {
-            return _context.Transaction.Any(e => e.TransactionId == id);
+            return _context.Transaction.Any(e => e.Id == id);
         }
     }
 }

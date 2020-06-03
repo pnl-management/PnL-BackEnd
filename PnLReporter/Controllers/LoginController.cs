@@ -11,6 +11,8 @@ using Microsoft.Net.Http.Headers;
 using System.Threading.Tasks;
 using PnLReporter.Models;
 using PnLReporter.EnumInfo;
+using PnLReporter.Service;
+using PnLReporter.Repository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace JWTAuthentication.Controllers
@@ -20,11 +22,13 @@ namespace JWTAuthentication.Controllers
     {
         private IConfiguration _config;
         private readonly PLSystemContext _context;
+        private IParticipantService _service;
 
         public LoginController(IConfiguration config, PLSystemContext context)
         {
             _config = config;
             _context = context;
+            _service = new ParticipantService(new ParticipantRepository(_context));
         }
 
         [AllowAnonymous]
@@ -39,12 +43,12 @@ namespace JWTAuthentication.Controllers
             string uid = decodedToken.Uid;
             UserRecord userRecord = await FirebaseAuth.DefaultInstance.GetUserAsync(uid);
 
-            var participant = await _context.Participant.FindAsync(userRecord.Email);
+            var user = _service.FindByUsername(userRecord.Email);
 
-            if (participant != null)
+            if (user != null)
             {
-                var tokenString = GenerateJSONWebToken(participant);
-                response = Ok(new { token = tokenString, participant = participant });
+                var tokenString = GenerateJSONWebToken(user);
+                response = Ok(new { token = tokenString, participant = user });
             }
             else
             {
@@ -54,7 +58,7 @@ namespace JWTAuthentication.Controllers
             return response;
         }
 
-        private string GenerateJSONWebToken(Participant participant)
+        private string GenerateJSONWebToken(UserModel participant)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_config["Jwt:Key"]);
@@ -62,7 +66,8 @@ namespace JWTAuthentication.Controllers
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimTypes.NameIdentifier, participant.Username),
+                    new Claim(ClaimTypes.NameIdentifier, participant.Id + ""),
+                    new Claim(ClaimTypes.Email, participant.Username),
                     new Claim(ClaimTypes.Role, ParticipantsRoleEnum.GetRole(participant.Role))
                 }),
                 Audience = _config["Jwt:Issuer"],

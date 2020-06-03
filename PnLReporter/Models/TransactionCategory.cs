@@ -10,12 +10,12 @@ namespace PnLReporter.Models
             Transaction = new HashSet<Transaction>();
         }
 
-        public decimal CategoryId { get; set; }
+        public long Id { get; set; }
         public string Name { get; set; }
         public int? Type { get; set; }
         public bool? Required { get; set; }
         public bool? Status { get; set; }
-        public string BrandId { get; set; }
+        public int? BrandId { get; set; }
         public DateTime? CreatedTime { get; set; }
         public DateTime? LastModified { get; set; }
 

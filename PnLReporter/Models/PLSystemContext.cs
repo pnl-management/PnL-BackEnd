@@ -17,19 +17,17 @@ namespace PnLReporter.Models
 
         public virtual DbSet<AccountingPeriod> AccountingPeriod { get; set; }
         public virtual DbSet<Brand> Brand { get; set; }
+        public virtual DbSet<BrandParticipantsDetail> BrandParticipantsDetail { get; set; }
         public virtual DbSet<Evidence> Evidence { get; set; }
         public virtual DbSet<Participant> Participant { get; set; }
+        public virtual DbSet<Store> Store { get; set; }
+        public virtual DbSet<StoreParticipantsDetail> StoreParticipantsDetail { get; set; }
         public virtual DbSet<Transaction> Transaction { get; set; }
         public virtual DbSet<TransactionCategory> TransactionCategory { get; set; }
-        public virtual DbSet<TransactionJorney> TransactionJorney { get; set; }
+        public virtual DbSet<TransactionJourney> TransactionJourney { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            if (!optionsBuilder.IsConfigured)
-            {
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-                optionsBuilder.UseSqlServer("Server=SE130139\\SQLEXPRESS2014;Database=P&LSystem;uid=sa;password=19091999+");
-            }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -38,16 +36,9 @@ namespace PnLReporter.Models
 
             modelBuilder.Entity<AccountingPeriod>(entity =>
             {
-                entity.HasKey(e => e.PeriodId);
+                entity.Property(e => e.Id).HasColumnName("ID");
 
-                entity.Property(e => e.PeriodId)
-                    .HasColumnName("periodId")
-                    .HasColumnType("numeric(18, 0)");
-
-                entity.Property(e => e.BrandId)
-                    .HasColumnName("brandId")
-                    .HasMaxLength(10)
-                    .IsUnicode(false);
+                entity.Property(e => e.BrandId).HasColumnName("brandId");
 
                 entity.Property(e => e.CreateTime)
                     .HasColumnName("createTime")
@@ -83,11 +74,7 @@ namespace PnLReporter.Models
 
             modelBuilder.Entity<Brand>(entity =>
             {
-                entity.Property(e => e.BrandId)
-                    .HasColumnName("brandId")
-                    .HasMaxLength(10)
-                    .IsUnicode(false)
-                    .ValueGeneratedNever();
+                entity.Property(e => e.Id).HasColumnName("ID");
 
                 entity.Property(e => e.CreatedTime)
                     .HasColumnName("createdTime")
@@ -100,48 +87,13 @@ namespace PnLReporter.Models
                 entity.Property(e => e.Status).HasColumnName("status");
             });
 
-            modelBuilder.Entity<Evidence>(entity =>
+            modelBuilder.Entity<BrandParticipantsDetail>(entity =>
             {
-                entity.HasKey(e => e.Url);
+                entity.HasKey(e => new { e.BrandId, e.ParticipantsId });
 
-                entity.Property(e => e.Url)
-                    .HasColumnName("url")
-                    .HasMaxLength(256)
-                    .IsUnicode(false)
-                    .ValueGeneratedNever();
+                entity.Property(e => e.BrandId).HasColumnName("brandId");
 
-                entity.Property(e => e.Description).HasColumnName("description");
-
-                entity.Property(e => e.Title)
-                    .HasColumnName("title")
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.TransactionId)
-                    .HasColumnName("transactionId")
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
-
-                entity.HasOne(d => d.Transaction)
-                    .WithMany(p => p.Evidence)
-                    .HasForeignKey(d => d.TransactionId)
-                    .HasConstraintName("FK_Evidence_Transaction");
-            });
-
-            modelBuilder.Entity<Participant>(entity =>
-            {
-                entity.HasKey(e => e.Username);
-
-                entity.Property(e => e.Username)
-                    .HasColumnName("username")
-                    .HasMaxLength(50)
-                    .IsUnicode(false)
-                    .ValueGeneratedNever();
-
-                entity.Property(e => e.BrandId)
-                    .HasColumnName("brandId")
-                    .HasMaxLength(10)
-                    .IsUnicode(false);
+                entity.Property(e => e.ParticipantsId).HasColumnName("participantsId");
 
                 entity.Property(e => e.CreatedTime)
                     .HasColumnName("createdTime")
@@ -150,10 +102,6 @@ namespace PnLReporter.Models
                 entity.Property(e => e.Description)
                     .HasColumnName("description")
                     .HasMaxLength(500);
-
-                entity.Property(e => e.Fullname)
-                    .HasColumnName("fullname")
-                    .HasMaxLength(20);
 
                 entity.Property(e => e.LastModified)
                     .HasColumnName("lastModified")
@@ -164,22 +112,127 @@ namespace PnLReporter.Models
                 entity.Property(e => e.Status).HasColumnName("status");
 
                 entity.HasOne(d => d.Brand)
-                    .WithMany(p => p.Participant)
+                    .WithMany(p => p.BrandParticipantsDetail)
                     .HasForeignKey(d => d.BrandId)
-                    .HasConstraintName("FK_Participant_Brand");
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_BrandParticipantsDetail_Brand");
+
+                entity.HasOne(d => d.Participants)
+                    .WithMany(p => p.BrandParticipantsDetail)
+                    .HasForeignKey(d => d.ParticipantsId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_BrandParticipantsDetail_Participant");
+            });
+
+            modelBuilder.Entity<Evidence>(entity =>
+            {
+                entity.Property(e => e.Id).HasColumnName("ID");
+
+                entity.Property(e => e.Description).HasColumnName("description");
+
+                entity.Property(e => e.Title)
+                    .HasColumnName("title")
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.TransactionId).HasColumnName("transactionId");
+
+                entity.Property(e => e.Url)
+                    .IsRequired()
+                    .HasColumnName("url")
+                    .HasMaxLength(256)
+                    .IsUnicode(false);
+
+                entity.HasOne(d => d.Transaction)
+                    .WithMany(p => p.Evidence)
+                    .HasForeignKey(d => d.TransactionId)
+                    .HasConstraintName("FK_Evidence_Transaction");
+            });
+
+            modelBuilder.Entity<Participant>(entity =>
+            {
+                entity.Property(e => e.Id).HasColumnName("ID");
+
+                entity.Property(e => e.CreatedTime)
+                    .HasColumnName("createdTime")
+                    .HasColumnType("datetime");
+
+                entity.Property(e => e.Fullname)
+                    .HasColumnName("fullname")
+                    .HasMaxLength(20);
+
+                entity.Property(e => e.LastModified)
+                    .HasColumnName("lastModified")
+                    .HasColumnType("datetime");
+
+                entity.Property(e => e.Username)
+                    .IsRequired()
+                    .HasColumnName("username")
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+            });
+
+            modelBuilder.Entity<Store>(entity =>
+            {
+                entity.Property(e => e.Id).HasColumnName("ID");
+
+                entity.Property(e => e.Address)
+                    .HasColumnName("address")
+                    .HasMaxLength(500)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Name)
+                    .HasColumnName("name")
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Phone)
+                    .HasColumnName("phone")
+                    .HasMaxLength(20)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Status).HasColumnName("status");
+            });
+
+            modelBuilder.Entity<StoreParticipantsDetail>(entity =>
+            {
+                entity.HasKey(e => new { e.StoreId, e.ParticipantId })
+                    .HasName("PK_Store-Participants");
+
+                entity.Property(e => e.StoreId).HasColumnName("storeId");
+
+                entity.Property(e => e.ParticipantId).HasColumnName("participantId");
+
+                entity.Property(e => e.CreatedTime)
+                    .HasColumnName("createdTime")
+                    .HasColumnType("datetime");
+
+                entity.Property(e => e.LastModified)
+                    .HasColumnName("lastModified")
+                    .HasColumnType("datetime");
+
+                entity.Property(e => e.Status).HasColumnName("status");
+
+                entity.HasOne(d => d.Participant)
+                    .WithMany(p => p.StoreParticipantsDetail)
+                    .HasForeignKey(d => d.ParticipantId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_StoreParticipantsDetail_Participant");
+
+                entity.HasOne(d => d.Store)
+                    .WithMany(p => p.StoreParticipantsDetail)
+                    .HasForeignKey(d => d.StoreId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_StoreParticipantsDetail_Store");
             });
 
             modelBuilder.Entity<Transaction>(entity =>
             {
-                entity.Property(e => e.TransactionId)
-                    .HasColumnName("transactionId")
-                    .HasMaxLength(50)
-                    .IsUnicode(false)
-                    .ValueGeneratedNever();
+                entity.Property(e => e.Id).HasColumnName("ID");
 
-                entity.Property(e => e.CategoryId)
-                    .HasColumnName("categoryId")
-                    .HasColumnType("numeric(18, 0)");
+                entity.Property(e => e.BrandId).HasColumnName("brandId");
+
+                entity.Property(e => e.CategoryId).HasColumnName("categoryId");
 
                 entity.Property(e => e.CreatedBy)
                     .HasColumnName("createdBy")
@@ -192,53 +245,45 @@ namespace PnLReporter.Models
 
                 entity.Property(e => e.Description).HasColumnName("description");
 
-                entity.Property(e => e.MasterTransactionId)
-                    .HasColumnName("masterTransactionId")
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
-
                 entity.Property(e => e.Name)
                     .HasColumnName("name")
                     .HasMaxLength(50);
 
-                entity.Property(e => e.PeriodId)
-                    .HasColumnName("periodId")
-                    .HasColumnType("numeric(18, 0)");
+                entity.Property(e => e.PeriodId).HasColumnName("periodId");
+
+                entity.Property(e => e.StoreId).HasColumnName("storeId");
 
                 entity.Property(e => e.Value)
                     .HasColumnName("value")
                     .HasMaxLength(20)
                     .IsUnicode(false);
 
+                entity.HasOne(d => d.Brand)
+                    .WithMany(p => p.Transaction)
+                    .HasForeignKey(d => d.BrandId)
+                    .HasConstraintName("FK_Transaction_Brand");
+
                 entity.HasOne(d => d.Category)
                     .WithMany(p => p.Transaction)
                     .HasForeignKey(d => d.CategoryId)
                     .HasConstraintName("FK_Transaction_Transaction Category");
 
-                entity.HasOne(d => d.CreatedByNavigation)
-                    .WithMany(p => p.Transaction)
-                    .HasForeignKey(d => d.CreatedBy)
-                    .HasConstraintName("FK_Transaction_Participant");
-
                 entity.HasOne(d => d.Period)
                     .WithMany(p => p.Transaction)
                     .HasForeignKey(d => d.PeriodId)
                     .HasConstraintName("FK_Transaction_AccountingPeriod");
+
+                entity.HasOne(d => d.Store)
+                    .WithMany(p => p.Transaction)
+                    .HasForeignKey(d => d.StoreId)
+                    .HasConstraintName("FK_Transaction_Store");
             });
 
             modelBuilder.Entity<TransactionCategory>(entity =>
             {
-                entity.HasKey(e => e.CategoryId)
-                    .HasName("PK_Transaction Category");
+                entity.Property(e => e.Id).HasColumnName("ID");
 
-                entity.Property(e => e.CategoryId)
-                    .HasColumnName("categoryId")
-                    .HasColumnType("numeric(18, 0)");
-
-                entity.Property(e => e.BrandId)
-                    .HasColumnName("brandId")
-                    .HasMaxLength(10)
-                    .IsUnicode(false);
+                entity.Property(e => e.BrandId).HasColumnName("brandId");
 
                 entity.Property(e => e.CreatedTime)
                     .HasColumnName("createdTime")
@@ -264,20 +309,11 @@ namespace PnLReporter.Models
                     .HasConstraintName("FK_Transaction Category_Brand");
             });
 
-            modelBuilder.Entity<TransactionJorney>(entity =>
+            modelBuilder.Entity<TransactionJourney>(entity =>
             {
-                entity.HasKey(e => e.JorneyId);
+                entity.Property(e => e.Id).HasColumnName("ID");
 
-                entity.Property(e => e.JorneyId)
-                    .HasColumnName("jorneyId")
-                    .HasMaxLength(100)
-                    .IsUnicode(false)
-                    .ValueGeneratedNever();
-
-                entity.Property(e => e.CreatedBy)
-                    .HasColumnName("createdBy")
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
+                entity.Property(e => e.CreatedBy).HasColumnName("createdBy");
 
                 entity.Property(e => e.CreatedTime)
                     .HasColumnName("createdTime")
@@ -287,13 +323,15 @@ namespace PnLReporter.Models
 
                 entity.Property(e => e.Status).HasColumnName("status");
 
-                entity.Property(e => e.TransactionId)
-                    .HasColumnName("transactionId")
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
+                entity.Property(e => e.TransactionId).HasColumnName("transactionId");
+
+                entity.HasOne(d => d.CreatedByNavigation)
+                    .WithMany(p => p.TransactionJourney)
+                    .HasForeignKey(d => d.CreatedBy)
+                    .HasConstraintName("FK_TransactionJourney_Participant");
 
                 entity.HasOne(d => d.Transaction)
-                    .WithMany(p => p.TransactionJorney)
+                    .WithMany(p => p.TransactionJourney)
                     .HasForeignKey(d => d.TransactionId)
                     .HasConstraintName("FK_TransactionJorney_Transaction");
             });

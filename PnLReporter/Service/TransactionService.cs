@@ -9,8 +9,8 @@ namespace PnLReporter.Service
 {
     public interface ITransactionService
     {
-        IEnumerable<Transaction> ListTransactions();
-        IEnumerable<Transaction> ListInvestorIndexTransactions(string username);
+        IEnumerable<Transaction> ListInvestorIndexTransactions(int participantId);
+        IEnumerable<Transaction> ListStoreTransactionInCurrentPeroid(int participantsId);
     }
     public class TransactionService : ITransactionService
     {
@@ -21,14 +21,14 @@ namespace PnLReporter.Service
             _repository = repository;
         }
 
-        public IEnumerable<Transaction> ListInvestorIndexTransactions(string username)
+        public IEnumerable<Transaction> ListInvestorIndexTransactions(int participantId)
         {
-            return _repository.ListInvestorIndexTransactions(username);
+            return _repository.ListInvestorIndexTransactions(participantId);
         }
 
-        public IEnumerable<Transaction> ListTransactions()
+        public IEnumerable<Transaction> ListStoreTransactionInCurrentPeroid(int participantsId)
         {
-            return _repository.ListTransactions();
+            return _repository.ListStoreTransactionInCurrentPeroid(participantsId);
         }
     }
 }

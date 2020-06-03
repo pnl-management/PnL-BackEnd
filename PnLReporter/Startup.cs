@@ -19,6 +19,7 @@ using Microsoft.IdentityModel.Tokens;
 using PnLReporter.Models;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using Newtonsoft.Json;
 
 namespace PnLReporter
 {
@@ -63,6 +64,9 @@ namespace PnLReporter
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
             });
 
+            services.AddMvc().AddJsonOptions(options => {
+                options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+            });
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
 

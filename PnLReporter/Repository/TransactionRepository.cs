@@ -8,8 +8,8 @@ namespace PnLReporter.Repository
 {
     public interface ITransactionRepository
     {
-        IEnumerable<Transaction> ListTransactions();
-        IEnumerable<Transaction> ListInvestorIndexTransactions(string username);
+        IEnumerable<Transaction> ListInvestorIndexTransactions(int participantsId);
+        IEnumerable<Transaction> ListStoreTransactionInCurrentPeroid(int participantsId);
     }
 
     public class TransactionRepository : ITransactionRepository
@@ -21,28 +21,42 @@ namespace PnLReporter.Repository
             _context = context;
         }
 
-        public IEnumerable<Transaction> ListInvestorIndexTransactions(string username)
+        public IEnumerable<Transaction> ListInvestorIndexTransactions(int participantsId)
         {
-            var investor = _context.Participant
-                .Where(record => record.Username == username)
-                .FirstOrDefault<Participant>();
+            var investorBrand = _context.BrandParticipantsDetail
+                .Where(record => record.ParticipantsId == participantsId)
+                .Select(record => record.BrandId)
+                .FirstOrDefault();
 
             return _context.Transaction
                 .Where(record =>
-                    record.CreatedByNavigation.BrandId == investor.BrandId
-                    && 
-                    _context.TransactionJorney
-                        .Where(jorney => 
-                            jorney.TransactionId == record.TransactionId)
+                    record.BrandId == investorBrand
+                    &&
+                    _context.TransactionJourney
+                        .Where(jorney =>
+                            jorney.TransactionId == record.Id)
                         .OrderByDescending(jorney => jorney.CreatedTime)
                         .FirstOrDefault().Status == 303
-                        
                 ).Take(5).ToList();
         }
 
-        public IEnumerable<Transaction> ListTransactions()
+        public IEnumerable<Transaction> ListStoreTransactionInCurrentPeroid(int participantId)
         {
-            return _context.Transaction.ToList();
+            var currentParticipant = _context.BrandParticipantsDetail
+                .Where(record => record.ParticipantsId == participantId)
+                .FirstOrDefault();
+
+            var currentPeriod = _context.AccountingPeriod
+                .Where(record =>
+                    record.BrandId == currentParticipant.BrandId
+                    &&
+                    record.Status == 1
+                ).FirstOrDefault<AccountingPeriod>();
+
+            return _context.Transaction
+                .Where(record =>
+                    record.PeriodId == currentPeriod.Id
+                );
         }
     }
 }

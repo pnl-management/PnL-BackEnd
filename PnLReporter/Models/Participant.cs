@@ -7,19 +7,19 @@ namespace PnLReporter.Models
     {
         public Participant()
         {
-            Transaction = new HashSet<Transaction>();
+            BrandParticipantsDetail = new HashSet<BrandParticipantsDetail>();
+            StoreParticipantsDetail = new HashSet<StoreParticipantsDetail>();
+            TransactionJourney = new HashSet<TransactionJourney>();
         }
 
+        public int Id { get; set; }
         public string Username { get; set; }
         public string Fullname { get; set; }
-        public int? Role { get; set; }
-        public string Description { get; set; }
-        public bool? Status { get; set; }
         public DateTime? CreatedTime { get; set; }
-        public string BrandId { get; set; }
         public DateTime? LastModified { get; set; }
 
-        public virtual Brand Brand { get; set; }
-        public virtual ICollection<Transaction> Transaction { get; set; }
+        public virtual ICollection<BrandParticipantsDetail> BrandParticipantsDetail { get; set; }
+        public virtual ICollection<StoreParticipantsDetail> StoreParticipantsDetail { get; set; }
+        public virtual ICollection<TransactionJourney> TransactionJourney { get; set; }
     }
 }
