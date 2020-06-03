@@ -20,10 +20,11 @@ namespace PnLReporter.Models
         public int? BrandId { get; set; }
         public int? StoreId { get; set; }
         public DateTime? CreatedTime { get; set; }
-        public string CreatedBy { get; set; }
+        public int? CreatedBy { get; set; }
 
         public virtual Brand Brand { get; set; }
         public virtual TransactionCategory Category { get; set; }
+        public virtual Participant CreatedByNavigation { get; set; }
         public virtual AccountingPeriod Period { get; set; }
         public virtual Store Store { get; set; }
         public virtual ICollection<Evidence> Evidence { get; set; }

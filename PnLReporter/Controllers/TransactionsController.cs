@@ -50,9 +50,12 @@ namespace PnLReporter.Controllers
                     case "investor":
                         return Ok(_service.ListInvestorIndexTransactions(participantId));
                     case "store-manager":
-                        return Ok(_service.ListStoreTransactionInCurrentPeroid(participantId));
+                        return Ok(
+                            new { currentPeriod = _service.ListStoreTransactionInCurrentPeroid(participantId),
+                                waitingTransaction = _service.ListWaitingForStoreTransaction(participantId)}
+                            );
                     case "accountant":
-                        break;
+                        return Ok(_service.ListWaitingForAccountantTransaction(participantId));
                 }
             }
 

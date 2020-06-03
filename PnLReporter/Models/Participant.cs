@@ -9,6 +9,7 @@ namespace PnLReporter.Models
         {
             BrandParticipantsDetail = new HashSet<BrandParticipantsDetail>();
             StoreParticipantsDetail = new HashSet<StoreParticipantsDetail>();
+            Transaction = new HashSet<Transaction>();
             TransactionJourney = new HashSet<TransactionJourney>();
         }
 
@@ -20,6 +21,7 @@ namespace PnLReporter.Models
 
         public virtual ICollection<BrandParticipantsDetail> BrandParticipantsDetail { get; set; }
         public virtual ICollection<StoreParticipantsDetail> StoreParticipantsDetail { get; set; }
+        public virtual ICollection<Transaction> Transaction { get; set; }
         public virtual ICollection<TransactionJourney> TransactionJourney { get; set; }
     }
 }

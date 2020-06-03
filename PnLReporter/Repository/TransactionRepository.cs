@@ -10,6 +10,8 @@ namespace PnLReporter.Repository
     {
         IEnumerable<Transaction> ListInvestorIndexTransactions(int participantsId);
         IEnumerable<Transaction> ListStoreTransactionInCurrentPeroid(int participantsId);
+        IEnumerable<Transaction> ListWaitingForAccountantTransaction(int participantId);
+        IEnumerable<Transaction> ListWaitingForStoreTransaction(int participants);
     }
 
     public class TransactionRepository : ITransactionRepository
@@ -57,6 +59,46 @@ namespace PnLReporter.Repository
                 .Where(record =>
                     record.PeriodId == currentPeriod.Id
                 );
+        }
+
+        public IEnumerable<Transaction> ListWaitingForAccountantTransaction(int participantId)
+        {
+            return _context.Transaction
+                .Where(record =>
+                    record.BrandId == _context.BrandParticipantsDetail
+                        .Where(b => b.ParticipantsId == participantId)
+                        .FirstOrDefault<BrandParticipantsDetail>()
+                        .BrandId
+                    &&
+                    (new int?[] { 201, 202, 103 })
+                    .Contains(
+                        _context.TransactionJourney
+                        .Where(j => j.TransactionId == record.Id)
+                        .OrderByDescending(j => j.CreatedTime)
+                        .FirstOrDefault()
+                        .Status)
+                    )
+                .OrderByDescending(record => record.CreatedTime)
+                .ToList();      
+        }
+
+        public IEnumerable<Transaction> ListWaitingForStoreTransaction(int participants)
+        {
+            return _context.Transaction
+                .Where(record =>
+                    record.CreatedBy == participants
+                    &&
+                    (new int?[] { 102, 302 })
+                    .Contains(
+                        _context.TransactionJourney
+                        .Where(j => j.TransactionId == record.Id)
+                        .OrderByDescending(j => j.CreatedTime)
+                        .FirstOrDefault()
+                        .Status
+                        )
+                    )
+                .OrderByDescending(record => record.CreatedTime)
+                .ToList();
         }
     }
 }

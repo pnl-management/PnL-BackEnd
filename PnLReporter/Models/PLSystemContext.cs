@@ -234,10 +234,7 @@ namespace PnLReporter.Models
 
                 entity.Property(e => e.CategoryId).HasColumnName("categoryId");
 
-                entity.Property(e => e.CreatedBy)
-                    .HasColumnName("createdBy")
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
+                entity.Property(e => e.CreatedBy).HasColumnName("createdBy");
 
                 entity.Property(e => e.CreatedTime)
                     .HasColumnName("createdTime")
@@ -267,6 +264,11 @@ namespace PnLReporter.Models
                     .WithMany(p => p.Transaction)
                     .HasForeignKey(d => d.CategoryId)
                     .HasConstraintName("FK_Transaction_Transaction Category");
+
+                entity.HasOne(d => d.CreatedByNavigation)
+                    .WithMany(p => p.Transaction)
+                    .HasForeignKey(d => d.CreatedBy)
+                    .HasConstraintName("FK_Transaction_Participant");
 
                 entity.HasOne(d => d.Period)
                     .WithMany(p => p.Transaction)
