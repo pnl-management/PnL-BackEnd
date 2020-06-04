@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace PnLReporter.Repository
 {
@@ -31,6 +32,11 @@ namespace PnLReporter.Repository
                 .FirstOrDefault();
 
             return _context.Transaction
+                .Include(trans => trans.CreatedByNavigation)
+                .Include(trans => trans.Brand)
+                .Include(trans => trans.Period)
+                .Include(trans => trans.Category)
+                .Include(trans => trans.Store)
                 .Where(record =>
                     record.BrandId == investorBrand
                     &&
@@ -56,6 +62,11 @@ namespace PnLReporter.Repository
                 ).FirstOrDefault<AccountingPeriod>();
 
             return _context.Transaction
+                .Include(trans => trans.CreatedByNavigation)
+                .Include(trans => trans.Brand)
+                .Include(trans => trans.Period)
+                .Include(trans => trans.Category)
+                .Include(trans => trans.Store)
                 .Where(record =>
                     record.PeriodId == currentPeriod.Id
                 );
@@ -64,6 +75,11 @@ namespace PnLReporter.Repository
         public IEnumerable<Transaction> ListWaitingForAccountantTransaction(int participantId)
         {
             return _context.Transaction
+                .Include(trans => trans.CreatedByNavigation)
+                .Include(trans => trans.Brand)
+                .Include(trans => trans.Period)
+                .Include(trans => trans.Category)
+                .Include(trans => trans.Store)
                 .Where(record =>
                     record.BrandId == _context.BrandParticipantsDetail
                         .Where(b => b.ParticipantsId == participantId)
@@ -85,6 +101,11 @@ namespace PnLReporter.Repository
         public IEnumerable<Transaction> ListWaitingForStoreTransaction(int participants)
         {
             return _context.Transaction
+                .Include(trans => trans.CreatedByNavigation)
+                .Include(trans => trans.Brand)
+                .Include(trans => trans.Period)
+                .Include(trans => trans.Category)
+                .Include(trans => trans.Store)
                 .Where(record =>
                     record.CreatedBy == participants
                     &&

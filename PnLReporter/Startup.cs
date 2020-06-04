@@ -37,7 +37,7 @@ namespace PnLReporter
         {
             FirebaseApp.Create(new AppOptions()
             {
-                Credential = GoogleCredential.FromFile("./pnlrepoter-firebase-adminsdk-rcn5u-ccaabfc170.json"),
+                Credential = GoogleCredential.FromFile("./pnlrepoter-firebase-adminsdk-rcn5u-ccaabfc170.json")
             });
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -56,8 +56,10 @@ namespace PnLReporter
                 });
 
             services.AddDbContext<PLSystemContext>(opt =>
-               opt.UseSqlServer(
-                    Configuration.GetConnectionString("PLSystemContext")));
+            {
+                opt.UseSqlServer(
+                    Configuration.GetConnectionString("PLSystemContext"));
+            });
 
             services.AddSwaggerGen(c =>
             {

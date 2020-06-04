@@ -37,7 +37,7 @@ namespace JWTAuthentication.Controllers
         public async Task<IActionResult> Login()
         {
             IActionResult response = Unauthorized();
-
+            
             FirebaseToken decodedToken = await FirebaseAuth.DefaultInstance
                 .VerifyIdTokenAsync(Request.Headers[HeaderNames.Authorization]);
             string uid = decodedToken.Uid;
@@ -49,10 +49,6 @@ namespace JWTAuthentication.Controllers
             {
                 var tokenString = GenerateJSONWebToken(user);
                 response = Ok(new { token = tokenString, participant = user });
-            }
-            else
-            {
-                response = NotFound();
             }
 
             return response;

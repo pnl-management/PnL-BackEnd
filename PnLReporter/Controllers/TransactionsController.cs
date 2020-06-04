@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PnLReporter.Models;
+using PnLReporter.ViewModels;
 using PnLReporter.Service;
 using PnLReporter.Repository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -37,7 +38,7 @@ namespace PnLReporter.Controllers
 
         [HttpGet]
         [Route("Index")]
-        public ActionResult<IEnumerable<Transaction>> GetTransactionOnIndexPg()
+        public ActionResult<IEnumerable<TransactionVModel>> GetTransactionOnIndexPg()
         {
             var identity = HttpContext.User.Identity as ClaimsIdentity;
             string role = identity.FindFirst(ClaimTypes.Role).Value;
