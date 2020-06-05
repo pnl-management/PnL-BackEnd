@@ -40,6 +40,19 @@ namespace PnLReporter
                 Credential = GoogleCredential.FromFile("./pnlrepoter-firebase-adminsdk-rcn5u-ccaabfc170.json")
             });
 
+            services.AddCors(options =>
+            {
+                options.AddPolicy(
+                    name: "CorsPolicy",
+                    builder =>
+                    {
+                        builder.AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowCredentials()
+                        .AllowAnyHeader();
+                    });
+            });
+
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
@@ -92,6 +105,7 @@ namespace PnLReporter
             });
             app.UseHttpsRedirection();
             app.UseMvc();
+            app.UseCors("CorsPolicy");
             app.UseAuthentication();
         }
     }
