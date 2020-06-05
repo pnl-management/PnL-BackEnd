@@ -103,8 +103,8 @@ namespace PnLReporter
                 c.RoutePrefix = string.Empty;
             });
             app.UseHttpsRedirection();
-            app.UseMvc();
             app.UseCors("CorsPolicy");
+            app.UseMvc();
             app.UseAuthentication();
         }
     }
