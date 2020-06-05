@@ -48,7 +48,6 @@ namespace PnLReporter
                     {
                         builder.AllowAnyOrigin()
                         .AllowAnyMethod()
-                        .AllowCredentials()
                         .AllowAnyHeader();
                     });
             });
