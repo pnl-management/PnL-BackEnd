@@ -62,7 +62,8 @@ namespace PnLReporter.Service
                         Category = trans.Category != null ? new TransactionCategoryVModel()
                         {
                             Id = trans.Category.Id,
-                            Name = trans.Category.Name
+                            Name = trans.Category.Name,
+                            Type = trans.Category.Type
                         } : null,
                         Period = trans.Period != null ? new AccountingPeriodVModel()
                         {
