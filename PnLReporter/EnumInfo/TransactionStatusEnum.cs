@@ -13,19 +13,20 @@ namespace PnLReporter.EnumInfo
         {
             dictionary = new Dictionary<int?, string>()
             {
-                { 201, "Đã tạo"},
-                { 202, "Đã chỉnh sửa" },
+                { 201, "Cửa hàng đã tạo"},
+                { 202, "Cửa hàng đã chỉnh sửa" },
+                { 203, "Cửa hàng đã hủy" },
 
-                { 301, "Kế toán đã hủy" },
+                { 301, "Kế toán chấp thuận" },
                 { 302, "Kế toán yêu cầu chỉnh sửa" },
-                { 303, "Kế toán chấp thuận" },
+                { 303, "Kế toán đã hủy" },
 
-                { 101, "Chủ đầu tư đã hủy" },
+                { 101, "Chủ đầu tư chấp thuận" },
                 { 102, "Chủ đầu tư yêu cầu chỉnh sửa"},
-                { 103, "Chủ đầu tư chấp thuận" },
+                { 103, "Chủ đầu tư đã hủy" },
 
                 { 1, "Hoàn tất" },
-                { 0, "Hủy sau khi quyết toán" }
+                { 0, "Bị hủy sau khi quyết toán" }
             };
         }
 
