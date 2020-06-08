@@ -17,11 +17,14 @@ namespace PnLReporter.Service
     }
     public class TransactionService : ITransactionService
     {
-        private ITransactionRepository _repository;
+        private readonly ITransactionRepository _repository;
 
-        public TransactionService(ITransactionRepository repository)
+        private readonly PLSystemContext _context;
+
+        public TransactionService(PLSystemContext context)
         {
-            _repository = repository;
+            _context = context;
+            _repository = new TransactionRepository(context);
         }
 
         public IEnumerable<TransactionVModel> ListInvestorIndexTransactions(int participantId)
@@ -47,7 +50,7 @@ namespace PnLReporter.Service
         private IEnumerable<TransactionVModel> ParseToTransactionVModel(IEnumerable<Transaction> transList)
         {
             var transVModelLst = new List<TransactionVModel>();
-            System.Diagnostics.Debug.WriteLine(transVModelLst.Count);
+            ITransactionJourneyService jorneyService = new TransactionJourneyService(_context);
 
             if (transList != null)
             {
@@ -85,7 +88,8 @@ namespace PnLReporter.Service
                         {
                             Id = trans.CreatedBy,
                             Username = trans.CreatedByNavigation.Username
-                        } : null
+                        } : null,
+                        LastestStatus = jorneyService.GetLastestStatus(trans.Id)
                     });
                 });
             }

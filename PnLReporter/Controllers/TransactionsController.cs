@@ -26,7 +26,7 @@ namespace PnLReporter.Controllers
         public TransactionsController(PLSystemContext context)
         {
             _context = context;
-            _service = new TransactionService(new TransactionRepository(_context));
+            _service = new TransactionService(_context);
         }
 
         // GET: api/Transactions
