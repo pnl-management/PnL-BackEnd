@@ -85,10 +85,10 @@ namespace PnLReporter.Repository
                         .Where(b => b.ParticipantsId == participantId)
                         .FirstOrDefault<BrandParticipantsDetail>()
                         .BrandId
-                    //&&
-                    //(new int?[] { 201, 202, 103 })
-                    //.Contains(
-                    //    record.TransactionJourney.FirstOrDefault().Status)
+                    &&
+                    (new int?[] { 201, 202, 103 })
+                    .Contains(
+                        record.TransactionJourney.FirstOrDefault().Status)
                     )
                 .OrderByDescending(record => record.CreatedTime)
                 .ToList();      
