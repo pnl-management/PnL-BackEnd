@@ -13,6 +13,7 @@ namespace PnLReporter.Service
     }
     public class ParticipantService : IParticipantService
     {
+        private PLSystemContext _context;
         private IParticipantRepository _repository;
 
         public ParticipantService(IParticipantRepository repository)
