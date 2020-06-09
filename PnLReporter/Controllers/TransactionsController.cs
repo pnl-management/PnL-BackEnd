@@ -31,9 +31,16 @@ namespace PnLReporter.Controllers
 
         // GET: api/Transactions
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Transaction>>> GetTransaction()
+        public ActionResult<IEnumerable<Transaction>> GetTransaction(string sort, string filter, string query, string offset, string limit)
         {
-            return await _context.Transaction.ToListAsync();
+            // sort implement
+
+            // filter implement
+
+            // query implement
+
+            // paging implement
+            return Ok(_service.QueryListByField(query));
         }
 
         [HttpGet]

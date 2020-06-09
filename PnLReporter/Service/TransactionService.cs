@@ -14,6 +14,8 @@ namespace PnLReporter.Service
         IEnumerable<TransactionVModel> ListStoreTransactionInCurrentPeroid(int participantsId);
         IEnumerable<TransactionVModel> ListWaitingForAccountantTransaction(int participantId);
         IEnumerable<TransactionVModel> ListWaitingForStoreTransaction(int participants);
+        IEnumerable<TransactionVModel> SortList(string sortOrder);
+        IEnumerable<TransactionVModel> QueryListByField(string query);
     }
     public class TransactionService : ITransactionService
     {
@@ -45,6 +47,52 @@ namespace PnLReporter.Service
         public IEnumerable<TransactionVModel> ListWaitingForStoreTransaction(int participants)
         {
             return this.ParseToTransactionVModel(_repository.ListWaitingForStoreTransaction(participants));
+        }
+
+        public IEnumerable<TransactionVModel> QueryListByField(string query)
+        {
+            return this.ParseToTransactionVModel(_repository.QueryListByField(query));
+        }
+
+        public IEnumerable<TransactionVModel> SortList(string sortOrder, IEnumerable<TransactionVModel> list)
+        {
+            switch (sortOrder)
+            {
+                case "id-asc":
+                    list.OrderBy(record => record.Id);
+                    break;
+                case "id-des":
+                    list.OrderByDescending(record => record.Id);
+                    break;
+                case "value-asc":
+                    list.OrderBy(record =>
+                    {
+                        long result;
+                        long.TryParse(record.Value, out result);
+                        return result;
+                    });
+                    break;
+                case "value-des":
+                    list.OrderByDescending(record =>
+                    {
+                        long result;
+                        long.TryParse(record.Value, out result);
+                        return result;
+                    });
+                    break;
+                case "created-time-asc":
+                    list.OrderBy(record => record.CreatedTime);
+                    break;
+                case "created-time-des":
+                    list.OrderByDescending(record => record.CreatedTime);
+                    break;
+            }
+            return list;
+        }
+
+        public IEnumerable<TransactionVModel> SortList(string sortOrder)
+        {
+            throw new NotImplementedException();
         }
 
         private IEnumerable<TransactionVModel> ParseToTransactionVModel(IEnumerable<Transaction> transList)

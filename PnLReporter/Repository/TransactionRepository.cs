@@ -13,6 +13,7 @@ namespace PnLReporter.Repository
         IEnumerable<Transaction> ListStoreTransactionInCurrentPeroid(int participantsId);
         IEnumerable<Transaction> ListWaitingForAccountantTransaction(int participantId);
         IEnumerable<Transaction> ListWaitingForStoreTransaction(int participants);
+        IEnumerable<Transaction> QueryListByField(string query);
     }
 
     public class TransactionRepository : ITransactionRepository
@@ -116,6 +117,106 @@ namespace PnLReporter.Repository
                     )
                 .OrderByDescending(record => record.CreatedTime)
                 .ToList();
+        }
+
+        public IEnumerable<Transaction> QueryListByField(string query)
+        {
+            IQueryable<Transaction> result = _context.Transaction;
+            List<string> queryComponent = new List<string>();
+            queryComponent = query.Split(",").ToList();
+
+            string field;
+            string opt;
+            string value;
+
+            List<int> lastestStatusList = new List<int>();            
+
+            foreach (string queryContent in queryComponent)
+            {
+                string queryContentVal = queryContent.Trim();
+
+                field = queryContentVal.Substring(0, queryContentVal.IndexOf("["));
+                if (String.IsNullOrEmpty(field))
+                {
+                    break;
+                }
+
+                if (queryContentVal.IndexOf("[") == -1 || queryContentVal.IndexOf("]") == -1 ||
+                    queryContentVal.IndexOf("[") > queryContentVal.IndexOf("]")) break;
+
+                opt = queryContentVal.Substring(queryContentVal.IndexOf("[")+1,
+                    queryContentVal.IndexOf("]") - queryContentVal.IndexOf("[") - 1);
+
+                value = queryContentVal
+                    .Substring(queryContentVal.IndexOf("]")+1,
+                    queryContentVal.Length - (queryContentVal.IndexOf("]")+1));
+
+                System.Diagnostics.Debug.WriteLine("\n\n" + field + " - " + opt + " - " + value);
+
+                switch (field)
+                {
+                    case "name":
+                        switch (opt)
+                        {
+                            case "eq":
+                                result = result.Where(record => record.Name == value);
+                                break;
+                            case "like":
+                                result = result.Where(record => record.Name.Contains(value));
+                                break;
+                        }
+                        break;
+                    case "value":
+                        long valueVal;
+                        if (long.TryParse(value, out valueVal))
+                        {
+                            switch (opt)
+                            {
+                                case "lt":
+                                    result = result.Where(record => long.Parse(record.Value) < valueVal);
+                                break;
+                                case "gt":
+                                    result = result.Where(record => long.Parse(record.Value) > valueVal);
+                                    break;
+                                case "eq":
+                                    result = result.Where(record => long.Parse(record.Value) == valueVal);
+                                    break;
+                                case "lte":
+                                    result = result.Where(record => long.Parse(record.Value) <= valueVal);
+                                    break;
+                                case "gte":
+                                    result = result.Where(record => long.Parse(record.Value) >= valueVal);
+                                    break;
+                            }
+                        }                        
+                        break;
+                    case "lastest-status":
+                        int status;
+                        if (int.TryParse(value, out status))
+                        {
+                            if (opt == "eq")
+                            {
+                                lastestStatusList.Add(status);
+                            }
+                        }
+                        break;
+
+                }
+            }
+            
+            if (lastestStatusList.Count > 0)
+            {
+                System.Diagnostics.Debug.WriteLine("Length " + lastestStatusList.Count);
+                result = result.Where(record =>
+                    lastestStatusList.Contains(_context.TransactionJourney
+                        .Where(j => j.TransactionId == record.Id)
+                        .OrderByDescending(j => j.CreatedTime)
+                        .FirstOrDefault()
+                        .Status ?? default(int))
+                );
+            }
+
+            return result.ToList();
         }
     }
 }
