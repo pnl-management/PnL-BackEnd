@@ -14,6 +14,7 @@ namespace PnLReporter.Repository
         IEnumerable<Transaction> ListWaitingForAccountantTransaction(int participantId);
         IEnumerable<Transaction> ListWaitingForStoreTransaction(int participants);
         IEnumerable<Transaction> QueryListByField(string query);
+        IEnumerable<Transaction> GetAll();
     }
 
     public class TransactionRepository : ITransactionRepository
@@ -23,6 +24,11 @@ namespace PnLReporter.Repository
         public TransactionRepository(PLSystemContext context)
         {
             _context = context;
+        }
+
+        public IEnumerable<Transaction> GetAll()
+        {
+            return _context.Transaction.ToList();
         }
 
         public IEnumerable<Transaction> ListInvestorIndexTransactions(int participantsId)

@@ -12,6 +12,7 @@ using PnLReporter.ViewModels;
 using PnLReporter.Service;
 using PnLReporter.Repository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using PnLReporter.Helper;
 
 namespace PnLReporter.Controllers
 {
@@ -31,16 +32,32 @@ namespace PnLReporter.Controllers
 
         // GET: api/Transactions
         [HttpGet]
-        public ActionResult<IEnumerable<Transaction>> GetTransaction(string sort, string filter, string query, string offset, string limit)
+        public ActionResult<IEnumerable<Object>> GetTransaction(string sort, string filter, string query, string offset, string limit)
         {
-            // sort implement
-
-            // filter implement
+            IEnumerable<Object> result;
+            // paging implement
+            int offsetVal = 0, limitVal = 0;
+            int.TryParse(offset, out offsetVal);
+            int.TryParse(limit, out limitVal);
+            if (limitVal > 20) limitVal = 20;
+            if (limitVal < 5) limitVal = 5;
 
             // query implement
+            result = _service.QueryListByField(query, offsetVal, limitVal);
 
-            // paging implement
-            return Ok(_service.QueryListByField(query));
+            // sort implement
+            if (!String.IsNullOrEmpty(sort))
+            {
+                result = _service.SortList(sort, (IEnumerable<TransactionVModel>)result);
+            }
+
+            // filter implement
+            if (!String.IsNullOrEmpty(filter))
+            {
+                result = _service.FilterFieldOut(filter, (IEnumerable<TransactionVModel>)result);
+            }
+
+            return Ok(result);
         }
 
         [HttpGet]

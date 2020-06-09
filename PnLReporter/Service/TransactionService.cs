@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+using PnLReporter.Helper;
+
 namespace PnLReporter.Service
 {
     public interface ITransactionService
@@ -14,8 +16,10 @@ namespace PnLReporter.Service
         IEnumerable<TransactionVModel> ListStoreTransactionInCurrentPeroid(int participantsId);
         IEnumerable<TransactionVModel> ListWaitingForAccountantTransaction(int participantId);
         IEnumerable<TransactionVModel> ListWaitingForStoreTransaction(int participants);
-        IEnumerable<TransactionVModel> SortList(string sortOrder);
-        IEnumerable<TransactionVModel> QueryListByField(string query);
+        IEnumerable<TransactionVModel> SortList(string sortOrder, IEnumerable<TransactionVModel> list);
+        IEnumerable<TransactionVModel> QueryListByField(string query, int offset, int limit);
+        IEnumerable<Object> LimitList(int offset, int limit, IEnumerable<TransactionVModel> list);
+        IEnumerable<Object> FilterFieldOut(string filter, IEnumerable<TransactionVModel> list);
     }
     public class TransactionService : ITransactionService
     {
@@ -27,6 +31,70 @@ namespace PnLReporter.Service
         {
             _context = context;
             _repository = new TransactionRepository(context);
+        }
+
+        public IEnumerable<object> FilterFieldOut(string filter, IEnumerable<TransactionVModel> list)
+        {
+            IEnumerable<object> result = list;
+            filter = filter.ToLower();
+            if (filter != "any")
+            {
+                List<string> fields = filter.Split(",").ToList();
+                string filterStr = "";
+
+                foreach (string field in fields)
+                {
+                    switch (field)
+                    {
+                        case "id":
+                            filterStr += "Id,";
+                            break;
+                        case "name":
+                            filterStr += "Name,";
+                            break;
+                        case "value":
+                            filterStr += "Value,";
+                            break;
+                        case "description":
+                            filterStr += "Description,";
+                            break;
+                        case "category":
+                            filterStr += "Category,";
+                            break;
+                        case "period":
+                            filterStr += "Period,";
+                            break;
+                        case "brand":
+                            filterStr += "Brand,";
+                            break;
+                        case "store":
+                            filterStr += "Store,";
+                            break;
+                        case "created-time":
+                            filterStr += "CreatedTime,";
+                            break;
+                        case "created-by-participant":
+                            filterStr += "CreateByParticipant,";
+                            break;
+                        case "lastest-status":
+                            filterStr += "LastestStatus,";
+                            break;
+                    }
+                }
+
+                if (filterStr.Length > 0) filterStr = filterStr.Substring(0, filterStr.Length - 1);
+                if (fields.Count > 0)
+                {
+                    result = list.Select(Helper.Helper.DynamicSelectGenerator<TransactionVModel>(filterStr));
+                }
+            }
+
+            return result;
+        }
+
+        public IEnumerable<Object> LimitList(int offset, int limit, IEnumerable<TransactionVModel> list)
+        {
+            return list.Skip(offset).Take(limit);
         }
 
         public IEnumerable<TransactionVModel> ListInvestorIndexTransactions(int participantId)
@@ -49,9 +117,14 @@ namespace PnLReporter.Service
             return this.ParseToTransactionVModel(_repository.ListWaitingForStoreTransaction(participants));
         }
 
-        public IEnumerable<TransactionVModel> QueryListByField(string query)
+        public IEnumerable<TransactionVModel> QueryListByField(string query, int offset, int limit)
         {
-            return this.ParseToTransactionVModel(_repository.QueryListByField(query));
+            if (String.IsNullOrEmpty(query))
+            {
+
+                return this.ParseToTransactionVModel(_repository.GetAll().Skip(offset).Take(limit));
+            }
+            return this.ParseToTransactionVModel(_repository.QueryListByField(query).Skip(offset).Take(limit));
         }
 
         public IEnumerable<TransactionVModel> SortList(string sortOrder, IEnumerable<TransactionVModel> list)
@@ -88,11 +161,6 @@ namespace PnLReporter.Service
                     break;
             }
             return list;
-        }
-
-        public IEnumerable<TransactionVModel> SortList(string sortOrder)
-        {
-            throw new NotImplementedException();
         }
 
         private IEnumerable<TransactionVModel> ParseToTransactionVModel(IEnumerable<Transaction> transList)
