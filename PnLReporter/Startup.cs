@@ -69,6 +69,7 @@ namespace PnLReporter
 
             services.AddDbContext<PLSystemContext>(opt =>
             {
+                opt.UseLazyLoadingProxies();
                 opt.UseSqlServer(
                     Configuration.GetConnectionString("PLSystemContext"));
             });

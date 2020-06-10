@@ -8,6 +8,7 @@ namespace PnLReporter.Repository
 {
     public interface IParticipantRepository
     {
+        Participant FindByUserId(long id);
         Participant FindByUsername(string username);
         StoreParticipantsDetail FindStoreParticipantById(int? participantId);
         BrandParticipantsDetail FindBrandParticipantsById(int? participantId);
@@ -41,6 +42,12 @@ namespace PnLReporter.Repository
                 };
             }
             return result;
+        }
+
+        public Participant FindByUserId(long id)
+        {
+            return _context.Participant
+                .Where(record => record.Id == id).FirstOrDefault<Participant>();
         }
 
         public Participant FindByUsername(string username)

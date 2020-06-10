@@ -23,6 +23,7 @@ namespace PnLReporter.Controllers
     {
         private readonly PLSystemContext _context;
         private ITransactionService _service;
+        
 
         public TransactionsController(PLSystemContext context)
         {
@@ -30,10 +31,21 @@ namespace PnLReporter.Controllers
             _service = new TransactionService(_context);
         }
 
-        // GET: api/Transactions
+        // GET: api/Brand/Transactions
         [HttpGet]
+        [Route("/api/brands/transactions")]
+        [Authorize(Roles = "accountant,investor")]
         public ActionResult<IEnumerable<Object>> GetTransaction(string sort, string filter, string query, string offset, string limit)
         {
+            var identity = HttpContext.User.Identity as ClaimsIdentity;
+            string participantIdVal = identity.FindFirst(ClaimTypes.NameIdentifier).Value;
+            long userId;
+
+            long.TryParse(participantIdVal, out userId);
+            IParticipantService participantService = new ParticipantService(_context);
+
+            int brandId = participantService.FindByUserId(userId).Brand.Id;
+
             IEnumerable<Object> result;
             // paging implement
             int offsetVal = 0, limitVal = 0;
@@ -43,7 +55,7 @@ namespace PnLReporter.Controllers
             if (limitVal < 5) limitVal = 5;
 
             // query implement
-            result = _service.QueryListByField(query, offsetVal, limitVal);
+            result = _service.QueryListByFieldAndBrand(query, offsetVal, limitVal, brandId);
 
             // sort implement
             if (!String.IsNullOrEmpty(sort))

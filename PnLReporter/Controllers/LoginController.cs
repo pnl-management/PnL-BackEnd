@@ -28,7 +28,7 @@ namespace JWTAuthentication.Controllers
         {
             _config = config;
             _context = context;
-            _service = new ParticipantService(new ParticipantRepository(_context));
+            _service = new ParticipantService(_context);
         }
 
         [AllowAnonymous]

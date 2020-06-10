@@ -9,16 +9,38 @@ namespace PnLReporter.Service
 {
     public interface IParticipantService
     {
+        UserModel FindByUserId(long id);
         UserModel FindByUsername(string username);
     }
     public class ParticipantService : IParticipantService
     {
-        private PLSystemContext _context;
         private IParticipantRepository _repository;
 
-        public ParticipantService(IParticipantRepository repository)
+        public ParticipantService(PLSystemContext context)
         {
-            _repository = repository;
+            _repository = new ParticipantRepository(context);
+        }
+
+        public UserModel FindByUserId(long id)
+        {
+            var participant = _repository.FindByUserId(id);
+            if (participant != null)
+            {
+                var storeParticipant = _repository.FindStoreParticipantById(participant.Id);
+                var brandParicipant = _repository.FindBrandParticipantsById(participant.Id);
+
+                return new UserModel()
+                {
+                    Id = participant.Id,
+                    Username = participant.Username,
+                    Fullname = participant.Fullname,
+                    Role = (brandParicipant != null) ? brandParicipant.Role : null,
+                    Description = (brandParicipant != null) ? brandParicipant.Description : null,
+                    Store = (storeParticipant != null) ? storeParticipant.Store : null,
+                    Brand = (brandParicipant != null) ? brandParicipant.Brand : null
+                };
+            }
+            return null;
         }
 
         public UserModel FindByUsername(string username)

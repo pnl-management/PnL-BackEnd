@@ -13,8 +13,8 @@ namespace PnLReporter.Repository
         IEnumerable<Transaction> ListStoreTransactionInCurrentPeroid(int participantsId);
         IEnumerable<Transaction> ListWaitingForAccountantTransaction(int participantId);
         IEnumerable<Transaction> ListWaitingForStoreTransaction(int participants);
-        IEnumerable<Transaction> QueryListByField(string query);
-        IEnumerable<Transaction> GetAll();
+        IEnumerable<Transaction> QueryListByFieldAndBrand(string query, int offset, int limit, int? brandId);
+        IEnumerable<Transaction> GetAllByBrand(int offset, int limit, int? brandId);
     }
 
     public class TransactionRepository : ITransactionRepository
@@ -26,9 +26,17 @@ namespace PnLReporter.Repository
             _context = context;
         }
 
-        public IEnumerable<Transaction> GetAll()
+        public IEnumerable<Transaction> GetAllByBrand(int offset, int limit, int? brandId)
         {
-            return _context.Transaction.ToList();
+            return _context.Transaction
+                .Include(trans => trans.CreatedByNavigation)
+                .Include(trans => trans.Brand)
+                .Include(trans => trans.Period)
+                .Include(trans => trans.Category)
+                .Include(trans => trans.Store)
+                .Where(trans => trans.BrandId == ((brandId != null) ? brandId : trans.BrandId))
+                .Skip(offset).Take(limit)
+                .ToList();
         }
 
         public IEnumerable<Transaction> ListInvestorIndexTransactions(int participantsId)
@@ -125,9 +133,17 @@ namespace PnLReporter.Repository
                 .ToList();
         }
 
-        public IEnumerable<Transaction> QueryListByField(string query)
+        public IEnumerable<Transaction> QueryListByFieldAndBrand(string query, int offset, int limit, int? brandId)
         {
-            IQueryable<Transaction> result = _context.Transaction;
+            IQueryable<Transaction> result = 
+                _context.Transaction
+                .Include(record => record.Category)
+                .Include(record => record.Brand)
+                .Include(record => record.Period)
+                .Include(record => record.Store)
+                .Include(record => record.CreatedByNavigation)
+                .Where(trans => trans.BrandId == ((brandId != null) ? brandId : trans.BrandId))
+                .Skip(offset).Take(limit);
             List<string> queryComponent = new List<string>();
             queryComponent = query.Split(",").ToList();
 

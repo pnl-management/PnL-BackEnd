@@ -17,7 +17,7 @@ namespace PnLReporter.Service
         IEnumerable<TransactionVModel> ListWaitingForAccountantTransaction(int participantId);
         IEnumerable<TransactionVModel> ListWaitingForStoreTransaction(int participants);
         IEnumerable<TransactionVModel> SortList(string sortOrder, IEnumerable<TransactionVModel> list);
-        IEnumerable<TransactionVModel> QueryListByField(string query, int offset, int limit);
+        IEnumerable<TransactionVModel> QueryListByFieldAndBrand(string query, int offset, int limit, int brandId);
         IEnumerable<Object> LimitList(int offset, int limit, IEnumerable<TransactionVModel> list);
         IEnumerable<Object> FilterFieldOut(string filter, IEnumerable<TransactionVModel> list);
     }
@@ -117,14 +117,14 @@ namespace PnLReporter.Service
             return this.ParseToTransactionVModel(_repository.ListWaitingForStoreTransaction(participants));
         }
 
-        public IEnumerable<TransactionVModel> QueryListByField(string query, int offset, int limit)
+        public IEnumerable<TransactionVModel> QueryListByFieldAndBrand(string query, int offset, int limit, int brandId)
         {
             if (String.IsNullOrEmpty(query))
             {
 
-                return this.ParseToTransactionVModel(_repository.GetAll().Skip(offset).Take(limit));
+                return this.ParseToTransactionVModel(_repository.GetAllByBrand(offset, limit, brandId));
             }
-            return this.ParseToTransactionVModel(_repository.QueryListByField(query).Skip(offset).Take(limit));
+            return this.ParseToTransactionVModel(_repository.QueryListByFieldAndBrand(query, offset, limit, brandId));
         }
 
         public IEnumerable<TransactionVModel> SortList(string sortOrder, IEnumerable<TransactionVModel> list)
@@ -132,13 +132,13 @@ namespace PnLReporter.Service
             switch (sortOrder)
             {
                 case "id-asc":
-                    list.OrderBy(record => record.Id);
+                    list = list.OrderBy(record => record.Id);
                     break;
                 case "id-des":
-                    list.OrderByDescending(record => record.Id);
+                    list = list.OrderByDescending(record => record.Id);
                     break;
                 case "value-asc":
-                    list.OrderBy(record =>
+                    list = list.OrderBy(record =>
                     {
                         long result;
                         long.TryParse(record.Value, out result);
@@ -146,7 +146,7 @@ namespace PnLReporter.Service
                     });
                     break;
                 case "value-des":
-                    list.OrderByDescending(record =>
+                    list = list.OrderByDescending(record =>
                     {
                         long result;
                         long.TryParse(record.Value, out result);
@@ -154,10 +154,10 @@ namespace PnLReporter.Service
                     });
                     break;
                 case "created-time-asc":
-                    list.OrderBy(record => record.CreatedTime);
+                    list = list.OrderBy(record => record.CreatedTime);
                     break;
                 case "created-time-des":
-                    list.OrderByDescending(record => record.CreatedTime);
+                    list = list.OrderByDescending(record => record.CreatedTime);
                     break;
             }
             return list;
