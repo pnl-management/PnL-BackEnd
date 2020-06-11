@@ -35,7 +35,7 @@ namespace PnLReporter.Controllers
         [HttpGet]
         [Route("/api/brands/transactions")]
         [Authorize(Roles = "accountant,investor")]
-        public ActionResult<IEnumerable<Object>> GetTransaction(string sort, string filter, string query, string offset, string limit)
+        public ActionResult<IEnumerable<Object>> GetTransactionByBrand(string sort, string filter, string query, string offset, string limit)
         {
             var identity = HttpContext.User.Identity as ClaimsIdentity;
             string participantIdVal = identity.FindFirst(ClaimTypes.NameIdentifier).Value;

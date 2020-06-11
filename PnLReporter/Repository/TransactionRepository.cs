@@ -196,7 +196,7 @@ namespace PnLReporter.Repository
                             {
                                 case "lt":
                                     result = result.Where(record => long.Parse(record.Value) < valueVal);
-                                break;
+                                    break;
                                 case "gt":
                                     result = result.Where(record => long.Parse(record.Value) > valueVal);
                                     break;
@@ -211,6 +211,19 @@ namespace PnLReporter.Repository
                                     break;
                             }
                         }                        
+                        break;
+                    case "store-id":
+                        switch (opt)
+                        {
+                            case "eq":
+                                int storeId;
+                                if (!int.TryParse(value, out storeId))
+                                {
+                                    storeId = -1;
+                                }
+                                result = result.Where(record => record.StoreId == storeId);
+                                break;
+                        }
                         break;
                     case "lastest-status":
                         int status;
