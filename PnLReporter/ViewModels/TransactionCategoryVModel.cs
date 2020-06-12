@@ -12,7 +12,7 @@ namespace PnLReporter.ViewModels
         public int? Type { get; set; }
         public bool? Required { get; set; }
         public bool? Status { get; set; }
-        public int? BrandId { get; set; }
+        public BrandVModel Brand { get; set; }
         public DateTime? CreatedTime { get; set; }
         public DateTime? LastModified { get; set; }
     }

@@ -156,86 +156,85 @@ namespace PnLReporter.Repository
             foreach (string queryContent in queryComponent)
             {
                 string queryContentVal = queryContent.Trim();
-
-                field = queryContentVal.Substring(0, queryContentVal.IndexOf("["));
-                if (String.IsNullOrEmpty(field))
+                if (queryContentVal.Length > 0)
                 {
-                    break;
-                }
-
-                if (queryContentVal.IndexOf("[") == -1 || queryContentVal.IndexOf("]") == -1 ||
-                    queryContentVal.IndexOf("[") > queryContentVal.IndexOf("]")) break;
-
-                opt = queryContentVal.Substring(queryContentVal.IndexOf("[")+1,
-                    queryContentVal.IndexOf("]") - queryContentVal.IndexOf("[") - 1);
-
-                value = queryContentVal
-                    .Substring(queryContentVal.IndexOf("]")+1,
-                    queryContentVal.Length - (queryContentVal.IndexOf("]")+1));
-
-                System.Diagnostics.Debug.WriteLine("\n\n" + field + " - " + opt + " - " + value);
-
-                switch (field)
-                {
-                    case "name":
-                        switch (opt)
-                        {
-                            case "eq":
-                                result = result.Where(record => record.Name == value);
-                                break;
-                            case "like":
-                                result = result.Where(record => record.Name.Contains(value));
-                                break;
-                        }
+                    field = queryContentVal.Substring(0, queryContentVal.IndexOf("["));
+                    if (String.IsNullOrEmpty(field))
+                    {
                         break;
-                    case "value":
-                        long valueVal;
-                        if (long.TryParse(value, out valueVal))
-                        {
+                    }
+
+                    if (queryContentVal.IndexOf("[") == -1 || queryContentVal.IndexOf("]") == -1 ||
+                        queryContentVal.IndexOf("[") > queryContentVal.IndexOf("]")) break;
+
+                    opt = queryContentVal.Substring(queryContentVal.IndexOf("[") + 1,
+                        queryContentVal.IndexOf("]") - queryContentVal.IndexOf("[") - 1);
+
+                    value = queryContentVal
+                        .Substring(queryContentVal.IndexOf("]") + 1,
+                        queryContentVal.Length - (queryContentVal.IndexOf("]") + 1));
+
+                    switch (field)
+                    {
+                        case "name":
                             switch (opt)
                             {
-                                case "lt":
-                                    result = result.Where(record => long.Parse(record.Value) < valueVal);
-                                    break;
-                                case "gt":
-                                    result = result.Where(record => long.Parse(record.Value) > valueVal);
-                                    break;
                                 case "eq":
-                                    result = result.Where(record => long.Parse(record.Value) == valueVal);
+                                    result = result.Where(record => record.Name == value);
                                     break;
-                                case "lte":
-                                    result = result.Where(record => long.Parse(record.Value) <= valueVal);
-                                    break;
-                                case "gte":
-                                    result = result.Where(record => long.Parse(record.Value) >= valueVal);
+                                case "like":
+                                    result = result.Where(record => record.Name.Contains(value));
                                     break;
                             }
-                        }                        
-                        break;
-                    case "store-id":
-                        switch (opt)
-                        {
-                            case "eq":
-                                int storeId;
-                                if (!int.TryParse(value, out storeId))
-                                {
-                                    storeId = -1;
-                                }
-                                result = result.Where(record => record.StoreId == storeId);
-                                break;
-                        }
-                        break;
-                    case "lastest-status":
-                        int status;
-                        if (int.TryParse(value, out status))
-                        {
-                            if (opt == "eq")
+                            break;
+                        case "value":
+                            long valueVal;
+                            if (long.TryParse(value, out valueVal))
                             {
-                                lastestStatusList.Add(status);
+                                switch (opt)
+                                {
+                                    case "lt":
+                                        result = result.Where(record => long.Parse(record.Value) < valueVal);
+                                        break;
+                                    case "gt":
+                                        result = result.Where(record => long.Parse(record.Value) > valueVal);
+                                        break;
+                                    case "eq":
+                                        result = result.Where(record => long.Parse(record.Value) == valueVal);
+                                        break;
+                                    case "lte":
+                                        result = result.Where(record => long.Parse(record.Value) <= valueVal);
+                                        break;
+                                    case "gte":
+                                        result = result.Where(record => long.Parse(record.Value) >= valueVal);
+                                        break;
+                                }
                             }
-                        }
-                        break;
-
+                            break;
+                        case "store-id":
+                            switch (opt)
+                            {
+                                case "eq":
+                                    int storeId;
+                                    if (!int.TryParse(value, out storeId))
+                                    {
+                                        storeId = -1;
+                                    }
+                                    result = result.Where(record => record.StoreId == storeId);
+                                    break;
+                            }
+                            break;
+                        case "lastest-status":
+                            int status;
+                            if (int.TryParse(value, out status))
+                            {
+                                if (opt == "eq")
+                                {
+                                    lastestStatusList.Add(status);
+                                }
+                            }
+                            break;
+                    }
                 }
             }
             

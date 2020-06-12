@@ -36,6 +36,10 @@ namespace PnLReporter.Service
         public IEnumerable<object> FilterFieldOut(string filter, IEnumerable<TransactionVModel> list)
         {
             IEnumerable<object> result = list;
+            if (filter == null)
+            {
+                return list;
+            }
             filter = filter.ToLower();
             if (filter != "any")
             {
@@ -129,7 +133,7 @@ namespace PnLReporter.Service
 
         public IEnumerable<TransactionVModel> SortList(string sortOrder, IEnumerable<TransactionVModel> list)
         {
-            switch (sortOrder)
+            switch (sortOrder.ToLower().Trim())
             {
                 case "id-asc":
                     list = list.OrderBy(record => record.Id);

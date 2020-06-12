@@ -28,6 +28,11 @@ namespace PnLReporter.Models
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
+            if (!optionsBuilder.IsConfigured)
+            {
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
+                optionsBuilder.UseSqlServer("Server=SE130139\\SQLEXPRESS2014;Database=P&LSystem;uid=sa;password=19091999+");
+            }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
