@@ -12,8 +12,7 @@ namespace PnLReporter.Service
 {
     public interface ITransactionCategoryService
     {
-        IEnumerable<TransactionCategoryVModel> QueryByBrand(string query, int brandId, int offset, int limit);
-        IEnumerable<TransactionCategoryVModel> SortList(string sort, IEnumerable<TransactionCategoryVModel> list);
+        IEnumerable<TransactionCategoryVModel> QueryByBrand(string query, string sort, int brandId, int offset, int limit);
         IEnumerable<Object> FilterColumns(string filter, IEnumerable<TransactionCategoryVModel> list);
     }
     public class TransactionCategoryService : ITransactionCategoryService
@@ -79,27 +78,11 @@ namespace PnLReporter.Service
             return result;
         }
 
-        public IEnumerable<TransactionCategoryVModel> QueryByBrand(string query, int brandId, int offset, int limit)
+        public IEnumerable<TransactionCategoryVModel> QueryByBrand(string query, string sort, int brandId, int offset, int limit)
         {
             if (query == null) query = "";
 
-            return this.ParseToVModel(_repository.QueryByBrand(query, brandId, offset, limit));
-        }
-
-        public IEnumerable<TransactionCategoryVModel> SortList(string sort, IEnumerable<TransactionCategoryVModel> list)
-        {
-            switch (sort.ToLower().Trim())
-            {
-                case "name-asc":
-                    return list.OrderBy(record => record.Name);
-                case "name-des":
-                    return list.OrderByDescending(record => record.Name);
-                case "created-time-asc":
-                    return list.OrderBy(record => record.CreatedTime);
-                case "create-time-des":
-                    return list.OrderByDescending(record => record.CreatedTime);
-            }
-            return list;
+            return this.ParseToVModel(_repository.QueryByBrand(query, sort, brandId, offset, limit));
         }
 
         private IEnumerable<TransactionCategoryVModel> ParseToVModel(IEnumerable<TransactionCategory> list)

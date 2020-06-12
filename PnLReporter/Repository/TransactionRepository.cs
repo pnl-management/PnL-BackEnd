@@ -13,7 +13,7 @@ namespace PnLReporter.Repository
         IEnumerable<Transaction> ListStoreTransactionInCurrentPeroid(int participantsId);
         IEnumerable<Transaction> ListWaitingForAccountantTransaction(int participantId);
         IEnumerable<Transaction> ListWaitingForStoreTransaction(int participants);
-        IEnumerable<Transaction> QueryListByFieldAndBrand(string query, int offset, int limit, int? brandId);
+        IEnumerable<Transaction> QueryListByFieldAndBrand(string query, string sort, int offset, int limit, int? brandId);
         IEnumerable<Transaction> GetAllByBrand(int offset, int limit, int? brandId);
     }
 
@@ -133,7 +133,7 @@ namespace PnLReporter.Repository
                 .ToList();
         }
 
-        public IEnumerable<Transaction> QueryListByFieldAndBrand(string query, int offset, int limit, int? brandId)
+        public IEnumerable<Transaction> QueryListByFieldAndBrand(string query, string sort, int offset, int limit, int? brandId)
         {
             IQueryable<Transaction> result = 
                 _context.Transaction
@@ -142,8 +142,33 @@ namespace PnLReporter.Repository
                 .Include(record => record.Period)
                 .Include(record => record.Store)
                 .Include(record => record.CreatedByNavigation)
-                .Where(trans => trans.BrandId == ((brandId != null) ? brandId : trans.BrandId))
-                .Skip(offset).Take(limit);
+                .Where(trans => trans.BrandId == ((brandId != null) ? brandId : trans.BrandId));
+
+            if (sort != null && sort.Length > 0)
+            {
+                switch (sort.ToLower().Trim())
+                {
+                    case "id-asc":
+                        result = result.OrderBy(record => record.Id);
+                        break;
+                    case "id-des":
+                        result = result.OrderByDescending(record => record.Id);
+                        break;
+                    case "value-asc":
+                        result = result.OrderBy(record => long.Parse(record.Value));
+                        break;
+                    case "value-des":
+                        result = result.OrderByDescending(record => long.Parse(record.Value));
+                        break;
+                    case "created-time-asc":
+                        result = result.OrderBy(record => record.CreatedTime);
+                        break;
+                    case "created-time-des":
+                        result = result.OrderByDescending(record => record.CreatedTime);
+                        break;
+                }
+            }
+
             List<string> queryComponent = new List<string>();
             queryComponent = query.Split(",").ToList();
 
@@ -250,7 +275,7 @@ namespace PnLReporter.Repository
                 );
             }
 
-            return result.ToList();
+            return result.Skip(offset).Take(limit).ToList();
         }
     }
 }

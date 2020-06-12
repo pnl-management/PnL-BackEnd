@@ -9,7 +9,7 @@ namespace PnLReporter.Repository
 {
     public interface ITransactionCategoryRepository
     {
-        IEnumerable<TransactionCategory> QueryByBrand(string query, int brandId, int offset, int limit);
+        IEnumerable<TransactionCategory> QueryByBrand(string query, string sort, int brandId, int offset, int limit);
     }
     public class TransactionCategoryRepository : ITransactionCategoryRepository
     {
@@ -20,13 +20,31 @@ namespace PnLReporter.Repository
             _context = context;
         }
 
-        public IEnumerable<TransactionCategory> QueryByBrand(string query, int brandId, int offset, int limit)
+        public IEnumerable<TransactionCategory> QueryByBrand(string query, string sort, int brandId, int offset, int limit)
         {
             IQueryable<TransactionCategory> result =
                 _context.TransactionCategory
                 .Include(record => record.Brand)
-                .Where(trans => trans.BrandId == brandId)
-                .Skip(offset).Take(limit);
+                .Where(trans => trans.BrandId == brandId);
+
+            if (!string.IsNullOrEmpty(sort))
+            {
+                switch (sort.ToLower().Trim())
+                {
+                    case "name-asc":
+                        result = result.OrderBy(record => record.Name);
+                        break;
+                    case "name-des":
+                        result = result.OrderByDescending(record => record.Name);
+                        break;
+                    case "created-time-asc":
+                        result = result.OrderBy(record => record.CreatedTime);
+                        break;
+                    case "create-time-des":
+                        result = result.OrderByDescending(record => record.CreatedTime);
+                        break;
+                }
+            }
 
             List<string> queryComponent = new List<string>();
             queryComponent = query.Split(",").ToList();
@@ -105,7 +123,7 @@ namespace PnLReporter.Repository
                 }                
             }
 
-            return result.ToList();
+            return result.Skip(offset).Take(limit).ToList();
         }
     }
 }

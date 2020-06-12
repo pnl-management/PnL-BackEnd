@@ -49,9 +49,7 @@ namespace PnLReporter.Controllers
             if (limit > 20) limit = 20;
             if (limit < 5) limit = 5;
 
-            result = _service.QueryByBrand(query, brandId, offset, limit);
-
-            result = _service.SortList(sort, (IEnumerable<StoreVModel>)result);
+            result = _service.QueryByBrand(query, sort, brandId, offset, limit);
 
             result = _service.FilterColumns(filter, (IEnumerable<StoreVModel>)result);
 

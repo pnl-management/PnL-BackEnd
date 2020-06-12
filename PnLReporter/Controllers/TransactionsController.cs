@@ -55,13 +55,7 @@ namespace PnLReporter.Controllers
             if (limitVal < 5) limitVal = 5;
 
             // query implement
-            result = _service.QueryListByFieldAndBrand(query, offsetVal, limitVal, brandId);
-
-            // sort implement
-            if (!String.IsNullOrEmpty(sort))
-            {
-                result = _service.SortList(sort, (IEnumerable<TransactionVModel>)result);
-            }
+            result = _service.QueryListByFieldAndBrand(query, sort, offsetVal, limitVal, brandId);
 
             // filter implement
             if (!String.IsNullOrEmpty(filter))

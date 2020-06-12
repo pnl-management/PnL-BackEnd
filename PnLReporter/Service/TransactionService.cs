@@ -16,8 +16,7 @@ namespace PnLReporter.Service
         IEnumerable<TransactionVModel> ListStoreTransactionInCurrentPeroid(int participantsId);
         IEnumerable<TransactionVModel> ListWaitingForAccountantTransaction(int participantId);
         IEnumerable<TransactionVModel> ListWaitingForStoreTransaction(int participants);
-        IEnumerable<TransactionVModel> SortList(string sortOrder, IEnumerable<TransactionVModel> list);
-        IEnumerable<TransactionVModel> QueryListByFieldAndBrand(string query, int offset, int limit, int brandId);
+        IEnumerable<TransactionVModel> QueryListByFieldAndBrand(string query, string sort, int offset, int limit, int brandId);
         IEnumerable<Object> LimitList(int offset, int limit, IEnumerable<TransactionVModel> list);
         IEnumerable<Object> FilterFieldOut(string filter, IEnumerable<TransactionVModel> list);
     }
@@ -121,50 +120,13 @@ namespace PnLReporter.Service
             return this.ParseToTransactionVModel(_repository.ListWaitingForStoreTransaction(participants));
         }
 
-        public IEnumerable<TransactionVModel> QueryListByFieldAndBrand(string query, int offset, int limit, int brandId)
+        public IEnumerable<TransactionVModel> QueryListByFieldAndBrand(string query, string sort, int offset, int limit, int brandId)
         {
             if (String.IsNullOrEmpty(query))
             {
-
-                return this.ParseToTransactionVModel(_repository.GetAllByBrand(offset, limit, brandId));
+                query = "";
             }
-            return this.ParseToTransactionVModel(_repository.QueryListByFieldAndBrand(query, offset, limit, brandId));
-        }
-
-        public IEnumerable<TransactionVModel> SortList(string sortOrder, IEnumerable<TransactionVModel> list)
-        {
-            switch (sortOrder.ToLower().Trim())
-            {
-                case "id-asc":
-                    list = list.OrderBy(record => record.Id);
-                    break;
-                case "id-des":
-                    list = list.OrderByDescending(record => record.Id);
-                    break;
-                case "value-asc":
-                    list = list.OrderBy(record =>
-                    {
-                        long result;
-                        long.TryParse(record.Value, out result);
-                        return result;
-                    });
-                    break;
-                case "value-des":
-                    list = list.OrderByDescending(record =>
-                    {
-                        long result;
-                        long.TryParse(record.Value, out result);
-                        return result;
-                    });
-                    break;
-                case "created-time-asc":
-                    list = list.OrderBy(record => record.CreatedTime);
-                    break;
-                case "created-time-des":
-                    list = list.OrderByDescending(record => record.CreatedTime);
-                    break;
-            }
-            return list;
+            return this.ParseToTransactionVModel(_repository.QueryListByFieldAndBrand(query, sort, offset, limit, brandId));
         }
 
         private IEnumerable<TransactionVModel> ParseToTransactionVModel(IEnumerable<Transaction> transList)

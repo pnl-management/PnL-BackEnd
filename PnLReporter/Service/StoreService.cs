@@ -11,8 +11,7 @@ namespace PnLReporter.Service
 {
     public interface IStoreService
     {
-        IEnumerable<StoreVModel> QueryByBrand(string query, int brandId, int offset, int limit);
-        IEnumerable<StoreVModel> SortList(string sort, IEnumerable<StoreVModel> list);
+        IEnumerable<StoreVModel> QueryByBrand(string query, string sort, int brandId, int offset, int limit);
         IEnumerable<Object> FilterColumns(string filter, IEnumerable<StoreVModel> list);
     }
     public class StoreService : IStoreService
@@ -71,23 +70,11 @@ namespace PnLReporter.Service
             return result;
         }
 
-        public IEnumerable<StoreVModel> QueryByBrand(string query, int brandId, int offset, int limit)
+        public IEnumerable<StoreVModel> QueryByBrand(string query, string sort, int brandId, int offset, int limit)
         {
             if (query == null) query = "";
 
-            return this.ParseToVModel(_repository.QueryByBrand(query, brandId, offset, limit));
-        }
-
-        public IEnumerable<StoreVModel> SortList(string sort, IEnumerable<StoreVModel> list)
-        {
-            switch (sort.ToLower().Trim())
-            {
-                case "name-asc":
-                    return list.OrderBy(record => record.Name);
-                case "name-des":
-                    return list.OrderByDescending(record => record.Name);
-            }
-            return list;
+            return this.ParseToVModel(_repository.QueryByBrand(query, sort, brandId, offset, limit));
         }
 
         private IEnumerable<StoreVModel> ParseToVModel(IEnumerable<Store> list)

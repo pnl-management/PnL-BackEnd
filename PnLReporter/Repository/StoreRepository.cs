@@ -9,7 +9,7 @@ namespace PnLReporter.Repository
 {
     public interface IStoreRepository
     {
-        IEnumerable<Store> QueryByBrand(string query, int brandId, int offset, int limit);
+        IEnumerable<Store> QueryByBrand(string query, string sort, int brandId, int offset, int limit);
     }
     public class StoreRepository : IStoreRepository
     {
@@ -20,13 +20,25 @@ namespace PnLReporter.Repository
             _context = context;
         }
 
-        public IEnumerable<Store> QueryByBrand(string query, int brandId, int offset, int limit)
+        public IEnumerable<Store> QueryByBrand(string query, string sort, int brandId, int offset, int limit)
         {
             IQueryable<Store> result =
                 _context.Store
                 .Include(record => record.Brand)
-                .Where(record => record.BrandId == brandId)
-                .Skip(offset).Take(limit);
+                .Where(record => record.BrandId == brandId);
+
+            if (sort != null && sort.Length > 0)
+            {
+                switch (sort.ToLower().Trim())
+                {
+                    case "name-asc":
+                        result = result.OrderBy(record => record.Name);
+                        break;
+                    case "name-des":
+                        result = result.OrderByDescending(record => record.Name);
+                        break;
+                }
+            }
 
             List<string> queryComponent = new List<string>();
             queryComponent = query.Split(",").ToList();
@@ -104,7 +116,7 @@ namespace PnLReporter.Repository
                 }
             }
 
-            return result.ToList();
+            return result.Skip(offset).Take(limit).ToList();
         }
     }
 }
