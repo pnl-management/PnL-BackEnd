@@ -12,5 +12,6 @@ namespace PnLReporter.ViewModels
         public string Phone { get; set; }
         public string Address { get; set; }
         public bool? Status { get; set; }
+        public BrandVModel Brand { get; set; }
     }
 }

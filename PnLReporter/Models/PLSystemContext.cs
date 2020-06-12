@@ -30,8 +30,6 @@ namespace PnLReporter.Models
         {
             if (!optionsBuilder.IsConfigured)
             {
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-                optionsBuilder.UseSqlServer("Server=SE130139\\SQLEXPRESS2014;Database=P&LSystem;uid=sa;password=19091999+");
             }
         }
 
@@ -186,6 +184,8 @@ namespace PnLReporter.Models
                     .HasMaxLength(500)
                     .IsUnicode(false);
 
+                entity.Property(e => e.BrandId).HasColumnName("brandId");
+
                 entity.Property(e => e.Name)
                     .HasColumnName("name")
                     .HasMaxLength(100)
@@ -197,6 +197,11 @@ namespace PnLReporter.Models
                     .IsUnicode(false);
 
                 entity.Property(e => e.Status).HasColumnName("status");
+
+                entity.HasOne(d => d.Brand)
+                    .WithMany(p => p.Store)
+                    .HasForeignKey(d => d.BrandId)
+                    .HasConstraintName("FK_Store_Brand");
             });
 
             modelBuilder.Entity<StoreParticipantsDetail>(entity =>

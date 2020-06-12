@@ -16,7 +16,9 @@ namespace PnLReporter.Models
         public string Phone { get; set; }
         public string Address { get; set; }
         public bool? Status { get; set; }
+        public int? BrandId { get; set; }
 
+        public virtual Brand Brand { get; set; }
         public virtual ICollection<StoreParticipantsDetail> StoreParticipantsDetail { get; set; }
         public virtual ICollection<Transaction> Transaction { get; set; }
     }
