@@ -1,0 +1,18 @@
+version: 2
+jobs:
+ build:
+   machine: true
+   steps:
+     - checkout 
+
+     # build image
+     - run: |         
+         docker info
+         docker build -t aspnetapp -f Dockerfile .
+     # deploy the image
+     - run: |         
+         docker login --username=ttran.phuc99@gmail.com --password=0d9e75b0-c306-466f-a139-5a00869de2f6 registry.heroku.com
+         docker tag aspnetapp registry.heroku.com/pnlreporter/web
+         docker push registry.heroku.com/pnlreporter/web                
+         curl https://cli-assets.heroku.com/install.sh | sh
+         heroku container:release web -a pnlreporter
