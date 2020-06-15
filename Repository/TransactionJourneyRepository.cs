@@ -26,5 +26,14 @@ namespace PnLReporter.Repository
                 .OrderByDescending(record => record.CreatedTime)
                 .FirstOrDefault();
         }
+
+        public TransactionJourney ChangeStatus(TransactionJourney transactionJourney)
+        {
+            transactionJourney.CreatedTime = DateTime.UtcNow;
+
+            _context.TransactionJourney.Add(transactionJourney);
+            _context.SaveChangesAsync();
+            return transactionJourney;
+        }
     }
 }

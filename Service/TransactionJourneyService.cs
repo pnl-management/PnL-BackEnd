@@ -33,5 +33,48 @@ namespace PnLReporter.Service
                 CreatedTime = _repository.GetLastestStatus(transactionId).CreatedTime
             } : null;
         }
+
+        public TransactionJourney ChangeStatus(long transactionId, TransactionJourney transactionJourney)
+        {
+            int oldCode = (int)GetLastestStatus(transactionId).Status;
+            if (oldCode == 301 || oldCode == 302)
+            {
+                transactionJourney.Status = 303;
+                _context.TransactionJourney.Add(transactionJourney);
+                _context.SaveChangesAsync();
+                return transactionJourney;
+            }
+            else if (oldCode == 201 || oldCode == 202)
+            {
+                transactionJourney.Status = 203;
+                _context.TransactionJourney.Add(transactionJourney);
+                _context.SaveChangesAsync();
+                return transactionJourney;
+            }
+            else if (oldCode == 101 || oldCode == 102)
+            {
+                transactionJourney.Status = 103;
+                _context.TransactionJourney.Add(transactionJourney);
+                _context.SaveChangesAsync();
+                return transactionJourney;
+            }
+            else if (oldCode == 1)
+            {
+                transactionJourney.Status = 0;
+                _context.TransactionJourney.Add(transactionJourney);
+                _context.SaveChangesAsync();
+                return transactionJourney;
+
+            }
+            else
+            {
+                _context.TransactionJourney.Add(transactionJourney);
+                _context.SaveChangesAsync();
+                return transactionJourney;
+            }
+
+
+        }
+
     }
 }
