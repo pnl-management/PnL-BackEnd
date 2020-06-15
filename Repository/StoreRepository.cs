@@ -10,6 +10,7 @@ namespace PnLReporter.Repository
     public interface IStoreRepository
     {
         IEnumerable<Store> QueryByBrand(string query, string sort, int brandId, int offset, int limit);
+        int CountListQuery(string query, int brandId);
     }
     public class StoreRepository : IStoreRepository
     {
@@ -20,7 +21,17 @@ namespace PnLReporter.Repository
             _context = context;
         }
 
+        public int CountListQuery(string query, int brandId)
+        {
+            return this.GetQueryStatement(query, "", brandId).Count();
+        }
+
         public IEnumerable<Store> QueryByBrand(string query, string sort, int brandId, int offset, int limit)
+        {
+            return this.GetQueryStatement(query, sort, brandId).Skip(offset).Take(limit).ToList();
+        }
+
+        private IQueryable<Store> GetQueryStatement(string query, string sort, int brandId)
         {
             IQueryable<Store> result =
                 _context.Store
@@ -116,7 +127,7 @@ namespace PnLReporter.Repository
                 }
             }
 
-            return result.Skip(offset).Take(limit).ToList();
+            return result;
         }
     }
 }

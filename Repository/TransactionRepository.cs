@@ -15,6 +15,7 @@ namespace PnLReporter.Repository
         IEnumerable<Transaction> ListWaitingForStoreTransaction(int participants);
         IEnumerable<Transaction> QueryListByFieldAndBrand(string query, string sort, int offset, int limit, int? brandId);
         IEnumerable<Transaction> GetAllByBrand(int offset, int limit, int? brandId);
+        int GetQueryListLength(string query, int? brandId);
     }
 
     public class TransactionRepository : ITransactionRepository
@@ -135,7 +136,17 @@ namespace PnLReporter.Repository
 
         public IEnumerable<Transaction> QueryListByFieldAndBrand(string query, string sort, int offset, int limit, int? brandId)
         {
-            IQueryable<Transaction> result = 
+            return this.GenQueryStatement(query, sort, brandId).Skip(offset).Take(limit).ToList();
+        }
+
+        public int GetQueryListLength(string query, int? brandId)
+        {
+            return this.GenQueryStatement(query, "", brandId).Count();
+        }
+
+        private IQueryable<Transaction> GenQueryStatement(string query, string sort, int? brandId)
+        {
+            IQueryable<Transaction> result =
                 _context.Transaction
                 .Include(record => record.Category)
                 .Include(record => record.Brand)
@@ -176,7 +187,7 @@ namespace PnLReporter.Repository
             string opt;
             string value;
 
-            List<int> lastestStatusList = new List<int>();            
+            List<int> lastestStatusList = new List<int>();
 
             foreach (string queryContent in queryComponent)
             {
@@ -262,7 +273,7 @@ namespace PnLReporter.Repository
                     }
                 }
             }
-            
+
             if (lastestStatusList.Count > 0)
             {
                 System.Diagnostics.Debug.WriteLine("Length " + lastestStatusList.Count);
@@ -275,7 +286,7 @@ namespace PnLReporter.Repository
                 );
             }
 
-            return result.Skip(offset).Take(limit).ToList();
+            return result;
         }
     }
 }

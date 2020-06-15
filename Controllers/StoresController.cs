@@ -28,7 +28,7 @@ namespace PnLReporter.Controllers
             _service = new StoreService(context);
         }
 
-        // GET: api/Stores
+        // GET: api/brands/stores
         [HttpGet]
         [Route("/api/brands/stores")]
         public ActionResult<IEnumerable<Store>> GetStore(string sort, string filter, string query, int offset, int limit)
@@ -53,6 +53,24 @@ namespace PnLReporter.Controllers
 
             result = _service.FilterColumns(filter, (IEnumerable<StoreVModel>)result);
 
+            return Ok(result);
+        }
+
+        // GET: api/brands/stores
+        [HttpGet]
+        [Route("/api/brands/stores")]
+        public ActionResult<IEnumerable<Store>> GetStoreCount(string query)
+        {
+            var identity = HttpContext.User.Identity as ClaimsIdentity;
+            string participantIdVal = identity.FindFirst(ClaimTypes.NameIdentifier).Value;
+            long userId;
+
+            long.TryParse(participantIdVal, out userId);
+
+            IParticipantService participantService = new ParticipantService(_context);
+
+            int brandId = participantService.FindByUserId(userId).Brand.Id;
+            var result = _service.CountQueryList(query, brandId);
             return Ok(result);
         }
 

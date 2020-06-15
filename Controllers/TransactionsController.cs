@@ -66,6 +66,26 @@ namespace PnLReporter.Controllers
             return Ok(result);
         }
 
+        // GET: api/Brand/Transactions/Length
+        [HttpGet]
+        [Route("/api/brands/transactions/length")]
+        [Authorize(Roles = "accountant,investor")]
+        public ActionResult<IEnumerable<Object>> CountTransactionByBrand(string query)
+        {
+            var identity = HttpContext.User.Identity as ClaimsIdentity;
+            string participantIdVal = identity.FindFirst(ClaimTypes.NameIdentifier).Value;
+            long userId;
+
+            long.TryParse(participantIdVal, out userId);
+            IParticipantService participantService = new ParticipantService(_context);
+
+            int brandId = participantService.FindByUserId(userId).Brand.Id;
+
+            var result = _service.GetQueryListLength(query, brandId);
+
+            return Ok(result);
+        }
+
         [HttpGet]
         [Route("Index")]
         public ActionResult<IEnumerable<TransactionVModel>> GetTransactionOnIndexPg()

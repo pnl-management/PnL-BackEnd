@@ -28,7 +28,7 @@ namespace PnLReporter.Controllers
             _service = new TransactionCategoryService(context);
         }
 
-        // GET: api/TransactionCategories
+        // GET: api/brands/transaction-categories
         [HttpGet]
         [Route("/api/brands/transaction-categories")]
         public ActionResult<IEnumerable<TransactionCategory>> GetTransactionCategory(string sort, string filter, string query, int offset, int limit)
@@ -52,6 +52,26 @@ namespace PnLReporter.Controllers
             result = _service.QueryByBrand(query, sort, brandId, offset, limit);
 
             result = _service.FilterColumns(filter, (IEnumerable<TransactionCategoryVModel>)result);
+
+            return Ok(result);
+        }
+
+        // GET: api/brands/transaction-categories/length
+        [HttpGet]
+        [Route("/api/brands/transaction-categories/length")]
+        public ActionResult<IEnumerable<TransactionCategory>> GetTransactionCategoryLength(string query)
+        {
+            var identity = HttpContext.User.Identity as ClaimsIdentity;
+            string participantIdVal = identity.FindFirst(ClaimTypes.NameIdentifier).Value;
+            long userId;
+
+            long.TryParse(participantIdVal, out userId);
+
+            IParticipantService participantService = new ParticipantService(_context);
+
+            int brandId = participantService.FindByUserId(userId).Brand.Id;
+
+            var result = _service.GetQueryListLength(query, brandId);
 
             return Ok(result);
         }

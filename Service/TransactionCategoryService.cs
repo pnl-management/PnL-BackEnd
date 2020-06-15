@@ -14,6 +14,7 @@ namespace PnLReporter.Service
     {
         IEnumerable<TransactionCategoryVModel> QueryByBrand(string query, string sort, int brandId, int offset, int limit);
         IEnumerable<Object> FilterColumns(string filter, IEnumerable<TransactionCategoryVModel> list);
+        int GetQueryListLength(string query, int? brandId);
     }
     public class TransactionCategoryService : ITransactionCategoryService
     {
@@ -76,6 +77,11 @@ namespace PnLReporter.Service
             }
 
             return result;
+        }
+
+        public int GetQueryListLength(string query, int? brandId)
+        {
+            return _repository.GetQueryListLength(query, brandId);
         }
 
         public IEnumerable<TransactionCategoryVModel> QueryByBrand(string query, string sort, int brandId, int offset, int limit)

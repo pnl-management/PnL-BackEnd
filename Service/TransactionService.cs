@@ -19,6 +19,7 @@ namespace PnLReporter.Service
         IEnumerable<TransactionVModel> QueryListByFieldAndBrand(string query, string sort, int offset, int limit, int brandId);
         IEnumerable<Object> LimitList(int offset, int limit, IEnumerable<TransactionVModel> list);
         IEnumerable<Object> FilterFieldOut(string filter, IEnumerable<TransactionVModel> list);
+        int GetQueryListLength(string query, int? brandId);
     }
     public class TransactionService : ITransactionService
     {
@@ -93,6 +94,11 @@ namespace PnLReporter.Service
             }
 
             return result;
+        }
+
+        public int GetQueryListLength(string query, int? brandId)
+        {
+            return _repository.GetQueryListLength(query, brandId);
         }
 
         public IEnumerable<Object> LimitList(int offset, int limit, IEnumerable<TransactionVModel> list)

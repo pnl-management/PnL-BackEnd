@@ -10,6 +10,7 @@ namespace PnLReporter.Repository
     public interface ITransactionCategoryRepository
     {
         IEnumerable<TransactionCategory> QueryByBrand(string query, string sort, int brandId, int offset, int limit);
+        int GetQueryListLength(string query, int? brandId);
     }
     public class TransactionCategoryRepository : ITransactionCategoryRepository
     {
@@ -20,7 +21,17 @@ namespace PnLReporter.Repository
             _context = context;
         }
 
+        public int GetQueryListLength(string query, int? brandId)
+        {
+            return this.GetQueryStatement(query, "", brandId).Count();
+        }
+
         public IEnumerable<TransactionCategory> QueryByBrand(string query, string sort, int brandId, int offset, int limit)
+        {
+            return this.GetQueryStatement(query, sort, brandId).Skip(offset).Take(limit).ToList();
+        }
+
+        private IQueryable<TransactionCategory> GetQueryStatement(string query, string sort, int? brandId)
         {
             IQueryable<TransactionCategory> result =
                 _context.TransactionCategory
@@ -120,10 +131,10 @@ namespace PnLReporter.Repository
                             break;
 
                     }
-                }                
+                }
             }
-
-            return result.Skip(offset).Take(limit).ToList();
+            
+            return result;
         }
     }
 }

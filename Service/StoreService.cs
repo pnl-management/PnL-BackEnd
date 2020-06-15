@@ -13,6 +13,7 @@ namespace PnLReporter.Service
     {
         IEnumerable<StoreVModel> QueryByBrand(string query, string sort, int brandId, int offset, int limit);
         IEnumerable<Object> FilterColumns(string filter, IEnumerable<StoreVModel> list);
+        int CountQueryList(string query, int brandId);
     }
     public class StoreService : IStoreService
     {
@@ -22,6 +23,12 @@ namespace PnLReporter.Service
         {
             _repository = new StoreRepository(context);
         }
+
+        public int CountQueryList(string query, int brandId)
+        {
+            return _repository.CountListQuery(query, brandId);
+        }
+
         public IEnumerable<object> FilterColumns(string filter, IEnumerable<StoreVModel> list)
         {
             IEnumerable<object> result = list;
