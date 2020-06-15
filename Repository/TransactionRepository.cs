@@ -16,6 +16,8 @@ namespace PnLReporter.Repository
         IEnumerable<Transaction> QueryListByFieldAndBrand(string query, string sort, int offset, int limit, int? brandId);
         IEnumerable<Transaction> GetAllByBrand(int offset, int limit, int? brandId);
         int GetQueryListLength(string query, int? brandId);
+        bool CheckTransactionBelongToBrand(long? tranId, int? brandId);
+        bool CheckTransactionBelongToStore(long? tranId, int? storeId);
     }
 
     public class TransactionRepository : ITransactionRepository
@@ -287,6 +289,28 @@ namespace PnLReporter.Repository
             }
 
             return result;
+        }
+
+        public bool CheckTransactionBelongToBrand(long? tranId, int? brandId)
+        {
+            bool check = false;
+            var currentTran = _context.Transaction.Where(record => record.Id == tranId).FirstOrDefault();
+            if (currentTran != null)
+            {
+                if (currentTran.BrandId == brandId) check = true;
+            }
+            return check;
+        }
+
+        public bool CheckTransactionBelongToStore(long? tranId, int? storeId)
+        {
+            bool check = false;
+            var currentTran = _context.Transaction.Where(record => record.Id == tranId).FirstOrDefault();
+            if (currentTran != null)
+            {
+                if (currentTran.BrandId == storeId) check = true;
+            }
+            return check;
         }
     }
 }

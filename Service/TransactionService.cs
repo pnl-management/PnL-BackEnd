@@ -20,6 +20,8 @@ namespace PnLReporter.Service
         IEnumerable<Object> LimitList(int offset, int limit, IEnumerable<TransactionVModel> list);
         IEnumerable<Object> FilterFieldOut(string filter, IEnumerable<TransactionVModel> list);
         int GetQueryListLength(string query, int? brandId);
+        bool CheckTransactionBelongToBrand(long? tranId, int? brandId);
+        bool CheckTransactionBelongToStore(long? tranId, int? storeId);
     }
     public class TransactionService : ITransactionService
     {
@@ -31,6 +33,16 @@ namespace PnLReporter.Service
         {
             _context = context;
             _repository = new TransactionRepository(context);
+        }
+
+        public bool CheckTransactionBelongToBrand(long? tranId, int? brandId)
+        {
+            return _repository.CheckTransactionBelongToBrand(tranId, brandId);
+        }
+
+        public bool CheckTransactionBelongToStore(long? tranId, int? storeId)
+        {
+            return _repository.CheckTransactionBelongToStore(tranId, storeId);
         }
 
         public IEnumerable<object> FilterFieldOut(string filter, IEnumerable<TransactionVModel> list)

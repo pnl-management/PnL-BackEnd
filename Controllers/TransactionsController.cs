@@ -13,6 +13,7 @@ using PnLReporter.Service;
 using PnLReporter.Repository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using PnLReporter.Helper;
+using PnLReporter.EnumInfo;
 
 namespace PnLReporter.Controllers
 {
@@ -34,7 +35,7 @@ namespace PnLReporter.Controllers
         // GET: api/Brand/Transactions
         [HttpGet]
         [Route("/api/brands/transactions")]
-        [Authorize(Roles = "accountant,investor")]
+        [Authorize(Roles = ParticipantsRoleConst.ACCOUNTANT + "," + ParticipantsRoleConst.INVESTOR)]
         public ActionResult<IEnumerable<Object>> GetTransactionByBrand(string sort, string filter, string query, string offset, string limit)
         {
             var identity = HttpContext.User.Identity as ClaimsIdentity;
@@ -69,7 +70,7 @@ namespace PnLReporter.Controllers
         // GET: api/Brand/Transactions/Length
         [HttpGet]
         [Route("/api/brands/transactions/length")]
-        [Authorize(Roles = "accountant,investor")]
+        [Authorize(Roles = ParticipantsRoleConst.ACCOUNTANT + "," + ParticipantsRoleConst.INVESTOR)]
         public ActionResult<IEnumerable<Object>> CountTransactionByBrand(string query)
         {
             var identity = HttpContext.User.Identity as ClaimsIdentity;
@@ -115,16 +116,56 @@ namespace PnLReporter.Controllers
 
         // GET: api/Transactions/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Transaction>> GetTransaction(long id)
+        public ActionResult<Transaction> GetTransaction(long id)
         {
-            var transaction = await _context.Transaction.FindAsync(id);
+            var identity = HttpContext.User.Identity as ClaimsIdentity;
+            string role = identity.FindFirst(ClaimTypes.Role).Value;
+            string participantIdVal = identity.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-            if (transaction == null)
+            long participantsId;
+
+            long.TryParse(participantIdVal, out participantsId);
+            IParticipantService participantService = new ParticipantService(_context);
+
+            var user = participantService.FindByUserId(participantsId);
+            int brandId = user.Brand.Id;
+            int storeId = user.Store.Id;
+
+            switch (role)
             {
-                return NotFound();
+                case ParticipantsRoleConst.INVESTOR:
+                    if (!_service.CheckTransactionBelongToBrand(id, brandId))
+                    {
+
+                    }
+                    else
+                    {
+                        return Forbid();
+                    }
+                    break;
+                case ParticipantsRoleConst.ACCOUNTANT:
+                    if (!_service.CheckTransactionBelongToBrand(id, brandId))
+                    {
+
+                    }
+                    else
+                    {
+                        return Forbid();
+                    }
+                    break;
+                case ParticipantsRoleConst.STORE_MANAGER:
+                    if (!_service.CheckTransactionBelongToStore(id, storeId))
+                    {
+
+                    }
+                    else
+                    {
+                        return Forbid();
+                    }
+                    break;
             }
 
-            return transaction;
+            return Ok();
         }
 
         // PUT: api/Transactions/5

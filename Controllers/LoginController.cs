@@ -64,7 +64,7 @@ namespace JWTAuthentication.Controllers
                 {
                     new Claim(ClaimTypes.NameIdentifier, participant.Id + ""),
                     new Claim(ClaimTypes.Email, participant.Username),
-                    new Claim(ClaimTypes.Role, ParticipantsRoleConst.GetRole(participant.Role))
+                    new Claim(ClaimTypes.Role, participant.Role + "")
                 }),
                 Audience = _config["Jwt:Issuer"],
                 Issuer = _config["Jwt:Issuer"],
