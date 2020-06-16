@@ -18,6 +18,7 @@ namespace PnLReporter.Repository
         int GetQueryListLength(string query, int? brandId);
         bool CheckTransactionBelongToBrand(long? tranId, int? brandId);
         bool CheckTransactionBelongToStore(long? tranId, int? storeId);
+        Transaction GetById(long tranId);
     }
 
     public class TransactionRepository : ITransactionRepository
@@ -311,6 +312,11 @@ namespace PnLReporter.Repository
                 if (currentTran.BrandId == storeId) check = true;
             }
             return check;
+        }
+
+        public Transaction GetById(long tranId)
+        {
+            return _context.Transaction.Where(record => record.Id == tranId).FirstOrDefault();
         }
     }
 }

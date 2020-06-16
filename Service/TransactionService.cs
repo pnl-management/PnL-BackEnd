@@ -22,6 +22,7 @@ namespace PnLReporter.Service
         int GetQueryListLength(string query, int? brandId);
         bool CheckTransactionBelongToBrand(long? tranId, int? brandId);
         bool CheckTransactionBelongToStore(long? tranId, int? storeId);
+        TransactionVModel GetById(long tranId);
     }
     public class TransactionService : ITransactionService
     {
@@ -106,6 +107,17 @@ namespace PnLReporter.Service
             }
 
             return result;
+        }
+
+        public TransactionVModel GetById(long tranId)
+        {
+            var transaction = _repository.GetById(tranId);
+
+            if (transaction != null)
+            {
+                return this.ParseToTransactionVModel(new List<Transaction>{transaction}).FirstOrDefault();
+            }
+            return null;
         }
 
         public int GetQueryListLength(string query, int? brandId)

@@ -136,19 +136,11 @@ namespace PnLReporter.Controllers
                 case ParticipantsRoleConst.INVESTOR:
                     if (!_service.CheckTransactionBelongToBrand(id, brandId))
                     {
-
-                    }
-                    else
-                    {
                         return Forbid();
                     }
                     break;
                 case ParticipantsRoleConst.ACCOUNTANT:
                     if (!_service.CheckTransactionBelongToBrand(id, brandId))
-                    {
-
-                    }
-                    else
                     {
                         return Forbid();
                     }
@@ -156,16 +148,12 @@ namespace PnLReporter.Controllers
                 case ParticipantsRoleConst.STORE_MANAGER:
                     if (!_service.CheckTransactionBelongToStore(id, storeId))
                     {
-
-                    }
-                    else
-                    {
                         return Forbid();
                     }
                     break;
             }
 
-            return Ok();
+            return Ok(_service.GetById(id));
         }
 
         // PUT: api/Transactions/5
