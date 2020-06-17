@@ -58,7 +58,7 @@ namespace PnLReporter.Controllers
 
         // GET: api/brands/stores
         [HttpGet]
-        [Route("/api/brands/stores")]
+        [Route("/api/brands/stores/length")]
         public ActionResult<IEnumerable<Store>> GetStoreCount(string query)
         {
             var identity = HttpContext.User.Identity as ClaimsIdentity;
