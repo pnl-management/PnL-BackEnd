@@ -138,12 +138,6 @@ namespace PnLReporter.Repository
             return result;
         }
 
-        public TransactionCategory createTransactionCategory (TransactionCategory transactionCategory)
-        {
-            transactionCategory.CreatedTime = DateTime.Now;
-            transactionCategory.LastModified = transactionCategory.CreatedTime;
-
-            return transactionCategory;
-        }
+       
     }
 }

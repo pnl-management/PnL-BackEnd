@@ -124,6 +124,19 @@ namespace PnLReporter.Controllers
         [HttpPost]
         public async Task<ActionResult<TransactionCategory>> PostTransactionCategory(TransactionCategory transactionCategory)
         {
+            var identity = HttpContext.User.Identity as ClaimsIdentity;
+            string participantIdVal = identity.FindFirst(ClaimTypes.NameIdentifier).Value;
+            long userId;
+
+            long.TryParse(participantIdVal, out userId);
+
+            IParticipantService participantService = new ParticipantService(_context);
+            
+            transactionCategory.BrandId = participantService.FindByUserId(userId).Brand.Id;
+            transactionCategory.CreatedTime = DateTime.Now;
+            transactionCategory.LastModified = DateTime.Now;
+            transactionCategory.Status = true;
+
             _context.TransactionCategory.Add(transactionCategory);
             await _context.SaveChangesAsync();
 

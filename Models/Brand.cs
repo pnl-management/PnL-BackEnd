@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PnLReporter.Models
 {
@@ -13,7 +15,8 @@ namespace PnLReporter.Models
             Transaction = new HashSet<Transaction>();
             TransactionCategory = new HashSet<TransactionCategory>();
         }
-
+        [Key]
+        [DatabaseGeneratedAttribute(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         public string Name { get; set; }
         public bool? Status { get; set; }
