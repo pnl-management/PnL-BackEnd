@@ -99,14 +99,14 @@ namespace PnLReporter.Controllers
             if (int.TryParse(participantIdVal, out participantId)) {
                 switch (role)
                 {
-                    case "investor":
+                    case ParticipantsRoleConst.INVESTOR:
                         return Ok(_service.ListInvestorIndexTransactions(participantId));
-                    case "store-manager":
+                    case ParticipantsRoleConst.STORE_MANAGER:
                         return Ok(
                             new { currentPeriod = _service.ListStoreTransactionInCurrentPeroid(participantId),
                                 waitingTransaction = _service.ListWaitingForStoreTransaction(participantId)}
                             );
-                    case "accountant":
+                    case ParticipantsRoleConst.ACCOUNTANT:
                         return Ok(_service.ListWaitingForAccountantTransaction(participantId));
                 }
             }
