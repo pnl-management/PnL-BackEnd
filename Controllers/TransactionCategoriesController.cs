@@ -122,7 +122,7 @@ namespace PnLReporter.Controllers
 
         // POST: api/TransactionCategories
         [HttpPost]
-        public async Task<ActionResult<TransactionCategory>> PostTransactionCategory(TransactionCategory transactionCategory)
+        public ActionResult<TransactionCategory> PostTransactionCategory(TransactionCategoryVModel transactionCategory)
         {
             var identity = HttpContext.User.Identity as ClaimsIdentity;
             string participantIdVal = identity.FindFirst(ClaimTypes.NameIdentifier).Value;
@@ -131,16 +131,17 @@ namespace PnLReporter.Controllers
             long.TryParse(participantIdVal, out userId);
 
             IParticipantService participantService = new ParticipantService(_context);
-            
-            transactionCategory.BrandId = participantService.FindByUserId(userId).Brand.Id;
-            transactionCategory.CreatedTime = DateTime.Now;
-            transactionCategory.LastModified = DateTime.Now;
-            transactionCategory.Status = true;
 
-            _context.TransactionCategory.Add(transactionCategory);
-            await _context.SaveChangesAsync();
+            //var x = _context.BrandParticipantsDetail
+            //    .Where(record => record.ParticipantsId == userId)
+            //    .FirstOrDefault<BrandParticipantsDetail>();
 
-            return CreatedAtAction("GetTransactionCategory", new { id = transactionCategory.Id }, transactionCategory);
+            transactionCategory.Brand = new BrandVModel() { Id = participantService.FindByUserId(userId).Brand.Id };
+            //transactionCategory.BrandId = x.BrandId;
+
+            var result = _service.Add(transactionCategory);
+
+            return CreatedAtAction("GetTransactionCategory", new { id = result.Id }, result);
         }
 
         // DELETE: api/TransactionCategories/5

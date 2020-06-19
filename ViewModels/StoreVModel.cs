@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using PnLReporter.Models;
 
 namespace PnLReporter.ViewModels
 {
@@ -13,5 +14,10 @@ namespace PnLReporter.ViewModels
         public string Address { get; set; }
         public bool? Status { get; set; }
         public BrandVModel Brand { get; set; }
+
+        public static implicit operator StoreVModel(Store v)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

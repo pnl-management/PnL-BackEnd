@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using PnLReporter.Models;
 using PnLReporter.Repository;
+using PnLReporter.ViewModels;
 
 namespace PnLReporter.Service
 {
@@ -34,10 +35,23 @@ namespace PnLReporter.Service
                     Id = participant.Id,
                     Username = participant.Username,
                     Fullname = participant.Fullname,
-                    Role = (brandParicipant != null) ? brandParicipant.Role : null,
-                    Description = (brandParicipant != null) ? brandParicipant.Description : null,
-                    Store = (storeParticipant != null) ? storeParticipant.Store : null,
-                    Brand = (brandParicipant != null) ? brandParicipant.Brand : null
+                    Role = brandParicipant?.Role,
+                    Description = brandParicipant?.Description,
+                    Store = (storeParticipant != null && storeParticipant.Store != null) ? new StoreVModel()
+                    {
+                        Id = storeParticipant.Store.Id,
+                        Name = storeParticipant.Store.Name,
+                        Address = storeParticipant.Store.Address,
+                        Phone = storeParticipant.Store.Phone,
+                        Status = storeParticipant.Store.Status
+
+                    } : null,
+                    Brand = (brandParicipant != null && brandParicipant.Brand != null) ? new BrandVModel()
+                    {
+                        Id = brandParicipant.Brand.Id,
+                        Name = brandParicipant.Brand.Name,
+                        Status = brandParicipant.Brand.Status
+                    } : null
                 };
             }
             return null;
@@ -56,10 +70,23 @@ namespace PnLReporter.Service
                     Id = participant.Id,
                     Username = participant.Username,
                     Fullname = participant.Fullname,
-                    Role = (brandParicipant != null) ? brandParicipant.Role : null,
-                    Description = (brandParicipant != null) ? brandParicipant.Description : null,
-                    Store = (storeParticipant != null) ? storeParticipant.Store : null,
-                    Brand = (brandParicipant != null) ? brandParicipant.Brand : null
+                    Role = brandParicipant?.Role,
+                    Description = brandParicipant?.Description,
+                    Store = (storeParticipant != null && storeParticipant.Store != null) ? new StoreVModel()
+                    {
+                        Id = storeParticipant.Store.Id,
+                        Name = storeParticipant.Store.Name,
+                        Address = storeParticipant.Store.Address,
+                        Phone = storeParticipant.Store.Phone,
+                        Status = storeParticipant.Store.Status
+
+                    } : null,
+                    Brand = (brandParicipant != null && brandParicipant.Brand != null) ? new BrandVModel()
+                    {
+                        Id = brandParicipant.Brand.Id,
+                        Name = brandParicipant.Brand.Name,
+                        Status = brandParicipant.Brand.Status
+                    } : null
                 };
             }
             return null;

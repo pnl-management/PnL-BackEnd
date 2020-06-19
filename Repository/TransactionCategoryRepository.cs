@@ -12,6 +12,7 @@ namespace PnLReporter.Repository
     {
         IEnumerable<TransactionCategory> QueryByBrand(string query, string sort, int brandId, int offset, int limit);
         int GetQueryListLength(string query, int? brandId);
+        TransactionCategory Add(TransactionCategory category);
     }
     public class TransactionCategoryRepository : ITransactionCategoryRepository
     {
@@ -20,6 +21,13 @@ namespace PnLReporter.Repository
         public TransactionCategoryRepository(PLSystemContext context)
         {
             _context = context;
+        }
+
+        public TransactionCategory Add(TransactionCategory category)
+        {
+            _context.TransactionCategory.Add(category);
+            _context.SaveChanges();
+            return category;
         }
 
         public int GetQueryListLength(string query, int? brandId)
