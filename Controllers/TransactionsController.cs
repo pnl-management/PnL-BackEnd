@@ -129,7 +129,6 @@ namespace PnLReporter.Controllers
 
             var user = participantService.FindByUserId(participantsId);
             int brandId = user.Brand.Id;
-            int storeId = user.Store.Id;
 
             switch (role)
             {
@@ -146,6 +145,7 @@ namespace PnLReporter.Controllers
                     }
                     break;
                 case ParticipantsRoleConst.STORE_MANAGER:
+                    int storeId = user.Store.Id;
                     if (!_service.CheckTransactionBelongToStore(id, storeId))
                     {
                         return Forbid();
