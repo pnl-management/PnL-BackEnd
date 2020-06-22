@@ -137,7 +137,6 @@ namespace PnLReporter.Controllers
             //    .FirstOrDefault<BrandParticipantsDetail>();
 
             transactionVCategory.Brand = new BrandVModel() { Id = participantService.FindByUserId(userId).Brand.Id };
-            transactionVCategory.Required = true;
             transactionVCategory.Status = true;
             transactionVCategory.CreatedTime = DateTime.Now;
             transactionVCategory.LastModified = DateTime.Now;
