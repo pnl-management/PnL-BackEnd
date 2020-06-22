@@ -23,6 +23,8 @@ namespace PnLReporter.Service
         bool CheckTransactionBelongToBrand(long? tranId, int? brandId);
         bool CheckTransactionBelongToStore(long? tranId, int? storeId);
         TransactionVModel GetById(long tranId);
+
+        TransactionVModel UpdateTransaction(TransactionVModel transaction);
     }
     public class TransactionService : ITransactionService
     {
@@ -122,6 +124,7 @@ namespace PnLReporter.Service
 
         public int GetQueryListLength(string query, int? brandId)
         {
+            if (query == null) query = "";
             return _repository.GetQueryListLength(query, brandId);
         }
 
@@ -157,6 +160,11 @@ namespace PnLReporter.Service
                 query = "";
             }
             return this.ParseToTransactionVModel(_repository.QueryListByFieldAndBrand(query, sort, offset, limit, brandId));
+        }
+
+        public TransactionVModel UpdateTransaction(TransactionVModel transaction)
+        {
+            throw new NotImplementedException();
         }
 
         private IEnumerable<TransactionVModel> ParseToTransactionVModel(IEnumerable<Transaction> transList)

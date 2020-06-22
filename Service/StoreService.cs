@@ -26,6 +26,7 @@ namespace PnLReporter.Service
 
         public int CountQueryList(string query, int brandId)
         {
+            if (query == null) query = "";
             return _repository.CountListQuery(query, brandId);
         }
 
