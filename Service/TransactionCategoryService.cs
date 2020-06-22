@@ -28,15 +28,17 @@ namespace PnLReporter.Service
 
         public TransactionCategoryVModel Add(TransactionCategoryVModel category)
         {
-            var tranCategory = new TransactionCategory()
+            var transaction = new TransactionCategory
             {
                 Name = category.Name,
+                Type = category.Type,
+                Required = category.Required,
+                Status = category.Status,
                 BrandId = category.Brand.Id,
-                CreatedTime = DateTime.Now,
-                LastModified = DateTime.Now,
-                Status = true
+                CreatedTime = category.CreatedTime,
+                LastModified = category.LastModified
             };
-            var newCate = _repository.Add(tranCategory);
+            var newCate = _repository.Add(transaction);
 
             category.Id = newCate.Id;
 

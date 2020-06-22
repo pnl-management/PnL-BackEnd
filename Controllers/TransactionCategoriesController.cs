@@ -122,7 +122,7 @@ namespace PnLReporter.Controllers
 
         // POST: api/TransactionCategories
         [HttpPost]
-        public ActionResult<TransactionCategory> PostTransactionCategory(TransactionCategoryVModel transactionCategory)
+        public ActionResult<TransactionCategory> PostTransactionCategory(TransactionCategoryVModel transactionVCategory)
         {
             var identity = HttpContext.User.Identity as ClaimsIdentity;
             string participantIdVal = identity.FindFirst(ClaimTypes.NameIdentifier).Value;
@@ -136,10 +136,17 @@ namespace PnLReporter.Controllers
             //    .Where(record => record.ParticipantsId == userId)
             //    .FirstOrDefault<BrandParticipantsDetail>();
 
-            transactionCategory.Brand = new BrandVModel() { Id = participantService.FindByUserId(userId).Brand.Id };
-            //transactionCategory.BrandId = x.BrandId;
+            transactionVCategory.Brand = new BrandVModel() { Id = participantService.FindByUserId(userId).Brand.Id };
+            transactionVCategory.Required = true;
+            transactionVCategory.Status = true;
+            transactionVCategory.CreatedTime = DateTime.Now;
+            transactionVCategory.LastModified = DateTime.Now;
 
-            var result = _service.Add(transactionCategory);
+            
+            //transactionCategory.BrandId = x.BrandId;
+            
+
+            var result = _service.Add(transactionVCategory);
 
             return CreatedAtAction("GetTransactionCategory", new { id = result.Id }, result);
         }
