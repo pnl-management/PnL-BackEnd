@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using PnLReporter.EnumInfo;
+using PnLReporter.ViewModels;
 
 namespace PnLReporter.Repository
 {
@@ -19,6 +21,7 @@ namespace PnLReporter.Repository
         bool CheckTransactionBelongToBrand(long? tranId, int? brandId);
         bool CheckTransactionBelongToStore(long? tranId, int? storeId);
         Transaction GetById(long tranId);
+        Transaction UpdateTransaction(TransactionVModel transaction);
     }
 
     public class TransactionRepository : ITransactionRepository
@@ -317,6 +320,23 @@ namespace PnLReporter.Repository
         public Transaction GetById(long tranId)
         {
             return _context.Transaction.Where(record => record.Id == tranId).FirstOrDefault();
+        }
+
+        public Transaction UpdateTransaction(TransactionVModel transaction)
+        {
+            var curTransaction = _context.Transaction.Where(record => record.Id == transaction.Id).FirstOrDefault();
+
+            if (curTransaction == null) throw new Exception(TransactionExceptionMessage.TRANSACTION_NOT_FOUND);
+
+            curTransaction.Name = transaction.Name;
+            curTransaction.Value = transaction.Value;
+            curTransaction.Description = transaction.Description;
+            curTransaction.CategoryId = transaction.Category.Id;
+
+            _context.Entry(curTransaction).State = EntityState.Modified;
+            _context.SaveChanges();
+
+            return curTransaction;
         }
     }
 }

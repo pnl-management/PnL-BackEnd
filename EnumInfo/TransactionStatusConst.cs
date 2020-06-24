@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace PnLReporter.EnumInfo
 {
-    public class TransactionStatusEnum
+    public class TransactionStatusConst
     {
         private readonly Dictionary<int?, string> Dictionary;
 
@@ -24,7 +24,7 @@ namespace PnLReporter.EnumInfo
         public readonly static int DONE = 1;
         public readonly static int CANCELED_AFTER_CLOSED = 0;
 
-        public TransactionStatusEnum()
+        public TransactionStatusConst()
         {
             Dictionary = new Dictionary<int?, string>()
             {

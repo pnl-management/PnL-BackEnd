@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using PnLReporter.Helper;
+using PnLReporter.EnumInfo;
 
 namespace PnLReporter.Service
 {
@@ -164,7 +165,38 @@ namespace PnLReporter.Service
 
         public TransactionVModel UpdateTransaction(TransactionVModel transaction)
         {
-            throw new NotImplementedException();
+            if (transaction != null)
+            {
+                ITransactionJourneyService jorneyService = new TransactionJourneyService(_context);
+                var lastestStatus = jorneyService.GetLastestStatus(transaction.Id);
+
+                if (lastestStatus == null) throw new Exception(TransactionExceptionMessage.CUR_STATUS_NOT_FOUND);
+
+                var modifiedStatus = new List<int>()
+                {
+                    TransactionStatusConst.ACC_REQ_MODIFIED,
+                    TransactionStatusConst.INVESTOR_REQ_MODIFIED,
+                    TransactionStatusConst.STORE_CREATED,
+                    TransactionStatusConst.STORE_MODIFIED
+                };
+
+                if (modifiedStatus.Contains(lastestStatus.Status?? default))
+                {
+                    var list = new List<Transaction>
+                    {
+                        _repository.UpdateTransaction(transaction)
+                    };
+
+
+
+                    return this.ParseToTransactionVModel(list).FirstOrDefault();
+                }
+                else
+                {
+                    throw new Exception(TransactionExceptionMessage.CUR_STATUS_CANNOT_MODIFIED);
+                }
+            }
+            throw new Exception(TransactionExceptionMessage.OBJ_IS_NULL);
         }
 
         private IEnumerable<TransactionVModel> ParseToTransactionVModel(IEnumerable<Transaction> transList)

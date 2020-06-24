@@ -38,14 +38,9 @@ namespace PnLReporter.Controllers
         [Authorize(Roles = ParticipantsRoleConst.ACCOUNTANT + "," + ParticipantsRoleConst.INVESTOR)]
         public ActionResult<IEnumerable<Object>> GetTransactionByBrand(string sort, string filter, string query, string offset, string limit)
         {
-            var identity = HttpContext.User.Identity as ClaimsIdentity;
-            string participantIdVal = identity.FindFirst(ClaimTypes.NameIdentifier).Value;
-            long userId;
+            var user = this.GetCurrentUserInfo();
 
-            long.TryParse(participantIdVal, out userId);
-            IParticipantService participantService = new ParticipantService(_context);
-
-            int brandId = participantService.FindByUserId(userId).Brand.Id;
+            int brandId = user.Brand.Id;
 
             IEnumerable<Object> result;
             // paging implement
@@ -73,14 +68,9 @@ namespace PnLReporter.Controllers
         [Authorize(Roles = ParticipantsRoleConst.ACCOUNTANT + "," + ParticipantsRoleConst.INVESTOR)]
         public ActionResult<IEnumerable<Object>> CountTransactionByBrand(string query)
         {
-            var identity = HttpContext.User.Identity as ClaimsIdentity;
-            string participantIdVal = identity.FindFirst(ClaimTypes.NameIdentifier).Value;
-            long userId;
+            var user = this.GetCurrentUserInfo();
 
-            long.TryParse(participantIdVal, out userId);
-            IParticipantService participantService = new ParticipantService(_context);
-
-            int brandId = participantService.FindByUserId(userId).Brand.Id;
+            int brandId = user.Brand.Id;
 
             var result = _service.GetQueryListLength(query, brandId);
 
@@ -91,46 +81,37 @@ namespace PnLReporter.Controllers
         [Route("Index")]
         public ActionResult<IEnumerable<TransactionVModel>> GetTransactionOnIndexPg()
         {
-            var identity = HttpContext.User.Identity as ClaimsIdentity;
-            string role = identity.FindFirst(ClaimTypes.Role).Value;
-            string participantIdVal = identity.FindFirst(ClaimTypes.NameIdentifier).Value;
-            
-            int participantId;
-            if (int.TryParse(participantIdVal, out participantId)) {
-                switch (role)
-                {
-                    case ParticipantsRoleConst.INVESTOR:
-                        return Ok(_service.ListInvestorIndexTransactions(participantId));
-                    case ParticipantsRoleConst.STORE_MANAGER:
-                        return Ok(
-                            new { currentPeriod = _service.ListStoreTransactionInCurrentPeroid(participantId),
-                                waitingTransaction = _service.ListWaitingForStoreTransaction(participantId)}
-                            );
-                    case ParticipantsRoleConst.ACCOUNTANT:
-                        return Ok(_service.ListWaitingForAccountantTransaction(participantId));
-                }
+            var user = this.GetCurrentUserInfo();
+
+            switch (user.Role + "")
+            {
+                case ParticipantsRoleConst.INVESTOR:
+                    return Ok(_service.ListInvestorIndexTransactions(user.Id));
+                case ParticipantsRoleConst.STORE_MANAGER:
+                    return Ok(
+                        new
+                        {
+                            currentPeriod = _service.ListStoreTransactionInCurrentPeroid(user.Id),
+                            waitingTransaction = _service.ListWaitingForStoreTransaction(user.Id)
+                        }
+                        );
+                case ParticipantsRoleConst.ACCOUNTANT:
+                    return Ok(_service.ListWaitingForAccountantTransaction(user.Id));
             }
 
-            return BadRequest(new { role = role, id = participantId });
+            return BadRequest(new { role = user.Role, id = user.Id });
         }
 
         // GET: api/Transactions/5
         [HttpGet("{id}")]
         public ActionResult<Transaction> GetTransaction(long id)
         {
-            var identity = HttpContext.User.Identity as ClaimsIdentity;
-            string role = identity.FindFirst(ClaimTypes.Role).Value;
-            string participantIdVal = identity.FindFirst(ClaimTypes.NameIdentifier).Value;
+            var user = this.GetCurrentUserInfo();
 
-            long participantsId;
-
-            long.TryParse(participantIdVal, out participantsId);
             IParticipantService participantService = new ParticipantService(_context);
-
-            var user = participantService.FindByUserId(participantsId);
             int brandId = user.Brand.Id;
 
-            switch (role)
+            switch (user.Role + "")
             {
                 case ParticipantsRoleConst.INVESTOR:
                     if (!_service.CheckTransactionBelongToBrand(id, brandId))
@@ -156,34 +137,33 @@ namespace PnLReporter.Controllers
             return Ok(_service.GetById(id));
         }
 
-        // PUT: api/Transactions/5
+        // PUT: api/stores/transactions/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutTransaction(long id, Transaction transaction)
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = ParticipantsRoleConst.STORE_MANAGER)]
+        public IActionResult PutTransaction(long id, TransactionVModel transaction)
         {
             if (id != transaction.Id)
             {
-                return BadRequest();
+                transaction.Id = id;
             }
 
-            _context.Entry(transaction).State = EntityState.Modified;
+            var result = "";
+
+            var user = this.GetCurrentUserInfo();
+            int storeId = user.Store.Id;
+
+            if (!_service.CheckTransactionBelongToStore(transaction.Id, storeId)) return Forbid();
 
             try
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
+                return Ok(_service.UpdateTransaction(transaction));
+            } 
+            catch (Exception e)
             {
-                if (!TransactionExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                result = e.Message;
             }
 
-            return NoContent();
+            return BadRequest(new {message = result});
         }
 
         // POST: api/Transactions
@@ -215,6 +195,20 @@ namespace PnLReporter.Controllers
         private bool TransactionExists(long id)
         {
             return _context.Transaction.Any(e => e.Id == id);
+        }
+
+        private UserModel GetCurrentUserInfo()
+        {
+            var identity = HttpContext.User.Identity as ClaimsIdentity;
+            string role = identity.FindFirst(ClaimTypes.Role).Value;
+            string participantIdVal = identity.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+            long participantsId;
+
+            long.TryParse(participantIdVal, out participantsId);
+            IParticipantService participantService = new ParticipantService(_context);
+
+            return participantService.FindByUserId(participantsId);
         }
     }
 }

@@ -33,15 +33,9 @@ namespace PnLReporter.Controllers
         [Route("/api/brands/stores")]
         public ActionResult<IEnumerable<Store>> GetStore(string sort, string filter, string query, int offset, int limit)
         {
-            var identity = HttpContext.User.Identity as ClaimsIdentity;
-            string participantIdVal = identity.FindFirst(ClaimTypes.NameIdentifier).Value;
-            long userId;
+            var user = this.GetCurrentUserInfo();
 
-            long.TryParse(participantIdVal, out userId);
-
-            IParticipantService participantService = new ParticipantService(_context);
-
-            int brandId = participantService.FindByUserId(userId).Brand.Id;
+            int brandId = user.Brand.Id;
 
             IEnumerable<Object> result = null;
 
@@ -61,15 +55,9 @@ namespace PnLReporter.Controllers
         [Route("/api/brands/stores/length")]
         public ActionResult<IEnumerable<Store>> GetStoreCount(string query)
         {
-            var identity = HttpContext.User.Identity as ClaimsIdentity;
-            string participantIdVal = identity.FindFirst(ClaimTypes.NameIdentifier).Value;
-            long userId;
+            var user = this.GetCurrentUserInfo();
 
-            long.TryParse(participantIdVal, out userId);
-
-            IParticipantService participantService = new ParticipantService(_context);
-
-            int brandId = participantService.FindByUserId(userId).Brand.Id;
+            int brandId = user.Brand.Id;
             var result = _service.CountQueryList(query, brandId);
             return Ok(result);
         }
@@ -147,6 +135,20 @@ namespace PnLReporter.Controllers
         private bool StoreExists(int id)
         {
             return _context.Store.Any(e => e.Id == id);
+        }
+
+        private UserModel GetCurrentUserInfo()
+        {
+            var identity = HttpContext.User.Identity as ClaimsIdentity;
+            string role = identity.FindFirst(ClaimTypes.Role).Value;
+            string participantIdVal = identity.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+            long participantsId;
+
+            long.TryParse(participantIdVal, out participantsId);
+            IParticipantService participantService = new ParticipantService(_context);
+
+            return participantService.FindByUserId(participantsId);
         }
     }
 }
