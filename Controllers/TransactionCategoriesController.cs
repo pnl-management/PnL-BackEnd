@@ -8,13 +8,14 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using PnLReporter.EnumInfo;
 using PnLReporter.Models;
 using PnLReporter.Service;
 using PnLReporter.ViewModels;
 
 namespace PnLReporter.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/transaction-categories")]
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class TransactionCategoriesController : ControllerBase
@@ -65,7 +66,7 @@ namespace PnLReporter.Controllers
         }
 
         // GET: api/TransactionCategories/5
-        [HttpGet("{id}")]
+        /*[HttpGet("{id}")]
         public async Task<ActionResult<TransactionCategory>> GetTransactionCategory(long id)
         {
             var transactionCategory = await _context.TransactionCategory.FindAsync(id);
@@ -106,10 +107,11 @@ namespace PnLReporter.Controllers
             }
 
             return NoContent();
-        }
+        }*/
 
         // POST: api/TransactionCategories
         [HttpPost]
+        [Authorize(Roles = ParticipantsRoleConst.ACCOUNTANT + "," + ParticipantsRoleConst.INVESTOR)]
         public ActionResult<TransactionCategory> PostTransactionCategory(TransactionCategoryVModel transactionVCategory)
         {
             var identity = HttpContext.User.Identity as ClaimsIdentity;
@@ -120,18 +122,10 @@ namespace PnLReporter.Controllers
 
             IParticipantService participantService = new ParticipantService(_context);
 
-            //var x = _context.BrandParticipantsDetail
-            //    .Where(record => record.ParticipantsId == userId)
-            //    .FirstOrDefault<BrandParticipantsDetail>();
-
             transactionVCategory.Brand = new BrandVModel() { Id = participantService.FindByUserId(userId).Brand.Id };
             transactionVCategory.Status = true;
             transactionVCategory.CreatedTime = DateTime.Now;
             transactionVCategory.LastModified = DateTime.Now;
-
-            
-            //transactionCategory.BrandId = x.BrandId;
-            
 
             var result = _service.Add(transactionVCategory);
 
@@ -139,7 +133,7 @@ namespace PnLReporter.Controllers
         }
 
         // DELETE: api/TransactionCategories/5
-        [HttpDelete("{id}")]
+        /*[HttpDelete("{id}")]
         public async Task<ActionResult<TransactionCategory>> DeleteTransactionCategory(long id)
         {
             var transactionCategory = await _context.TransactionCategory.FindAsync(id);
@@ -157,7 +151,7 @@ namespace PnLReporter.Controllers
         private bool TransactionCategoryExists(long id)
         {
             return _context.TransactionCategory.Any(e => e.Id == id);
-        }
+        }*/
 
         private UserModel GetCurrentUserInfo()
         {

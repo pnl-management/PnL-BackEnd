@@ -63,7 +63,7 @@ namespace PnLReporter.Controllers
         }
 
         // GET: api/Stores/5
-        [HttpGet("{id}")]
+        /*[HttpGet("{id}")]
         public async Task<ActionResult<Store>> GetStore(int id)
         {
             var store = await _context.Store.FindAsync(id);
@@ -135,7 +135,7 @@ namespace PnLReporter.Controllers
         private bool StoreExists(int id)
         {
             return _context.Store.Any(e => e.Id == id);
-        }
+        }*/
 
         private UserModel GetCurrentUserInfo()
         {

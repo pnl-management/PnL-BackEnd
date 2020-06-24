@@ -17,7 +17,7 @@ using PnLReporter.EnumInfo;
 
 namespace PnLReporter.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/transactions")]
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class TransactionsController : ControllerBase
@@ -168,7 +168,7 @@ namespace PnLReporter.Controllers
         }
 
         // POST: api/Transactions
-        [HttpPost]
+        /*[HttpPost]
         public async Task<ActionResult<Transaction>> PostTransaction(Transaction transaction)
         {
             _context.Transaction.Add(transaction);
@@ -196,7 +196,7 @@ namespace PnLReporter.Controllers
         private bool TransactionExists(long id)
         {
             return _context.Transaction.Any(e => e.Id == id);
-        }
+        }*/
 
         private UserModel GetCurrentUserInfo()
         {
