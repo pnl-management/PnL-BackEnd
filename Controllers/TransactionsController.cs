@@ -151,6 +151,7 @@ namespace PnLReporter.Controllers
 
             var user = this.GetCurrentUserInfo();
             int storeId = user.Store.Id;
+            transaction.CreateByParticipant = new ParticipantVModel() { Id = user.Id };
 
             if (!_service.CheckTransactionBelongToStore(transaction.Id, storeId)) return Forbid();
 

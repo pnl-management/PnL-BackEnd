@@ -33,10 +33,13 @@ namespace PnLReporter.Service
 
         private readonly PLSystemContext _context;
 
+        private readonly ITransactionJourneyService _journeyService;
+
         public TransactionService(PLSystemContext context)
         {
             _context = context;
             _repository = new TransactionRepository(context);
+            _journeyService = new TransactionJourneyService(context);
         }
 
         public bool CheckTransactionBelongToBrand(long? tranId, int? brandId)
@@ -187,7 +190,14 @@ namespace PnLReporter.Service
                         _repository.UpdateTransaction(transaction)
                     };
 
+                    TransactionJourneyVModel journey = new TransactionJourneyVModel()
+                    {
+                        Status = TransactionStatusConst.STORE_MODIFIED,
+                        Transaction = new TransactionVModel() { Id = transaction.Id },
+                        CreatedByParticipant = new ParticipantVModel() { Id = transaction.CreateByParticipant.Id }
+                    };
 
+                    _journeyService.AddStatus(journey);
 
                     return this.ParseToTransactionVModel(list).FirstOrDefault();
                 }
