@@ -101,6 +101,7 @@ namespace PnLReporter.Service
 
         public int GetQueryListLength(string query, int? brandId)
         {
+            if (query == null) query = "";
             return _repository.GetQueryListLength(query, brandId);
         }
 

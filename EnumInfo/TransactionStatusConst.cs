@@ -15,11 +15,11 @@ namespace PnLReporter.EnumInfo
 
         public readonly static int ACC_APPROVED = 301;
         public readonly static int ACC_REQ_MODIFIED = 302;
-        public readonly static int ACC_CANCELED = 203;
+        public readonly static int ACC_CANCELED = 303;
 
-        public readonly static int INVESTOR_APPROVED = 201;
-        public readonly static int INVESTOR_REQ_MODIFIED = 202;
-        public readonly static int INVESTOR_CANCEL = 203;
+        public readonly static int INVESTOR_APPROVED = 101;
+        public readonly static int INVESTOR_REQ_MODIFIED = 102;
+        public readonly static int INVESTOR_CANCEL = 103;
 
         public readonly static int DONE = 1;
         public readonly static int CANCELED_AFTER_CLOSED = 0;
