@@ -68,7 +68,7 @@ namespace JWTAuthentication.Controllers
                 }),
                 Audience = _config["Jwt:Issuer"],
                 Issuer = _config["Jwt:Issuer"],
-                Expires = DateTime.Now.AddDays(7),
+                Expires = DateTime.Now.AddDays(60),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256)
             };
 
