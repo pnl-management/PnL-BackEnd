@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using PnLReporter.Models;
 
@@ -25,29 +26,17 @@ namespace PnLReporter.Repository
         public BrandParticipantsDetail FindBrandParticipantsById(int? participantId)
         {
             var result = _context.BrandParticipantsDetail
+                .Include(record => record.Brand)
                 .Where(record => record.ParticipantsId == participantId)
                 .FirstOrDefault<BrandParticipantsDetail>();
-            if (result != null) {
-                var tmpBrand = _context.Brand
-                    .Where(record => record.Id == result.BrandId)
-                    .Select(record => new { record.Id, record.Name, record.Status, record.CreatedTime})
-                    .FirstOrDefault();
-
-                result.Brand = new Brand()
-                {
-                    Id = tmpBrand.Id,
-                    Name = tmpBrand.Name,
-                    Status = tmpBrand.Status,
-                    CreatedTime = tmpBrand.CreatedTime
-                };
-            }
+            
             return result;
         }
 
         public Participant FindByUserId(long id)
         {
             return _context.Participant
-                .Where(record => record.Id == id).FirstOrDefault<Participant>();
+                .Where(record => record.Id == id).FirstOrDefault();
         }
 
         public Participant FindByUsername(string username)
@@ -59,6 +48,7 @@ namespace PnLReporter.Repository
         public StoreParticipantsDetail FindStoreParticipantById(int? participantsId)
         {
             var result = _context.StoreParticipantsDetail
+                .Include(record => record.Store)
                 .Where(record => record.ParticipantId == participantsId)
                 .FirstOrDefault<StoreParticipantsDetail>();
 

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using System.Linq.Dynamic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 

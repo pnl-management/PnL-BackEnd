@@ -15,6 +15,7 @@ namespace PnLReporter.Service
         IEnumerable<TransactionCategoryVModel> QueryByBrand(string query, string sort, int brandId, int offset, int limit);
         IEnumerable<Object> FilterColumns(string filter, IEnumerable<TransactionCategoryVModel> list);
         int GetQueryListLength(string query, int? brandId);
+        TransactionCategoryVModel Add(TransactionCategoryVModel category);
     }
     public class TransactionCategoryService : ITransactionCategoryService
     {
@@ -23,6 +24,25 @@ namespace PnLReporter.Service
         public TransactionCategoryService(PLSystemContext context)
         {
             _repository = new TransactionCategoryRepository(context);
+        }
+
+        public TransactionCategoryVModel Add(TransactionCategoryVModel category)
+        {
+            var transaction = new TransactionCategory
+            {
+                Name = category.Name,
+                Type = category.Type,
+                Required = category.Required,
+                Status = category.Status,
+                BrandId = category.Brand.Id,
+                CreatedTime = category.CreatedTime,
+                LastModified = category.LastModified
+            };
+            var newCate = _repository.Add(transaction);
+
+            category.Id = newCate.Id;
+
+            return category;
         }
 
         public IEnumerable<Object> FilterColumns(string filter, IEnumerable<TransactionCategoryVModel> list)

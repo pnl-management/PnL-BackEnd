@@ -110,12 +110,32 @@ namespace PnLReporter.Controllers
 
         // POST: api/TransactionCategories
         [HttpPost]
-        public async Task<ActionResult<TransactionCategory>> PostTransactionCategory(TransactionCategory transactionCategory)
+        public ActionResult<TransactionCategory> PostTransactionCategory(TransactionCategoryVModel transactionVCategory)
         {
-            _context.TransactionCategory.Add(transactionCategory);
-            await _context.SaveChangesAsync();
+            var identity = HttpContext.User.Identity as ClaimsIdentity;
+            string participantIdVal = identity.FindFirst(ClaimTypes.NameIdentifier).Value;
+            long userId;
 
-            return CreatedAtAction("GetTransactionCategory", new { id = transactionCategory.Id }, transactionCategory);
+            long.TryParse(participantIdVal, out userId);
+
+            IParticipantService participantService = new ParticipantService(_context);
+
+            //var x = _context.BrandParticipantsDetail
+            //    .Where(record => record.ParticipantsId == userId)
+            //    .FirstOrDefault<BrandParticipantsDetail>();
+
+            transactionVCategory.Brand = new BrandVModel() { Id = participantService.FindByUserId(userId).Brand.Id };
+            transactionVCategory.Status = true;
+            transactionVCategory.CreatedTime = DateTime.Now;
+            transactionVCategory.LastModified = DateTime.Now;
+
+            
+            //transactionCategory.BrandId = x.BrandId;
+            
+
+            var result = _service.Add(transactionVCategory);
+
+            return CreatedAtAction("GetTransactionCategory", new { id = result.Id }, result);
         }
 
         // DELETE: api/TransactionCategories/5
