@@ -24,8 +24,9 @@ namespace PnLReporter.Service
         bool CheckTransactionBelongToBrand(long? tranId, int? brandId);
         bool CheckTransactionBelongToStore(long? tranId, int? storeId);
         TransactionVModel GetById(long tranId);
-
         TransactionVModel UpdateTransaction(TransactionVModel transaction);
+        TransactionVModel CreateTransaction(TransactionVModel transaction);
+        bool IsTransactionCanModified(long transactionId);
     }
     public class TransactionService : ITransactionService
     {
@@ -50,6 +51,34 @@ namespace PnLReporter.Service
         public bool CheckTransactionBelongToStore(long? tranId, int? storeId)
         {
             return _repository.CheckTransactionBelongToStore(tranId, storeId);
+        }
+
+        public TransactionVModel CreateTransaction(TransactionVModel transaction)
+        {
+            TransactionJourneyVModel journey = new TransactionJourneyVModel()
+            {
+                Status = TransactionStatusConst.STORE_CREATED,
+                Transaction = new TransactionVModel() { Id = transaction.Id },
+                CreatedByParticipant = new ParticipantVModel() { Id = transaction.CreateByParticipant.Id }
+            };
+
+            _journeyService.AddStatus(journey);
+
+            var model = new Transaction()
+            {
+                Name = transaction.Name,
+                Description = transaction.Description,
+                Value = transaction.Value,
+                CategoryId = transaction.Category.Id,
+                BrandId = transaction.Brand.Id,
+                StoreId = transaction.Store.Id,
+                CreatedBy = transaction.CreateByParticipant.Id,
+                CreatedTime = DateTime.Now
+            };
+
+            var result = _repository.CreateTransaction(model);
+
+            return this.ParseToTransactionVModel(new List<Transaction>() { result }).FirstOrDefault();
         }
 
         public IEnumerable<object> FilterFieldOut(string filter, IEnumerable<TransactionVModel> list)
@@ -132,6 +161,28 @@ namespace PnLReporter.Service
             return _repository.GetQueryListLength(query, brandId);
         }
 
+        public bool IsTransactionCanModified(long transactionId)
+        {
+            ITransactionJourneyService jorneyService = new TransactionJourneyService(_context);
+            var lastestStatus = jorneyService.GetLastestStatus(transactionId);
+
+            if (lastestStatus == null) throw new Exception(TransactionExceptionMessage.CUR_STATUS_NOT_FOUND);
+
+            var modifiedStatus = new List<int>()
+                {
+                    TransactionStatusConst.ACC_REQ_MODIFIED,
+                    TransactionStatusConst.INVESTOR_REQ_MODIFIED,
+                    TransactionStatusConst.STORE_CREATED,
+                    TransactionStatusConst.STORE_MODIFIED
+                };
+
+            if (modifiedStatus.Contains(lastestStatus.Status ?? default))
+            {
+                return true;
+            }
+            return false;
+        }
+
         public IEnumerable<Object> LimitList(int offset, int limit, IEnumerable<TransactionVModel> list)
         {
             return list.Skip(offset).Take(limit);
@@ -170,20 +221,7 @@ namespace PnLReporter.Service
         {
             if (transaction != null)
             {
-                ITransactionJourneyService jorneyService = new TransactionJourneyService(_context);
-                var lastestStatus = jorneyService.GetLastestStatus(transaction.Id);
-
-                if (lastestStatus == null) throw new Exception(TransactionExceptionMessage.CUR_STATUS_NOT_FOUND);
-
-                var modifiedStatus = new List<int>()
-                {
-                    TransactionStatusConst.ACC_REQ_MODIFIED,
-                    TransactionStatusConst.INVESTOR_REQ_MODIFIED,
-                    TransactionStatusConst.STORE_CREATED,
-                    TransactionStatusConst.STORE_MODIFIED
-                };
-
-                if (modifiedStatus.Contains(lastestStatus.Status?? default))
+                if (this.IsTransactionCanModified(transaction.Id))
                 {
                     var list = new List<Transaction>
                     {

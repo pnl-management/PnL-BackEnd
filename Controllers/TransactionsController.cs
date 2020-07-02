@@ -167,18 +167,28 @@ namespace PnLReporter.Controllers
             return BadRequest(new {message = result});
         }
 
-        // POST: api/Transactions
-        /*[HttpPost]
-        public async Task<ActionResult<Transaction>> PostTransaction(Transaction transaction)
+        // POST: api/stores/transactions
+        [HttpPost("/api/transactions")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = ParticipantsRoleConst.STORE_MANAGER)]
+        public ActionResult PostTransaction(TransactionVModel transaction)
         {
-            _context.Transaction.Add(transaction);
-            await _context.SaveChangesAsync();
+            if (transaction.Category == null || transaction.Category.Id < 0)
+            {
+                return BadRequest(TransactionExceptionMessage.TRANSACTION_CATEGORY_IS_NULL);
+            }
 
-            return CreatedAtAction("GetTransaction", new { id = transaction.Id }, transaction);
+            var user = this.GetCurrentUserInfo();
+            transaction.CreateByParticipant = new ParticipantVModel() { Id = user.Id };
+            transaction.Brand = new BrandVModel() { Id = user.Brand.Id };
+            transaction.Store = new StoreVModel() { Id = user.Store.Id };
+
+            var result = _service.CreateTransaction(transaction);
+
+            return Created("", result);
         }
 
         // DELETE: api/Transactions/5
-        [HttpDelete("{id}")]
+        /*[HttpDelete("{id}")]
         public async Task<ActionResult<Transaction>> DeleteTransaction(long id)
         {
             var transaction = await _context.Transaction.FindAsync(id);

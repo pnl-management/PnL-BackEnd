@@ -22,6 +22,7 @@ namespace PnLReporter.Repository
         bool CheckTransactionBelongToStore(long? tranId, int? storeId);
         Transaction GetById(long tranId);
         Transaction UpdateTransaction(TransactionVModel transaction);
+        Transaction CreateTransaction(Transaction transaction);
     }
 
     public class TransactionRepository : ITransactionRepository
@@ -337,6 +338,13 @@ namespace PnLReporter.Repository
             _context.SaveChanges();
 
             return curTransaction;
+        }
+
+        public Transaction CreateTransaction(Transaction transaction)
+        {
+            _context.Transaction.Add(transaction);
+            _context.SaveChanges();
+            return transaction;
         }
     }
 }
