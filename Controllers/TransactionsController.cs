@@ -102,8 +102,7 @@ namespace PnLReporter.Controllers
             return BadRequest(new { role = user.Role, id = user.Id });
         }
 
-        // GET: api/Transactions/5
-        [HttpGet("{id}")]
+        [HttpGet("/api/transactions/{id}")]
         public ActionResult<Transaction> GetTransaction(long id)
         {
             var user = this.GetCurrentUserInfo();
@@ -138,7 +137,7 @@ namespace PnLReporter.Controllers
         }
 
         // PUT: api/stores/transactions/5
-        [HttpPut("{id}")]
+        [HttpPut("/api/transactions/{id}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = ParticipantsRoleConst.STORE_MANAGER)]
         public IActionResult PutTransaction(long id, TransactionVModel transaction)
         {
