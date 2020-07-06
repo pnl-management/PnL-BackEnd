@@ -12,8 +12,10 @@ namespace PnLReporter.Service
     public interface ITransactionJourneyService
     {
         TransactionJourneyVModel GetLastestStatus(long transactionId);
+        IEnumerable<TransactionJourneyVModel> GetJourneyOfTransaction(long transactionId);
         TransactionJourneyVModel AddStatus(TransactionJourneyVModel journey);
         TransactionJourneyVModel JudgeTransaction(TransactionJourneyVModel journey, String type, String role);
+        TransactionJourneyVModel FindById(long id);
     }
     public class TransactionJourneyService : ITransactionJourneyService
     {
@@ -32,6 +34,18 @@ namespace PnLReporter.Service
             journey.CreatedTime = DateTime.Now;
 
             return ParseToVModel(new List<TransactionJourney> { _repository.AddStatus(journey) }).FirstOrDefault();
+        }
+
+        public TransactionJourneyVModel FindById(long id)
+        {
+            var result = _repository.FindById(id);
+            if (result == null) return null;
+            return this.ParseToVModel(new List<TransactionJourney>() { result }).FirstOrDefault();
+        }
+
+        public IEnumerable<TransactionJourneyVModel> GetJourneyOfTransaction(long transactionId)
+        {
+            return this.ParseToVModel(_repository.GetJourneyOfTransaction(transactionId));
         }
 
         public TransactionJourneyVModel GetLastestStatus(long transactionId)
@@ -133,7 +147,7 @@ namespace PnLReporter.Service
             return this.ParseToVModel(new List<TransactionJourney>() { result }).FirstOrDefault();
         }
 
-        private List<TransactionJourneyVModel> ParseToVModel(List<TransactionJourney> listModel)
+        private IEnumerable<TransactionJourneyVModel> ParseToVModel(IEnumerable<TransactionJourney> listModel)
         {
             var result = new List<TransactionJourneyVModel>();
             foreach (TransactionJourney model in listModel)
@@ -151,6 +165,41 @@ namespace PnLReporter.Service
                         CreatedTime = model.CreatedByNavigation.CreatedTime,
                         LastModified = model.CreatedByNavigation.LastModified
                     } : null,
+                    Transaction = model.Transaction != null ? new TransactionVModel()
+                    {
+                        Id = model.Transaction.Id,
+                        Name = model.Transaction.Name,
+                        Value = model.Transaction.Value,
+                        Description = model.Transaction.Description,
+                        Category = model.Transaction.Category != null ? new TransactionCategoryVModel()
+                        {
+                            Id = model.Transaction.Category.Id,
+                            Name = model.Transaction.Category.Name,
+                            Type = model.Transaction.Category.Type
+                        } : null,
+                        Period = model.Transaction.Period != null ? new AccountingPeriodVModel()
+                        {
+                            Id = model.Transaction.Period.Id,
+                            Title = model.Transaction.Period.Title,
+                            Status = model.Transaction.Period.Status
+                        } : null,
+                        Brand = model.Transaction.Brand != null ? new BrandVModel()
+                        {
+                            Id = model.Transaction.Brand.Id,
+                            Name = model.Transaction.Brand.Name
+                        } : null,
+                        Store = model.Transaction.Store != null ? new StoreVModel()
+                        {
+                            Id = model.Transaction.Store.Id,
+                            Name = model.Transaction.Store.Name
+                        } : null,
+                        CreatedTime = model.Transaction.CreatedTime,
+                        CreateByParticipant = model.Transaction.CreatedByNavigation != null ? new ParticipantVModel()
+                        {
+                            Id = model.Transaction.CreatedBy,
+                            Username = model.Transaction.CreatedByNavigation.Username
+                        } : null,
+                    } : null
                 };
 
                 result.Add(vmodel);

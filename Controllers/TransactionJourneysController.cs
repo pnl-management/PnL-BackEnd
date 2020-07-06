@@ -29,29 +29,53 @@ namespace PnLReporter.Controllers
             _service = new TransactionJourneyService(context);
         }
 
-        // GET: api/TransactionJourneys
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<TransactionJourney>>> GetTransactionJourney()
+        [HttpGet("/api/transactions/{transactionId}/journeys")]
+        public ActionResult GetTransactionJourney(long transactionId)
         {
-            return await _context.TransactionJourney.ToListAsync();
-        }
+            var transactionService = new TransactionService(_context);
+            var curTran = transactionService.GetById(transactionId);
 
-        // GET: api/TransactionJourneys/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<TransactionJourney>> GetTransactionJourney(long id)
-        {
-            var transactionJourney = await _context.TransactionJourney.FindAsync(id);
+            if (curTran == null) return NotFound("Not found transaction");
 
-            if (transactionJourney == null)
+            var user = this.GetCurrentUserInfo();
+
+            switch (user.Role + "")
             {
-                return NotFound();
+                case ParticipantsRoleConst.ACCOUNTANT:
+                case ParticipantsRoleConst.INVESTOR:
+                    if (user.Brand.Id != curTran.Brand.Id) return Forbid();
+                    break;
+                case ParticipantsRoleConst.STORE_MANAGER:
+                    if (user.Store.Id != curTran.Store.Id) return Forbid();
+                    break;
             }
 
-            return transactionJourney;
+            return Ok(_service.GetJourneyOfTransaction(transactionId));
         }
 
-        // POST: api/TransactionJourneys
-        [HttpPost("/api/transactions/{transactionId}/journey")]
+        [HttpGet("/api/journeys/{id}")]
+        public ActionResult GetTransactionJourneyById(long id)
+        {
+            var user = this.GetCurrentUserInfo();
+
+            var result = _service.FindById(id);
+
+            if (result == null) return NotFound();
+
+            switch (user.Role + "")
+            {
+                case ParticipantsRoleConst.ACCOUNTANT:
+                case ParticipantsRoleConst.INVESTOR:
+                    if (user.Brand.Id != result.Transaction.Brand.Id) return Forbid();
+                    break;
+                case ParticipantsRoleConst.STORE_MANAGER:
+                    if (user.Store.Id != result.Transaction.Store.Id) return Forbid();
+                    break;
+            }
+            return Ok(result);
+        }
+
+        [HttpPost("/api/transactions/{transactionId}/journeys")]
         [Authorize(Roles = ParticipantsRoleConst.ACCOUNTANT + "," + ParticipantsRoleConst.INVESTOR)]
         public ActionResult PostTransactionJourney(long transactionId, String type, TransactionJourneyVModel transactionJourney)
         {
