@@ -7,8 +7,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using PnLReporter.EnumInfo;
 using PnLReporter.Models;
 using PnLReporter.Service;
+using PnLReporter.ViewModels;
 
 namespace PnLReporter.Controllers
 {
@@ -26,65 +28,56 @@ namespace PnLReporter.Controllers
             _service = new AccountingPeriodService(context);
         }
 
-        // GET: api/AccountingPeriods
         [HttpGet("/api/periods")]
         public ActionResult GetAccountingPeriod()
         {
-            return Ok();
+            var user = this.GetCurrentUserInfo();
+            
+            return Ok(_service.GetListByBrand(user.Brand.Id));
         }
 
-        // GET: api/AccountingPeriods/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<AccountingPeriod>> GetAccountingPeriod(int id)
+        [HttpGet("/api/periods/{id}")]
+        public ActionResult GetAccountingPeriod(int id)
         {
-            var accountingPeriod = await _context.AccountingPeriod.FindAsync(id);
+            var accountingPeriod = _service.GetById(id);
 
             if (accountingPeriod == null)
             {
                 return NotFound();
             }
 
-            return accountingPeriod;
+            var user = this.GetCurrentUserInfo();
+
+            if (user.Brand.Id != accountingPeriod.Brand.Id) return Forbid();
+
+            return Ok(accountingPeriod);
         }
 
-        // PUT: api/AccountingPeriods/5
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutAccountingPeriod(int id, AccountingPeriod accountingPeriod)
+        [HttpPut("/api/periods/{id}")]
+        [Authorize(Roles = ParticipantsRoleConst.ACCOUNTANT + "," + ParticipantsRoleConst.INVESTOR)]
+        public IActionResult PutAccountingPeriod(int id, AccountingPeriodVModel period)
         {
-            if (id != accountingPeriod.Id)
-            {
-                return BadRequest();
-            }
+            if (period.Id != id) period.Id = id;
 
-            _context.Entry(accountingPeriod).State = EntityState.Modified;
+            var current = _service.GetById(id);
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!AccountingPeriodExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            if (current == null) return NotFound();
 
-            return NoContent();
+            var user = this.GetCurrentUserInfo();
+            if (current.Brand.Id != user.Brand.Id) return Forbid();
+
+            var result = _service.Update(period);
+            if (result == null) return BadRequest();
+
+            return Ok(result);
         }
 
-        // POST: api/AccountingPeriods
-        [HttpPost]
-        public async Task<ActionResult<AccountingPeriod>> PostAccountingPeriod(AccountingPeriod accountingPeriod)
+        [HttpPost("/api/periods")]
+        public ActionResult PostAccountingPeriod(AccountingPeriodVModel period)
         {
-            _context.AccountingPeriod.Add(accountingPeriod);
-            await _context.SaveChangesAsync();
+            var result = _service.Insert(period);
 
-            return CreatedAtAction("GetAccountingPeriod", new { id = accountingPeriod.Id }, accountingPeriod);
+            return CreatedAtAction("GetAccountingPeriod", result);
         }
 
         // DELETE: api/AccountingPeriods/5
@@ -106,6 +99,20 @@ namespace PnLReporter.Controllers
         private bool AccountingPeriodExists(int id)
         {
             return _context.AccountingPeriod.Any(e => e.Id == id);
+        }
+
+        private UserModel GetCurrentUserInfo()
+        {
+            var identity = HttpContext.User.Identity as ClaimsIdentity;
+            string role = identity.FindFirst(ClaimTypes.Role).Value;
+            string participantIdVal = identity.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+            long participantsId;
+
+            long.TryParse(participantIdVal, out participantsId);
+            IParticipantService participantService = new ParticipantService(_context);
+
+            return participantService.FindByUserId(participantsId);
         }
     }
 }
