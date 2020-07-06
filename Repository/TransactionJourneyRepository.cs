@@ -42,8 +42,15 @@ namespace PnLReporter.Repository
 
         public TransactionJourney FindById(long id)
         {
-            return _context.TransactionJourney.AsNoTracking()
+            return _context.TransactionJourney
+                .Include(record => record.CreatedByNavigation)
                 .Include(record => record.Transaction)
+                .Include(record => record.Transaction.Store)
+                .Include(record => record.Transaction.Brand)
+                .Include(record => record.Transaction.Period)
+                .Include(record => record.Transaction.Category)
+                .Include(record => record.Transaction.CreatedByNavigation)
+                .AsNoTracking()
                 .Where(record => record.Id == id)
                 .FirstOrDefault();
         }
@@ -51,6 +58,13 @@ namespace PnLReporter.Repository
         public IEnumerable<TransactionJourney> GetJourneyOfTransaction(long transactionId)
         {
             return _context.TransactionJourney
+                .Include(record => record.CreatedByNavigation)
+                .Include(record => record.Transaction)
+                .Include(record => record.Transaction.Store)
+                .Include(record => record.Transaction.Brand)
+                .Include(record => record.Transaction.Period)
+                .Include(record => record.Transaction.Category)
+                .Include(record => record.Transaction.CreatedByNavigation)
                 .AsNoTracking()
                 .Where(record => record.TransactionId == transactionId)
                 .OrderByDescending(record => record.CreatedTime)
