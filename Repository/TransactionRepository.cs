@@ -325,6 +325,7 @@ namespace PnLReporter.Repository
                 .Include(record => record.Brand)
                 .Include(record => record.Store)
                 .Include(record => record.Category)
+                .Include(record => record.CreatedByNavigation)
                 .Where(record => record.Id == tranId)
                 .FirstOrDefault();
         }
