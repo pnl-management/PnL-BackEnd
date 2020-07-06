@@ -74,6 +74,7 @@ namespace PnLReporter.Controllers
 
         // GET: api/Evidences/5
         [HttpGet("/api/evidences/{id}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public ActionResult GetEvidence(long id)
         {
             var result = _service.GetById(id);

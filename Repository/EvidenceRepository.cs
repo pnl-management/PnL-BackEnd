@@ -30,6 +30,7 @@ namespace PnLReporter.Repository
             var current = this.GetById(id);
             if (current == null) return null;
             _context.Evidence.Remove(current);
+            _context.SaveChanges();
             return current;
         }
 

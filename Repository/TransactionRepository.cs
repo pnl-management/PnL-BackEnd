@@ -313,7 +313,7 @@ namespace PnLReporter.Repository
             var currentTran = _context.Transaction.Where(record => record.Id == tranId).FirstOrDefault();
             if (currentTran != null)
             {
-                if (currentTran.BrandId == storeId) check = true;
+                if (currentTran.StoreId == storeId) check = true;
             }
             return check;
         }

@@ -55,15 +55,7 @@ namespace PnLReporter.Service
 
         public TransactionVModel CreateTransaction(TransactionVModel transaction)
         {
-            TransactionJourneyVModel journey = new TransactionJourneyVModel()
-            {
-                Status = TransactionStatusConst.STORE_CREATED,
-                Transaction = new TransactionVModel() { Id = transaction.Id },
-                CreatedByParticipant = new ParticipantVModel() { Id = transaction.CreateByParticipant.Id }
-            };
-
-            _journeyService.AddStatus(journey);
-
+            
             var model = new Transaction()
             {
                 Name = transaction.Name,
@@ -75,8 +67,18 @@ namespace PnLReporter.Service
                 CreatedBy = transaction.CreateByParticipant.Id,
                 CreatedTime = DateTime.Now
             };
-
             var result = _repository.CreateTransaction(model);
+
+            TransactionJourneyVModel journey = new TransactionJourneyVModel()
+            {
+                Status = TransactionStatusConst.STORE_CREATED,
+                Transaction = new TransactionVModel() { Id = result.Id },
+                CreatedByParticipant = new ParticipantVModel() { Id = transaction.CreateByParticipant.Id }
+            };
+
+            _journeyService.AddStatus(journey);
+
+            
 
             return this.ParseToTransactionVModel(new List<Transaction>() { result }).FirstOrDefault();
         }

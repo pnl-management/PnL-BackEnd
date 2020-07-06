@@ -25,7 +25,7 @@ namespace PnLReporter.Repository
 
         public BrandParticipantsDetail FindBrandParticipantsById(int? participantId)
         {
-            var result = _context.BrandParticipantsDetail
+            var result = _context.BrandParticipantsDetail.AsNoTracking()
                 .Include(record => record.Brand)
                 .Where(record => record.ParticipantsId == participantId)
                 .FirstOrDefault<BrandParticipantsDetail>();
@@ -35,7 +35,7 @@ namespace PnLReporter.Repository
 
         public Participant FindByUserId(long id)
         {
-            return _context.Participant
+            return _context.Participant.AsNoTracking()
                 .Where(record => record.Id == id).FirstOrDefault();
         }
 
@@ -47,7 +47,7 @@ namespace PnLReporter.Repository
 
         public StoreParticipantsDetail FindStoreParticipantById(int? participantsId)
         {
-            var result = _context.StoreParticipantsDetail
+            var result = _context.StoreParticipantsDetail.AsNoTracking()
                 .Include(record => record.Store)
                 .Where(record => record.ParticipantId == participantsId)
                 .FirstOrDefault<StoreParticipantsDetail>();
