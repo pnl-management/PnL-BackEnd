@@ -2,10 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PnLReporter.Models;
+using PnLReporter.Service;
 
 namespace PnLReporter.Controllers
 {
@@ -15,17 +18,19 @@ namespace PnLReporter.Controllers
     public class AccountingPeriodsController : ControllerBase
     {
         private readonly PLSystemContext _context;
+        private readonly IAccountingPeriodService _service;
 
         public AccountingPeriodsController(PLSystemContext context)
         {
             _context = context;
+            _service = new AccountingPeriodService(context);
         }
 
         // GET: api/AccountingPeriods
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<AccountingPeriod>>> GetAccountingPeriod()
+        [HttpGet("/api/periods")]
+        public ActionResult GetAccountingPeriod()
         {
-            return await _context.AccountingPeriod.ToListAsync();
+            return Ok();
         }
 
         // GET: api/AccountingPeriods/5
