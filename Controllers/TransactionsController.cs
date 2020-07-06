@@ -103,7 +103,7 @@ namespace PnLReporter.Controllers
         }
 
         // GET: api/Transactions/5
-        [HttpGet("{id}")]
+        [HttpGet("/api/transaction/{id}")]
         public ActionResult<Transaction> GetTransaction(long id)
         {
             var user = this.GetCurrentUserInfo();
@@ -138,7 +138,7 @@ namespace PnLReporter.Controllers
         }
 
         // PUT: api/stores/transactions/5
-        [HttpPut("{id}")]
+        [HttpPut("/api/transactions/{id}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = ParticipantsRoleConst.STORE_MANAGER)]
         public IActionResult PutTransaction(long id, TransactionVModel transaction)
         {
