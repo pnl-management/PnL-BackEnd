@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -82,23 +83,28 @@ namespace PnLReporter.Controllers
 
         // DELETE: api/AccountingPeriods/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<AccountingPeriod>> DeleteAccountingPeriod(int id)
+        [Authorize(Roles = ParticipantsRoleConst.ACCOUNTANT + "," + ParticipantsRoleConst.INVESTOR)]
+        public ActionResult DeleteAccountingPeriod(int id)
         {
-            var accountingPeriod = await _context.AccountingPeriod.FindAsync(id);
-            if (accountingPeriod == null)
+            var current = _service.GetById(id);
+
+            var user = this.GetCurrentUserInfo();
+
+            if (current == null) return NotFound("Not found period ID " + id);
+
+            if (current.Brand.Id != user.Brand.Id) return Forbid();
+            try
             {
-                return NotFound();
+                if (_service.Delete(id))
+                {
+                    return Ok();
+                }
+                return NotFound("Not found period ID " + id);
             }
-
-            _context.AccountingPeriod.Remove(accountingPeriod);
-            await _context.SaveChangesAsync();
-
-            return accountingPeriod;
-        }
-
-        private bool AccountingPeriodExists(int id)
-        {
-            return _context.AccountingPeriod.Any(e => e.Id == id);
+            catch (Exception)
+            {
+                return BadRequest("Cannot Delete Period");
+            }
         }
 
         private UserModel GetCurrentUserInfo()

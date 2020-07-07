@@ -14,6 +14,7 @@ namespace PnLReporter.Repository
         AccountingPeriod GetById(int id);
         AccountingPeriod Update(AccountingPeriodVModel period);
         AccountingPeriod Insert(AccountingPeriod period);
+        bool Delete(int id);
     }
     public class AccountingPeriodRepository : IAccountPeriodRepository
     {
@@ -22,6 +23,18 @@ namespace PnLReporter.Repository
         public AccountingPeriodRepository(PLSystemContext context)
         {
             _context = context;
+        }
+
+        public bool Delete(int id)
+        {
+            var current = this.GetById(id);
+
+            if (current == null) return false;
+
+            _context.AccountingPeriod.Remove(current);
+            _context.SaveChanges();
+
+            return true;
         }
 
         public AccountingPeriod GetById(int id)

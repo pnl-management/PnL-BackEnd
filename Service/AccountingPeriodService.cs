@@ -15,6 +15,7 @@ namespace PnLReporter.Service
         AccountingPeriodVModel GetById(int id);
         AccountingPeriodVModel Update(AccountingPeriodVModel period);
         AccountingPeriodVModel Insert(AccountingPeriodVModel period);
+        bool Delete(int id);
     }
     public class AccountingPeriodService : IAccountingPeriodService
     {
@@ -23,6 +24,11 @@ namespace PnLReporter.Service
         public AccountingPeriodService(PLSystemContext context)
         {
             _repository = new AccountingPeriodRepository(context);
+        }
+
+        public bool Delete(int id)
+        {
+            return _repository.Delete(id);
         }
 
         public AccountingPeriodVModel GetById(int id)
