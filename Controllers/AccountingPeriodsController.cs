@@ -82,7 +82,7 @@ namespace PnLReporter.Controllers
         }
 
         // DELETE: api/AccountingPeriods/5
-        [HttpDelete("{id}")]
+        [HttpDelete("/api/periods/{id}")]
         [Authorize(Roles = ParticipantsRoleConst.ACCOUNTANT + "," + ParticipantsRoleConst.INVESTOR)]
         public ActionResult DeleteAccountingPeriod(int id)
         {

@@ -75,7 +75,7 @@ namespace PnLReporter.Service
                     {
                         Id = model.Brand.Id,
                         Name = model.Brand.Name
-                    },
+                    } : null,
                     CreateTime = model.CreateTime,
                     Deadline = model.Deadline,
                     EndDate = model.EndDate,
