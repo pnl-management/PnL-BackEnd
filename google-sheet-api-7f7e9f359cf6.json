@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "prefab-orbit-257204",
+  "private_key_id": "7f7e9f359cf6183a41912af28933f4de42a4d43f",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC0Iee7AsEXEfrO\nPz3SGfZp6dv1ALCxe2lsvlTbArg9AC5jXDtnUIlVsqlBvGzuVjXPn9C+Q3RCSsKc\nZNBaJYJMDFG3DHLzZdQs4Ae95GXIjCgshgRfbyi5LGSOgs+kTSCHlUJJSRDBRZqU\nKRveuI6vQ2/tEwUtZVa1YtjP9Bl3qYPRBpvej1Bm23B/CFIVlT0FGSWD5tpBsyME\nd+EEG9N5bjMKw9YhZ2CcI5FPaAzbyPD/OcBIoP0AGV6L7q/3wJDYt9h6cBnoWCzQ\nCLizon1Jgm80ZuGPn/w0CjOhlVjbJYPYhl8t8VRepNsGfcisoMWchsXMC2fjwg7h\nE7OMYs7bAgMBAAECggEAA8VD6wO4k/7h2kheRxQZDDLY0leUhe/jOeNVYQznsLXc\nwrgEXE9wwypNZbKyhbNTRrMoikWyMiMLe3zsFD79wRFu8nR1wYeLpJwp5/0sbkFq\nI93IS1EchUfFxmqRkHW218UK5qrQtCL8rzDvGZSRFApxgNZpliotYaLzOTh5rKoG\n0D09UyqGsTs1vwJ8VD591EyfeJ9/RnU6W+HleW/eRE+XYAtqCSZD8NwLlx1e0UU1\nmS0aHoH0ZV9noXK3tGXFe2QUt/qwZqrFmyRaR9jr12npimVjqvwMWOTsWPbu7fuX\nwF6fQFWdgXvNHCexSIQU6pBJ3ZWeQ+Hi6xyQpfkhUQKBgQD130ishGk1RNNIxTfZ\nmddeeEwJ2lw6igEXX0lN9HcwetFTRZkC1nl36d/qF1I0/tFyp58ajeyJgz1U2yib\nUeWzTZV9JGI4vdryvwKRqSK2UvbM7xeADYfVX/wVQv6ZJhn2HiRz62VUn9SJ3E5c\nWDTdHGdMVMEt+fUBid+DBu8yUQKBgQC7jWWv1BiiWOH/UIWrYq0HjN9QfVn/3KzS\nzSmYAZ1KKkZ4JPA23oOV8R+1bxS0gU3rUEnx6Jj5mbJ0NgL7F3mJ8TroJ4r+bbr5\ns5n+kjisjqYUO56N8f1nf/+UfAVl7nx43Z0NYwrM4BENxmp/S02Az4ThRt4FAj/6\n1dqhMkuXawKBgQCB/q3T2KYvbdYv0WX3/Kir3/qD8xl0MeblzpFZT/l8flMSLef6\nYh8S0Wp7wBzMvDVM42bxiTwYcHUK2lyb0i8aH9j7szLjQS3zzh2zmbMqpq6qJ3dL\nUtwQapFDRIqLumNbhxBK4ZhPp7mdsgcUN+arSQsshlskzdVGHPk5s37gIQKBgECP\nEISwrnYbwFdhQVHYWpUxwaD0NSmkrXy2kG25iIoB+VXb6TAJ8iOH55FNlkP4CnlI\nntt9ZELuzAXCnc4Oq5B3D/7ftbGU1fqj/wspDAch5zspto9H0CFzZueWtUj8Ca6V\nIj18bThOnLAwL3J32krPo/7jpQL2Xk2alXJNXMXXAoGAdjCyLqgcXt9G8Z76dGRv\nZcj88BYfKGZhNGRAV2nOFwUhLQuu74JUYmIlj/okJDkOMuO/AcheJ5gM74AspExd\nX2/PHfZfcsXmaFAvXyMcW3Tnq4SqIcXuxtwEogR+lTWTQhulJKyRmBNKqAg8iVOQ\notWcMJbennxmwg211xclerU=\n-----END PRIVATE KEY-----\n",
+  "client_email": "pnlmanagement@prefab-orbit-257204.iam.gserviceaccount.com",
+  "client_id": "111314966892605282086",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/pnlmanagement%40prefab-orbit-257204.iam.gserviceaccount.com"
+}

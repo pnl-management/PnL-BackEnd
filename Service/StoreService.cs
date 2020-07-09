@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using PnLReporter.Repository;
+using Microsoft.Extensions.Caching.Distributed;
 
 namespace PnLReporter.Service
 {
@@ -19,9 +20,9 @@ namespace PnLReporter.Service
     {
         private readonly IStoreRepository _repository;
 
-        public StoreService (PLSystemContext context)
+        public StoreService (PLSystemContext context, IDistributedCache cache)
         {
-            _repository = new StoreRepository(context);
+            _repository = new StoreRepository(context, cache);
         }
 
         public int CountQueryList(string query, int brandId)

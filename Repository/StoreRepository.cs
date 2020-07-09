@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Distributed;
 
 namespace PnLReporter.Repository
 {
@@ -15,10 +16,12 @@ namespace PnLReporter.Repository
     public class StoreRepository : IStoreRepository
     {
         private readonly PLSystemContext _context;
+        private readonly IDistributedCache _distributedCache;
 
-        public StoreRepository(PLSystemContext context)
+        public StoreRepository(PLSystemContext context, IDistributedCache cache)
         {
             _context = context;
+            _distributedCache = cache;
         }
 
         public int CountListQuery(string query, int brandId)

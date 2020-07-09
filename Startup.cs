@@ -40,6 +40,12 @@ namespace PnLReporter
                 Credential = GoogleCredential.FromFile("./pnlrepoter-firebase-adminsdk-rcn5u-ccaabfc170.json")
             });
 
+            services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = "pnlredis.redis.cache.windows.net,password=gIURaObGP4qJIIXJaUtC65Jov1r6WYit2PM7wwyLfSQ=";
+                options.InstanceName = "SampleInstance";
+            });
+
             services.AddCors(options =>
             {
                 options.AddPolicy(

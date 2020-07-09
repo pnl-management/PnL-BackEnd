@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Distributed;
 using PnLReporter.Models;
 using PnLReporter.Service;
 using PnLReporter.ViewModels;
@@ -21,11 +22,13 @@ namespace PnLReporter.Controllers
     {
         private readonly PLSystemContext _context;
         private readonly IStoreService _service;
+        private readonly IDistributedCache _distributedCache;
 
-        public StoresController(PLSystemContext context)
+        public StoresController(PLSystemContext context, IDistributedCache distributedCache)
         {
             _context = context;
-            _service = new StoreService(context);
+            _service = new StoreService(context, distributedCache);
+            _distributedCache = distributedCache;
         }
 
         // GET: api/brands/stores
@@ -59,6 +62,25 @@ namespace PnLReporter.Controllers
 
             int brandId = user.Brand.Id;
             var result = _service.CountQueryList(query, brandId);
+            return Ok(result);
+        }
+
+        [HttpGet("/test")]
+        public ActionResult Test()
+        {
+            var cacheKey = "TheTime";
+            var currentTime = DateTime.Now.ToString();
+            var cachedTime = _distributedCache.GetString(cacheKey);
+            if (string.IsNullOrEmpty(cachedTime))
+            {
+                // cachedTime = "Expired";
+                // Cache expire trong 30s
+                var options = new DistributedCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(30));
+                // Nạp lại giá trị mới cho cache
+                _distributedCache.SetString(cacheKey, currentTime, options);
+                cachedTime = _distributedCache.GetString(cacheKey);
+            }
+            var result = $"Current Time : {currentTime} \nCached  Time : {cachedTime}";
             return Ok(result);
         }
 
