@@ -15,6 +15,7 @@ namespace PnLReporter.Service
         IEnumerable<StoreVModel> QueryByBrand(string query, string sort, int brandId, int offset, int limit);
         IEnumerable<Object> FilterColumns(string filter, IEnumerable<StoreVModel> list);
         int CountQueryList(string query, int brandId);
+        StoreVModel GetById(int id);
     }
     public class StoreService : IStoreService
     {
@@ -79,6 +80,15 @@ namespace PnLReporter.Service
             return result;
         }
 
+        public StoreVModel GetById(int id)
+        {
+            var result = _repository.GetById(id);
+
+            if (result == null) return null;
+
+            return this.ParseToVModel(new List<Store>() { result }).FirstOrDefault();
+        }
+
         public IEnumerable<StoreVModel> QueryByBrand(string query, string sort, int brandId, int offset, int limit)
         {
             if (query == null) query = "";
@@ -96,13 +106,13 @@ namespace PnLReporter.Service
                 {
                     Id = store.Id,
                     Name = store.Name,
-                    Brand = store.Brand != null ? new BrandVModel()
+                    Brand = new BrandVModel()
                     {
-                        Id = store.Brand.Id,
-                        Name = store.Brand.Name,
-                        Status = store.Brand.Status,
-                        CreatedTime = store.Brand.CreatedTime
-                    } : null,
+                        Id = store.Brand != null ? store.Brand.Id : (store.BrandId ?? default),
+                        Name = store.Brand != null ? store.Brand.Name : null,
+                        Status = store.Brand != null ? store.Brand.Status : null,
+                        CreatedTime = store.Brand != null ? store.Brand.CreatedTime : null
+                    },
                     Phone = store.Phone,
                     Address = store.Address,
                     Status = store.Status

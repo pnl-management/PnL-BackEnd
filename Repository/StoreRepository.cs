@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
+using Newtonsoft.Json;
 
 namespace PnLReporter.Repository
 {
@@ -12,6 +13,7 @@ namespace PnLReporter.Repository
     {
         IEnumerable<Store> QueryByBrand(string query, string sort, int brandId, int offset, int limit);
         int CountListQuery(string query, int brandId);
+        Store GetById(int id);
     }
     public class StoreRepository : IStoreRepository
     {
@@ -27,6 +29,32 @@ namespace PnLReporter.Repository
         public int CountListQuery(string query, int brandId)
         {
             return this.GetQueryStatement(query, "", brandId).Count();
+        }
+
+        public Store GetById(int id)
+        {
+            Store result;
+
+            string json = _distributedCache.GetString(id + "");
+            if (json == null)
+            {
+                result = _context.Store
+                    .Include(record => record.Brand)
+                    .Where(record => record.Id == id)
+                    .FirstOrDefault();
+
+                if (result != null)
+                {
+                    var options = new DistributedCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromDays(1));
+                    _distributedCache.SetString(id + "", JsonConvert.SerializeObject(result), options);
+                }
+            }
+            else
+            {
+                result = JsonConvert.DeserializeObject<Store>(json);
+            }
+
+            return result;
         }
 
         public IEnumerable<Store> QueryByBrand(string query, string sort, int brandId, int offset, int limit)
