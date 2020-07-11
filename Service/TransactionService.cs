@@ -66,7 +66,7 @@ namespace PnLReporter.Service
                 BrandId = transaction.Brand.Id,
                 StoreId = transaction.Store.Id,
                 CreatedBy = transaction.CreateByParticipant.Id,
-                CreatedTime = DateTime.Now
+                CreatedTime = DateTime.UtcNow.AddHours(7)
             };
             var result = _repository.CreateTransaction(model);
 

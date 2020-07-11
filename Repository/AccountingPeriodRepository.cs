@@ -67,7 +67,7 @@ namespace PnLReporter.Repository
 
             if (model == null) return null;
 
-            model.LastModifed = DateTime.Now;
+            model.LastModifed = DateTime.UtcNow.AddHours(7);
             model.StartDate = period.StartDate;
             model.Status = period.Status;
             model.Title = period.Title;

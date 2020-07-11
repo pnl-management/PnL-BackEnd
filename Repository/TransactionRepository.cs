@@ -119,7 +119,7 @@ namespace PnLReporter.Repository
         }
 
         public IEnumerable<Transaction> ListWaitingForStoreTransaction(int participants)
-        {
+        {            
             return _context.Transaction
                 .Include(trans => trans.CreatedByNavigation)
                 .Include(trans => trans.Brand)

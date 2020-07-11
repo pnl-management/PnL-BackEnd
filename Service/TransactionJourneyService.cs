@@ -31,7 +31,7 @@ namespace PnLReporter.Service
         public TransactionJourneyVModel AddStatus(TransactionJourneyVModel journey)
         {
             journey.Id = null;
-            journey.CreatedTime = DateTime.Now;
+            journey.CreatedTime = DateTime.UtcNow.AddHours(7);
 
             return ParseToVModel(new List<TransactionJourney> { _repository.AddStatus(journey) }).FirstOrDefault();
         }

@@ -50,7 +50,7 @@ namespace PnLReporter.Service
                 BrandId = period.Brand.Id,
                 Title = period.Title,
                 Status = PeriodStatusConst.CREATED,
-                CreateTime = DateTime.Now,
+                CreateTime = DateTime.UtcNow.AddHours(7),
                 StartDate = period.StartDate,
                 EndDate = period.EndDate,
                 Deadline = period.Deadline
