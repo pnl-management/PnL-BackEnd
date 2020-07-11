@@ -63,7 +63,7 @@ namespace PnLReporter.Repository
 
         public AccountingPeriod Update(AccountingPeriodVModel period)
         {
-            var model = this.GetById(period.Id);
+            var model = this.GetById(period.Id ?? default);
 
             if (model == null) return null;
 
