@@ -273,7 +273,8 @@ namespace PnLReporter.Service
                         Period = trans.Period != null ? new AccountingPeriodVModel()
                         {
                             Id = trans.Period.Id,
-                            Title = trans.Period.Title
+                            Title = trans.Period.Title,
+                            Status = trans.Period.Status
                         } : null,
                         Brand = trans.Brand != null ? new BrandVModel()
                         {

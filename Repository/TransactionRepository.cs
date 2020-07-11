@@ -320,7 +320,15 @@ namespace PnLReporter.Repository
 
         public Transaction GetById(long tranId)
         {
-            return _context.Transaction.Where(record => record.Id == tranId).FirstOrDefault();
+            return _context.Transaction
+                .AsNoTracking()
+                .Include(record => record.Period)
+                .Include(record => record.Brand)
+                .Include(record => record.Store)
+                .Include(record => record.Category)
+                .Include(record => record.CreatedByNavigation)
+                .Where(record => record.Id == tranId)
+                .FirstOrDefault();
         }
 
         public Transaction UpdateTransaction(TransactionVModel transaction)
