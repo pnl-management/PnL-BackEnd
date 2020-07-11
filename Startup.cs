@@ -20,6 +20,7 @@ using PnLReporter.Models;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using Newtonsoft.Json;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace PnLReporter
 {
@@ -76,6 +77,7 @@ namespace PnLReporter
             services.AddDbContext<PLSystemContext>(opt =>
             {
                 opt.UseLazyLoadingProxies();
+                opt.ConfigureWarnings(warnings => warnings.Ignore(CoreEventId.DetachedLazyLoadingWarning));
                 opt.UseSqlServer(
                     Configuration.GetConnectionString("PLSystemContext"));
             });

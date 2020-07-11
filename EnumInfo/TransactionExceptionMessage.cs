@@ -14,5 +14,7 @@ namespace PnLReporter.EnumInfo
         public const String TRANSACTION_CATEGORY_IS_NULL = "Transaction Category is not null";
         public const String CUR_STATUS_NOT_BE_JUDGE = "Current status of transaction cannot be judged";
         public const String REQ_TYPE_INVALID = "Request type of judge is invalid";
+        public const String CURRENT_STATUS_CANNOT_TO_PERIOD = "Current status of transaction is not ready to put to period";
+        public const String PERIOD_NOT_OPEN = "Current period is not available to put transaction in";
     }
 }

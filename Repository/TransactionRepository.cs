@@ -321,7 +321,7 @@ namespace PnLReporter.Repository
 
         public Transaction GetById(long tranId)
         {
-            return _context.Transaction
+            var result = _context.Transaction
                 .AsNoTracking()
                 .Include(record => record.Period)
                 .Include(record => record.Brand)
@@ -330,6 +330,14 @@ namespace PnLReporter.Repository
                 .Include(record => record.CreatedByNavigation)
                 .Where(record => record.Id == tranId)
                 .FirstOrDefault();
+
+            result.Period = _context.AccountingPeriod.Find(result.PeriodId);
+            result.Brand = _context.Brand.Find(result.BrandId);
+            result.Store = _context.Store.Find(result.StoreId);
+            result.Category = _context.TransactionCategory.Find(result.CategoryId);
+            result.CreatedByNavigation = _context.Participant.Find(result.CreatedBy);
+
+            return result;
         }
 
         public Transaction UpdateTransaction(TransactionVModel transaction)

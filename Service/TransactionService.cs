@@ -27,7 +27,7 @@ namespace PnLReporter.Service
         TransactionVModel UpdateTransaction(TransactionVModel transaction);
         TransactionVModel CreateTransaction(TransactionVModel transaction);
         bool IsTransactionCanModified(long transactionId);
-        TransactionVModel PutTransactionToPeriod(long tranId, int periodId);
+        TransactionVModel PutTransactionToPeriod(long tranId, int periodId, int userId);
     }
     public class TransactionService : ITransactionService
     {
@@ -211,19 +211,45 @@ namespace PnLReporter.Service
             return this.ParseToTransactionVModel(_repository.ListWaitingForStoreTransaction(participants));
         }
 
-        public TransactionVModel PutTransactionToPeriod(long tranId, int periodId)
+        public TransactionVModel PutTransactionToPeriod(long tranId, int periodId, int userId)
         {
             var journeyService = new TransactionJourneyService(_context);
             var lastestStt = journeyService.GetLastestStatus(tranId);
             if (lastestStt.Status == TransactionStatusConst.INVESTOR_APPROVED)
             {
-                //var periodService = new PeriodService
+                var periodService = new AccountingPeriodService(_context);
+                var period = periodService.GetById(periodId);
+
+                var listOpenStt = new List<int>()
+                {
+                    PeriodStatusConst.OPENING,
+                    PeriodStatusConst.RE_OPEN
+                };
+
+                if (listOpenStt.Contains(period.Status ?? -100))
+                {
+                    var model = _repository.PutTransactionToPeriod(tranId, periodId);
+
+                    TransactionJourneyVModel journey = new TransactionJourneyVModel()
+                    {
+                        Status = TransactionStatusConst.DONE,
+                        Transaction = new TransactionVModel() { Id = tranId },
+                        CreatedByParticipant = new ParticipantVModel() { Id = userId }
+                    };
+
+                    _journeyService.AddStatus(journey);
+
+                    return this.ParseToTransactionVModel(new List<Transaction>() { model }).FirstOrDefault();
+                }
+                else
+                {
+                    throw new Exception(TransactionExceptionMessage.PERIOD_NOT_OPEN);
+                }
             }
             else
             {
-                return null;
+                throw new Exception(TransactionExceptionMessage.CURRENT_STATUS_CANNOT_TO_PERIOD);
             }
-            return null;
         }
 
         public IEnumerable<TransactionVModel> QueryListByFieldAndBrand(string query, string sort, int offset, int limit, int brandId)
