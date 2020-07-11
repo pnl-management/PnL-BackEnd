@@ -68,7 +68,7 @@ namespace PnLReporter.Repository
                             jorney.TransactionId == record.Id)
                         .OrderByDescending(jorney => jorney.CreatedTime)
                         .FirstOrDefault().Status == 303
-                ).Take(5).ToList();
+                ).ToList();
         }
 
         public IEnumerable<Transaction> ListStoreTransactionInCurrentPeroid(int participantId)
