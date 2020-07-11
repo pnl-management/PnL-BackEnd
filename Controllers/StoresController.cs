@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Distributed;
+using PnLReporter.EnumInfo;
 using PnLReporter.Models;
 using PnLReporter.Service;
 using PnLReporter.ViewModels;
@@ -21,11 +23,13 @@ namespace PnLReporter.Controllers
     {
         private readonly PLSystemContext _context;
         private readonly IStoreService _service;
+        private readonly IDistributedCache _distributedCache;
 
-        public StoresController(PLSystemContext context)
+        public StoresController(PLSystemContext context, IDistributedCache distributedCache)
         {
             _context = context;
-            _service = new StoreService(context);
+            _service = new StoreService(context, distributedCache);
+            _distributedCache = distributedCache;
         }
 
         // GET: api/brands/stores
@@ -62,18 +66,47 @@ namespace PnLReporter.Controllers
             return Ok(result);
         }
 
-        // GET: api/Stores/5
-        /*[HttpGet("{id}")]
-        public async Task<ActionResult<Store>> GetStore(int id)
+        /*[HttpGet("/test")]
+        public ActionResult Test()
         {
-            var store = await _context.Store.FindAsync(id);
-
-            if (store == null)
+            var cacheKey = "TheTime";
+            var currentTime = DateTime.Now.ToString();
+            var cachedTime = _distributedCache.GetString(cacheKey);
+            if (string.IsNullOrEmpty(cachedTime))
             {
-                return NotFound();
+                // cachedTime = "Expired";
+                // Cache expire trong 30s
+                var options = new DistributedCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(30));
+                // Nạp lại giá trị mới cho cache
+                _distributedCache.SetString(cacheKey, currentTime, options);
+                cachedTime = _distributedCache.GetString(cacheKey);
             }
+            var result = $"Current Time : {currentTime} \nCached  Time : {cachedTime}";
+            return Ok(result);
+        }*/
 
-            return store;
+        [HttpGet("/api/stores/{id}")]
+        [Authorize(Roles = ParticipantsRoleConst.ACCOUNTANT + "," + ParticipantsRoleConst.INVESTOR)]
+        public ActionResult GetStore(int id)
+        {
+            System.Diagnostics.Debug.WriteLine("SomeText");
+            var store = _service.GetById(id);
+            if (store == null) return NotFound();
+
+            var user = this.GetCurrentUserInfo();
+
+            if (user.Brand.Id != store.Brand.Id) return Forbid();
+
+            store.Brand = user.Brand;
+
+            return Ok(store);
+        }
+
+        /*[HttpDelete("/api/stores-cache/{id}")]
+        public ActionResult ClearCache(int id)
+        {
+            _distributedCache.Remove(id + "");
+            return Ok();
         }
 
         // PUT: api/Stores/5

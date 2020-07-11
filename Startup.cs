@@ -40,6 +40,12 @@ namespace PnLReporter
                 Credential = GoogleCredential.FromFile("./pnlrepoter-firebase-adminsdk-rcn5u-ccaabfc170.json")
             });
 
+            services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = "pnlredis.redis.cache.windows.net,password=gIURaObGP4qJIIXJaUtC65Jov1r6WYit2PM7wwyLfSQ=";
+                options.InstanceName = "SampleInstance";
+            });
+
             services.AddCors(options =>
             {
                 options.AddPolicy(
@@ -79,9 +85,11 @@ namespace PnLReporter
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
             });
 
-            services.AddMvc().AddJsonOptions(options => {
+            services.AddMvc().AddJsonOptions(options =>
+            {
                 options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
             });
+        
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
 

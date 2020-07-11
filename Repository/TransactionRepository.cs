@@ -23,6 +23,7 @@ namespace PnLReporter.Repository
         Transaction GetById(long tranId);
         Transaction UpdateTransaction(TransactionVModel transaction);
         Transaction CreateTransaction(Transaction transaction);
+        Transaction PutTransactionToPeriod(long tranId, int periodId);
     }
 
     public class TransactionRepository : ITransactionRepository
@@ -353,6 +354,17 @@ namespace PnLReporter.Repository
             _context.Transaction.Add(transaction);
             _context.SaveChanges();
             return transaction;
+        }
+
+        public Transaction PutTransactionToPeriod(long tranId, int periodId)
+        {
+            var current = this.GetById(tranId);
+            current.PeriodId = periodId;
+
+            _context.Entry(current).State = EntityState.Modified;
+            _context.SaveChanges();
+
+            return current;
         }
     }
 }
