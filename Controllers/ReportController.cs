@@ -76,7 +76,7 @@ namespace PnLReporter.Controllers
             return Ok();
         }
 
-        [HttpGet("/gg-sheet")]
+        /*[HttpGet("/gg-sheet")]
         public ActionResult GetList()
         {
             GoogleCredential credential;
@@ -194,7 +194,7 @@ namespace PnLReporter.Controllers
 
             var request = service.Spreadsheets.Values.Clear(valueRange, SpreadsheetId, range);
             return request.Execute();
-        }
+        }*/
 
         private UserModel GetCurrentUserInfo()
         {

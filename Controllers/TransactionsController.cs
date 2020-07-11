@@ -166,6 +166,20 @@ namespace PnLReporter.Controllers
             return BadRequest(new {message = result});
         }
 
+        [HttpPut("/api/transactions/{id}/periods")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = ParticipantsRoleConst.STORE_MANAGER)]
+        public ActionResult PutTransactionToPeriod(long tranId, long periodId)
+        {
+            var user = this.GetCurrentUserInfo();
+            var currentTran = _service.GetById(tranId);
+
+            if (currentTran == null) return NotFound();
+
+            if (user.Brand.Id != currentTran.Brand.Id) return Forbid();
+
+            return Ok();
+        }
+
         // POST: api/stores/transactions
         [HttpPost("/api/transactions")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = ParticipantsRoleConst.STORE_MANAGER)]

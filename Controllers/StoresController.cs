@@ -66,7 +66,7 @@ namespace PnLReporter.Controllers
             return Ok(result);
         }
 
-        [HttpGet("/test")]
+        /*[HttpGet("/test")]
         public ActionResult Test()
         {
             var cacheKey = "TheTime";
@@ -83,7 +83,7 @@ namespace PnLReporter.Controllers
             }
             var result = $"Current Time : {currentTime} \nCached  Time : {cachedTime}";
             return Ok(result);
-        }
+        }*/
 
         [HttpGet("/api/stores/{id}")]
         [Authorize(Roles = ParticipantsRoleConst.ACCOUNTANT + "," + ParticipantsRoleConst.INVESTOR)]
@@ -102,7 +102,7 @@ namespace PnLReporter.Controllers
             return Ok(store);
         }
 
-        [HttpDelete("/api/stores-cache/{id}")]
+        /*[HttpDelete("/api/stores-cache/{id}")]
         public ActionResult ClearCache(int id)
         {
             _distributedCache.Remove(id + "");
@@ -110,7 +110,7 @@ namespace PnLReporter.Controllers
         }
 
         // PUT: api/Stores/5
-        /*[HttpPut("{id}")]
+        [HttpPut("{id}")]
         public async Task<IActionResult> PutStore(int id, Store store)
         {
             if (id != store.Id)
