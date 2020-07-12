@@ -72,7 +72,7 @@ namespace PnLReporter.Service
             var investorCanJudgeStt = new List<int>()
             {
                 TransactionStatusConst.ACC_APPROVED
-            };
+            }; 
 
             switch (role)
             {

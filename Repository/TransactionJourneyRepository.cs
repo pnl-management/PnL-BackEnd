@@ -31,7 +31,7 @@ namespace PnLReporter.Repository
                 Status = journey.Status,
                 CreatedBy = journey.CreatedByParticipant.Id,
                 FeedBack = journey.FeedBack,
-                CreatedTime = journey.CreatedTime,
+                CreatedTime = DateTime.UtcNow.AddHours(7),
                 TransactionId = journey.Transaction.Id
             };
 
