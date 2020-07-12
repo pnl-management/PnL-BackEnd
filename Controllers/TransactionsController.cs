@@ -167,7 +167,7 @@ namespace PnLReporter.Controllers
         }
 
         [HttpPut("/api/transactions/{tranId}/periods/{periodId}")]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = ParticipantsRoleConst.STORE_MANAGER)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = ParticipantsRoleConst.ACCOUNTANT)]
         public ActionResult PutTransactionToPeriod(long tranId, int periodId)
         {
             var user = this.GetCurrentUserInfo();
