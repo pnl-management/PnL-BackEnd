@@ -68,7 +68,7 @@ namespace PnLReporter.Repository
                         .Where(jorney =>
                             jorney.TransactionId == record.Id)
                         .OrderByDescending(jorney => jorney.CreatedTime)
-                        .FirstOrDefault().Status == 303
+                        .FirstOrDefault().Status == TransactionStatusConst.ACC_APPROVED
                 ).ToList();
         }
 
