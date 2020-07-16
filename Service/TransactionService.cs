@@ -295,6 +295,7 @@ namespace PnLReporter.Service
         {
             var transVModelLst = new List<TransactionVModel>();
             ITransactionJourneyService jorneyService = new TransactionJourneyService(_context);
+            System.Diagnostics.Debug.WriteLine(transList.ToList().Count());
 
             if (transList != null)
             {

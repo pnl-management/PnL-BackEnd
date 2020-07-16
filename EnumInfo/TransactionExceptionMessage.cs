@@ -16,5 +16,7 @@ namespace PnLReporter.EnumInfo
         public const String REQ_TYPE_INVALID = "Request type of judge is invalid";
         public const String CURRENT_STATUS_CANNOT_TO_PERIOD = "Current status of transaction is not ready to put to period";
         public const String PERIOD_NOT_OPEN = "Current period is not available to put transaction in";
+        public const String PERIOD_STATUS_NOT_APPLY = "Current status cannot be apply to this period";
+        public const String CURRENT_TIME_IS_AFTER_DEADLINE = "Current time is after deadline. Cannot open this period";
     }
 }

@@ -15,6 +15,7 @@ namespace PnLReporter.Repository
         AccountingPeriod Update(AccountingPeriodVModel period);
         AccountingPeriod Insert(AccountingPeriod period);
         bool Delete(int id);
+        AccountingPeriod ChangeStatus(AccountingPeriodVModel period);
     }
     public class AccountingPeriodRepository : IAccountPeriodRepository
     {
@@ -23,6 +24,20 @@ namespace PnLReporter.Repository
         public AccountingPeriodRepository(PLSystemContext context)
         {
             _context = context;
+        }
+
+        public AccountingPeriod ChangeStatus(AccountingPeriodVModel period)
+        {
+            var current = this.GetById(period.Id ?? -100);
+
+            if (current == null) return null;
+
+            current.Status = period.Status;
+
+            _context.Entry(current).State = EntityState.Modified;
+            _context.SaveChanges();
+
+            return current;
         }
 
         public bool Delete(int id)
@@ -69,7 +84,6 @@ namespace PnLReporter.Repository
 
             model.LastModifed = DateTime.UtcNow.AddHours(7);
             model.StartDate = period.StartDate;
-            model.Status = period.Status;
             model.Title = period.Title;
             model.Deadline = period.Deadline;
             model.EndDate = period.EndDate;
