@@ -82,7 +82,7 @@ namespace PnLReporter.Repository
                 .Where(record =>
                     record.BrandId == currentParticipant.BrandId
                     &&
-                    record.Status == 1
+                    record.Status == PeriodStatusConst.OPENING
                 ).FirstOrDefault<AccountingPeriod>();
 
             return _context.Transaction
@@ -92,7 +92,7 @@ namespace PnLReporter.Repository
                 .Include(trans => trans.Category)
                 .Include(trans => trans.Store)
                 .Where(record =>
-                    record.PeriodId == currentPeriod.Id
+                    record.PeriodId == (currentPeriod != null ? currentPeriod.Id : -10)
                 );
         }
 
