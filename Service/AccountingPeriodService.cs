@@ -32,45 +32,46 @@ namespace PnLReporter.Service
             var pervious = this.GetById(period.Id ?? -10);
             var currentStatus = pervious.Status ?? -10;
             var newStatus = period.Status ?? -10;
-            AccountingPeriodVModel result;
+            AccountingPeriodVModel result = null;
 
             switch (newStatus)
             {
                 case PeriodStatusConst.OPENING:
-                    var listCanChange = new List<int>()
+
+                    if (currentStatus == PeriodStatusConst.CREATED)
                     {
-                        PeriodStatusConst.CREATED,
+                        var check = _repository.ChangeStatus(period);
+                        if (check == null)
+                        {
+                            result = null;
+                        }
+                        else
+                        {
+                            result = this.ParseToVModel(new List<AccountingPeriod>() { check }).FirstOrDefault();
+                        }
+                    }
+                    else
+                    {
+                        throw new Exception(TransactionExceptionMessage.CURRENT_STATUS_CANNOT_TO_PERIOD);
+                    }
+                    break;
+                case PeriodStatusConst.RE_OPEN:
+                    var listStatusAble = new List<int>()
+                    {
                         PeriodStatusConst.CLOSED,
                         PeriodStatusConst.CLOSE_BUT_MODIFIED
                     };
 
-                    if (listCanChange.Contains(currentStatus))
+                    if (listStatusAble.Contains(currentStatus))
                     {
-                        var flag = true;
-                        if (currentStatus == PeriodStatusConst.CREATED)
+                        var check = _repository.ChangeStatus(period);
+                        if (check == null)
                         {
-                            var currentTime = DateTime.UtcNow.AddHours(7);
-                            if (!(DateTime.Compare(currentTime, pervious.Deadline ?? default) < 0))
-                            {
-                                flag = false;
-                            }
-                        }
-
-                        if (flag)
-                        {
-                            var check = _repository.ChangeStatus(period);
-                            if (check == null)
-                            {
-                                result = null;
-                            }
-                            else
-                            {
-                                result = this.ParseToVModel(new List<AccountingPeriod>() { check }).FirstOrDefault();
-                            }
+                            result = null;
                         }
                         else
                         {
-                            throw new Exception(TransactionExceptionMessage.CURRENT_TIME_IS_AFTER_DEADLINE);
+                            result = this.ParseToVModel(new List<AccountingPeriod>() { check }).FirstOrDefault();
                         }
                     }
                     else
@@ -79,7 +80,7 @@ namespace PnLReporter.Service
                     }
                     break;
                 case PeriodStatusConst.CLOSE_BUT_MODIFIED:
-                    if (currentStatus == PeriodStatusConst.OPENING)
+                    if (currentStatus == PeriodStatusConst.RE_OPEN)
                     {
                         var check = _repository.ChangeStatus(period);
                         if (check == null)
@@ -97,9 +98,25 @@ namespace PnLReporter.Service
                     }
                     break;
                 case PeriodStatusConst.CLOSED:
+                    if (currentStatus == PeriodStatusConst.OPENING)
+                    {
+                        var check = _repository.ChangeStatus(period);
+                        if (check == null)
+                        {
+                            result = null;
+                        }
+                        else
+                        {
+                            result = this.ParseToVModel(new List<AccountingPeriod>() { check }).FirstOrDefault();
+                        }
+                    }
+                    else
+                    {
+                        throw new Exception(TransactionExceptionMessage.CURRENT_STATUS_CANNOT_TO_PERIOD);
+                    }
                     break;
             }
-            return null;
+            return result;
         }
 
         public bool Delete(int id)

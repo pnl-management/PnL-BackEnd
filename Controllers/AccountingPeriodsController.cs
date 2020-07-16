@@ -109,9 +109,25 @@ namespace PnLReporter.Controllers
 
         [HttpPut("/api/periods/{id}/status/{status}")]
         [Authorize(Roles = ParticipantsRoleConst.ACCOUNTANT + "," + ParticipantsRoleConst.INVESTOR)]
-        public ActionResult ChangeStatus(int id, int statusId)
+        public ActionResult ChangeStatus(int id, int status)
         {
-            return Ok();
+            try
+            {
+                var vmodel = new AccountingPeriodVModel()
+                {
+                    Id = id,
+                    Status = status
+                };
+                var result = _service.ChangeStatus(vmodel);
+
+                if (result == null) return BadRequest("Cannot update status");
+
+                return Ok();
+            } 
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
         }
 
         private UserModel GetCurrentUserInfo()
