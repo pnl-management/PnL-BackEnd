@@ -9,11 +9,11 @@ namespace PnLReporter.EnumInfo
     {
         private Dictionary<int?, string> Dictionary;
 
-        public static readonly int CREATED = 0;
-        public static readonly int OPENING = 1;
-        public static readonly int CLOSED = 2;
-        public static readonly int RE_OPEN = 3;
-        public static readonly int CLOSE_BUT_MODIFIED = 4;
+        public const int CREATED = 0;
+        public const int OPENING = 1;
+        public const int CLOSED = 2;
+        public const int RE_OPEN = 3;
+        public const int CLOSE_BUT_MODIFIED = 4;
 
         public PeriodStatusConst()
         {

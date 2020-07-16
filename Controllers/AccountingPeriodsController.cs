@@ -107,6 +107,13 @@ namespace PnLReporter.Controllers
             }
         }
 
+        [HttpPut("/api/periods/{id}/status/{status}")]
+        [Authorize(Roles = ParticipantsRoleConst.ACCOUNTANT + "," + ParticipantsRoleConst.INVESTOR)]
+        public ActionResult ChangeStatus(int id, int statusId)
+        {
+            return Ok();
+        }
+
         private UserModel GetCurrentUserInfo()
         {
             var identity = HttpContext.User.Identity as ClaimsIdentity;
