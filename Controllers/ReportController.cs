@@ -76,6 +76,30 @@ namespace PnLReporter.Controllers
             return Ok();
         }
 
+        [HttpGet("/api/reports/periods/{periodId}")]
+        [Authorize(Roles = ParticipantsRoleConst.ACCOUNTANT + "," + ParticipantsRoleConst.INVESTOR)]
+        public ActionResult GetAllTransactionOfPeriod(int periodId)
+        {
+            var user = this.GetCurrentUserInfo();
+            var result = _service.GetReportOfBrand(user.Brand.Id, periodId);
+
+            if (result == null) return BadRequest("Cannot get report of this brand: " + user.Brand.Id + " of account " + user.Username);
+
+            return Ok(result);
+        }
+
+        [HttpGet("/api/reports/periods/{periodId}/stores")]
+        [Authorize(Roles = ParticipantsRoleConst.STORE_MANAGER)]
+        public ActionResult GetAllTransactionOfStore(int periodId)
+        {
+            var user = this.GetCurrentUserInfo();
+            var result = _service.GetReportOfStore(user.Store.Id, periodId);
+
+            if (result == null) return BadRequest("Cannot get report of this store: " + user.Brand.Id + " of account " + user.Username);
+
+            return Ok(result);
+        }
+
         /*[HttpGet("/gg-sheet")]
         public ActionResult GetList()
         {

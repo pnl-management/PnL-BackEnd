@@ -14,6 +14,8 @@ namespace PnLReporter.Service
     {
         IEnumerable<ReportVModel> GetReport(int brandId);
         IList<IList<object>> ListDataToGgSheet(int brandId, out int storeSize);
+        ReportVModel GetReportOfStore(int storeId, int periodId);
+        IEnumerable<ReportVModel> GetReportOfBrand(int brandId, int periodId);
     }
     public class ReportService : IReportService
     {
@@ -111,6 +113,40 @@ namespace PnLReporter.Service
                 }
             }
             return listReport;
+        }
+
+        public IEnumerable<ReportVModel> GetReportOfBrand(int brandId, int periodId)
+        {
+            var listStore = _repository.GetListStoreOfBrand(brandId);
+            var result = new List<ReportVModel>();
+
+            foreach (var store in listStore)
+            {
+                var listTran = _repository.GetListTransactionOfStoreAndPeriod(store.Id, periodId);
+
+                var report = new ReportVModel()
+                {
+                    ListTransactions = listTran != null ? this.ParseToTransactionVModel(listTran) : null,
+                    Period = new AccountingPeriodVModel() { Id = periodId },
+                    Store = new StoreVModel() { Id = store.Id }
+                };
+                result.Add(report);
+            }
+
+            return result;
+        }
+
+        public ReportVModel GetReportOfStore(int storeId, int periodId)
+        {
+            var listTran = _repository.GetListTransactionOfStoreAndPeriod(storeId, periodId);
+            var report = new ReportVModel()
+            {
+                ListTransactions = listTran != null ? this.ParseToTransactionVModel(listTran) : null,
+                Period = new AccountingPeriodVModel() { Id = periodId },
+                Store = new StoreVModel() { Id = storeId }
+            };
+
+            return report;
         }
 
         public IList<IList<object>> ListDataToGgSheet(int brandId, out int storeSize)
