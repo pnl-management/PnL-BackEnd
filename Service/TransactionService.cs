@@ -25,7 +25,7 @@ namespace PnLReporter.Service
         bool CheckTransactionBelongToStore(long? tranId, int? storeId);
         TransactionVModel GetById(long tranId);
         TransactionVModel UpdateTransaction(TransactionVModel transaction);
-        TransactionVModel CreateTransaction(TransactionVModel transaction);
+        TransactionVModel CreateTransaction(TransactionVModel transaction, List<ReceiptVModel> listReceipt);
         bool IsTransactionCanModified(long transactionId);
         TransactionVModel PutTransactionToPeriod(long tranId, int periodId, int userId);
     }
@@ -54,7 +54,7 @@ namespace PnLReporter.Service
             return _repository.CheckTransactionBelongToStore(tranId, storeId);
         }
 
-        public TransactionVModel CreateTransaction(TransactionVModel transaction)
+        public TransactionVModel CreateTransaction(TransactionVModel transaction, List<ReceiptVModel> listReceipt)
         {
             
             var model = new Transaction()
@@ -68,18 +68,16 @@ namespace PnLReporter.Service
                 CreatedBy = transaction.CreateBy.Id,
                 CreatedTime = DateTime.UtcNow.AddHours(7)
             };
-            var result = _repository.CreateTransaction(model);
+            var result = _repository.CreateTransaction(model, listReceipt);
 
             TransactionJourneyVModel journey = new TransactionJourneyVModel()
             {
-                Status = TransactionStatusConst.STORE_CREATED,
+                Status = TransactionStatusConst.ACC_CREATE,
                 Transaction = new TransactionVModel() { Id = result.Id },
                 CreatedByParticipant = new ParticipantVModel() { Id = transaction.CreateBy.Id }
             };
 
-            _journeyService.AddStatus(journey);
-
-            
+            _journeyService.AddStatus(journey);            
 
             return this.ParseToTransactionVModel(new List<Transaction>() { result }).FirstOrDefault();
         }
@@ -173,10 +171,9 @@ namespace PnLReporter.Service
 
             var modifiedStatus = new List<int>()
                 {
-                    TransactionStatusConst.ACC_REQ_MODIFIED,
+                    TransactionStatusConst.ACC_CREATE,
                     TransactionStatusConst.INVESTOR_REQ_MODIFIED,
-                    TransactionStatusConst.STORE_CREATED,
-                    TransactionStatusConst.STORE_MODIFIED
+                    TransactionStatusConst.ACC_MODIFIED
                 };
 
             if (modifiedStatus.Contains(lastestStatus.Status ?? default))
@@ -274,7 +271,7 @@ namespace PnLReporter.Service
 
                     TransactionJourneyVModel journey = new TransactionJourneyVModel()
                     {
-                        Status = TransactionStatusConst.STORE_MODIFIED,
+                        Status = TransactionStatusConst.ACC_MODIFIED,
                         Transaction = new TransactionVModel() { Id = transaction.Id },
                         CreatedByParticipant = new ParticipantVModel() { Id = transaction.CreateBy.Id }
                     };

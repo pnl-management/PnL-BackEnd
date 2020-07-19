@@ -138,7 +138,7 @@ namespace PnLReporter.Controllers
 
         // PUT: api/stores/transactions/5
         [HttpPut("/api/transactions/{id}")]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = ParticipantsRoleConst.STORE_MANAGER)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = ParticipantsRoleConst.ACCOUNTANT)]
         public IActionResult PutTransaction(long id, TransactionVModel transaction)
         {
             if (id != transaction.Id)
@@ -149,10 +149,10 @@ namespace PnLReporter.Controllers
             var result = "";
 
             var user = this.GetCurrentUserInfo();
-            int storeId = user.Store.Id ?? 0;
+            int brandId = user.Brand.Id ?? 0;
             transaction.CreateBy = new ParticipantVModel() { Id = user.Id };
 
-            if (!_service.CheckTransactionBelongToStore(transaction.Id, storeId)) return Forbid();
+            if (!_service.CheckTransactionBelongToBrand(transaction.Id, brandId)) return Forbid();
 
             try
             {
@@ -189,20 +189,24 @@ namespace PnLReporter.Controllers
 
         // POST: api/stores/transactions
         [HttpPost("/api/transactions")]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = ParticipantsRoleConst.STORE_MANAGER)]
-        public ActionResult PostTransaction(TransactionVModel transaction)
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = ParticipantsRoleConst.ACCOUNTANT)]
+        public ActionResult PostTransaction(TransactionVModel transaction, List<ReceiptVModel> listReceipt)
         {
             if (transaction.Category == null || transaction.Category.Id < 0)
             {
                 return BadRequest(TransactionExceptionMessage.TRANSACTION_CATEGORY_IS_NULL);
             }
 
+            if (transaction.Store == null || transaction.Store.Id == null || transaction.Store.Id < 0 )
+            {
+                return BadRequest(TransactionExceptionMessage.STORE_ID_IS_EMPTY);
+            }
+
             var user = this.GetCurrentUserInfo();
             transaction.CreateBy = new ParticipantVModel() { Id = user.Id };
             transaction.Brand = new BrandVModel() { Id = user.Brand.Id };
-            transaction.Store = new StoreVModel() { Id = user.Store.Id };
 
-            var result = _service.CreateTransaction(transaction);
+            var result = _service.CreateTransaction(transaction, listReceipt);
 
             return Created("", result);
         }

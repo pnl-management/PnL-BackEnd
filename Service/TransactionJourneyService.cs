@@ -63,61 +63,14 @@ namespace PnLReporter.Service
         {
             var lastestStatus = this.GetLastestStatus(journey.Transaction.Id);
 
-            var accountantCanJudgeStt = new List<int>()
-            {
-                TransactionStatusConst.STORE_CREATED,
-                TransactionStatusConst.STORE_MODIFIED
-            };
-
             var investorCanJudgeStt = new List<int>()
             {
-                TransactionStatusConst.ACC_APPROVED
-            }; 
+                TransactionStatusConst.ACC_CREATE,
+                TransactionStatusConst.ACC_MODIFIED
+            };
 
             switch (role)
             {
-                case ParticipantsRoleConst.ACCOUNTANT:
-                    if (accountantCanJudgeStt.Contains(lastestStatus.Status ?? default))
-                    {
-                        switch (type)
-                        {
-                            case TransactionJourneyReqType.APPROVE:
-                                journey.Status = TransactionStatusConst.ACC_APPROVED;
-                                break;
-                            case TransactionJourneyReqType.REJECT:
-                                journey.Status = TransactionStatusConst.ACC_CANCELED;
-                                break;
-                            case TransactionJourneyReqType.REQ_MODIFIED:
-                                journey.Status = TransactionStatusConst.ACC_REQ_MODIFIED;
-                                break;
-                            case TransactionJourneyReqType.CANCELED_AFTER_CLOSE:
-                                var transactionService = new TransactionService(_context);
-                                var currentTran = transactionService.GetById(journey.Transaction.Id);
-
-                                var listPeriodCanModifiedStatus = new List<int>()
-                                {
-                                    PeriodStatusConst.OPENING,
-                                    PeriodStatusConst.RE_OPEN
-                                };
-
-                                if (listPeriodCanModifiedStatus.Contains(currentTran.Period.Status ?? default))
-                                {
-                                    journey.Status = TransactionStatusConst.CANCELED_AFTER_CLOSED;
-                                }
-                                else
-                                {
-                                    throw new Exception(TransactionExceptionMessage.CUR_STATUS_NOT_BE_JUDGE);
-                                }
-                                break;
-                            default:
-                                throw new Exception(TransactionExceptionMessage.REQ_TYPE_INVALID);
-                        }
-                    }
-                    else
-                    {
-                        throw new Exception(TransactionExceptionMessage.CUR_STATUS_NOT_BE_JUDGE);
-                    }
-                    break;
                 case ParticipantsRoleConst.INVESTOR:
                     if (investorCanJudgeStt.Contains(lastestStatus.Status ?? default))
                     {
