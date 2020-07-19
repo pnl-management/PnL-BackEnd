@@ -13,6 +13,8 @@ using PnLReporter.Models;
 using PnLReporter.Service;
 using PnLReporter.ViewModels;
 
+//Test sonarcloud
+
 namespace PnLReporter.Controllers
 {
     [Route("api/[controller]")]
