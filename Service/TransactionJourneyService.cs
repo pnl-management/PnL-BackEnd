@@ -152,55 +152,7 @@ namespace PnLReporter.Service
             var result = new List<TransactionJourneyVModel>();
             foreach (TransactionJourney model in listModel)
             {
-                var vmodel = new TransactionJourneyVModel()
-                {
-                    Id = model.Id,
-                    Status = model.Status,
-                    FeedBack = model.FeedBack,
-                    CreatedByParticipant = model.CreatedByNavigation != null ? new ParticipantVModel()
-                    {
-                        Id = model.CreatedByNavigation.Id,
-                        Username = model.CreatedByNavigation.Username,
-                        Fullname = model.CreatedByNavigation.Fullname,
-                        CreatedTime = model.CreatedByNavigation.CreatedTime,
-                        LastModified = model.CreatedByNavigation.LastModified
-                    } : null,
-                    Transaction = model.Transaction != null ? new TransactionVModel()
-                    {
-                        Id = model.Transaction.Id,
-                        Name = model.Transaction.Name,
-                        Value = model.Transaction.Value,
-                        Description = model.Transaction.Description,
-                        Category = model.Transaction.Category != null ? new TransactionCategoryVModel()
-                        {
-                            Id = model.Transaction.Category.Id,
-                            Name = model.Transaction.Category.Name,
-                            Type = model.Transaction.Category.Type
-                        } : null,
-                        Period = model.Transaction.Period != null ? new AccountingPeriodVModel()
-                        {
-                            Id = model.Transaction.Period.Id,
-                            Title = model.Transaction.Period.Title,
-                            Status = model.Transaction.Period.Status
-                        } : null,
-                        Brand = model.Transaction.Brand != null ? new BrandVModel()
-                        {
-                            Id = model.Transaction.Brand.Id,
-                            Name = model.Transaction.Brand.Name
-                        } : null,
-                        Store = model.Transaction.Store != null ? new StoreVModel()
-                        {
-                            Id = model.Transaction.Store.Id,
-                            Name = model.Transaction.Store.Name
-                        } : null,
-                        CreatedTime = model.Transaction.CreatedTime,
-                        CreateByParticipant = model.Transaction.CreatedByNavigation != null ? new ParticipantVModel()
-                        {
-                            Id = model.Transaction.CreatedBy,
-                            Username = model.Transaction.CreatedByNavigation.Username
-                        } : null,
-                    } : null
-                };
+                var vmodel = TransactionJourneyVModel.ToVModel(model);
 
                 result.Add(vmodel);
             }

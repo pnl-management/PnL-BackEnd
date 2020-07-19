@@ -69,47 +69,7 @@ namespace PnLReporter.Service
                         },
                         ListTransactions = this.ParseToTransactionVModel(lisTransaction)
                     };
-
-                    //_cache.SetString(report.Id, JsonConvert.SerializeObject(report));
                     listReport.Add(report);
-
-                    /*
-                    var cacheItem = _cache.GetString(id);
-                    if (false)
-                    {
-                        var cacheParsed = JsonConvert.DeserializeObject<ReportVModel>(cacheItem);
-                        var report = new ReportVModel()
-                        {
-                            Period = new AccountingPeriodVModel()
-                            {
-                                Id = period.Id,
-                                Brand = new BrandVModel()
-                                {
-                                    Id = period.BrandId ?? default
-                                },
-                                StartDate = period.StartDate,
-                                EndDate = period.EndDate,
-                                Deadline = period.Deadline,
-                                Title = period.Title,
-                                Status = period.Status
-                            },
-                            Store = new StoreVModel()
-                            {
-                                Id = store.Id,
-                                Brand = new BrandVModel()
-                                {
-                                    Id = store.BrandId ?? default
-                                },
-                                Name = store.Name
-                            },
-                            ListTransactions = cacheParsed.ListTransactions
-                        };
-                        listReport.Add(report);
-                    }
-                    else
-                    {
-                        
-                    }*/
                 }
             }
             return listReport;
@@ -243,7 +203,7 @@ namespace PnLReporter.Service
                             Name = trans.Store.Name
                         } : null,
                         CreatedTime = trans.CreatedTime,
-                        CreateByParticipant = trans.CreatedByNavigation != null ? new ParticipantVModel()
+                        CreateBy = trans.CreatedByNavigation != null ? new ParticipantVModel()
                         {
                             Id = trans.CreatedBy,
                             Username = trans.CreatedByNavigation.Username

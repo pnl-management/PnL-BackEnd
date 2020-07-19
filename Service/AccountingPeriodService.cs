@@ -161,21 +161,7 @@ namespace PnLReporter.Service
             var result = new List<AccountingPeriodVModel>();
             foreach (var model in listModel)
             {
-                var vmodel = new AccountingPeriodVModel()
-                {
-                    Id = model.Id,
-                    Brand = model.Brand != null ? new BrandVModel()
-                    {
-                        Id = model.Brand.Id,
-                        Name = model.Brand.Name
-                    } : null,
-                    CreateTime = model.CreateTime,
-                    Deadline = model.Deadline,
-                    EndDate = model.EndDate,
-                    StartDate = model.StartDate,
-                    Status = model.Status,
-                    Title = model.Title
-                };
+                var vmodel = AccountingPeriodVModel.ToVModel(model);
                 result.Add(vmodel);
             }
             return result;

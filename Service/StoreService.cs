@@ -102,22 +102,7 @@ namespace PnLReporter.Service
 
             foreach (Store store in list)
             {
-                var newStore = new StoreVModel()
-                {
-                    Id = store.Id,
-                    Name = store.Name,
-                    Brand = new BrandVModel()
-                    {
-                        Id = store.Brand != null ? store.Brand.Id : (store.BrandId ?? default),
-                        Name = store.Brand != null ? store.Brand.Name : null,
-                        Status = store.Brand != null ? store.Brand.Status : null,
-                        CreatedTime = store.Brand != null ? store.Brand.CreatedTime : null
-                    },
-                    Phone = store.Phone,
-                    Address = store.Address,
-                    Status = store.Status
-                };
-
+                var newStore = StoreVModel.ToVModel(store);
                 result.Add(newStore);
             }
 

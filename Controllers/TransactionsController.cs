@@ -40,7 +40,7 @@ namespace PnLReporter.Controllers
         {
             var user = this.GetCurrentUserInfo();
 
-            int brandId = user.Brand.Id;
+            int brandId = user.Brand.Id ?? 0;
 
             IEnumerable<Object> result;
             // paging implement
@@ -70,7 +70,7 @@ namespace PnLReporter.Controllers
         {
             var user = this.GetCurrentUserInfo();
 
-            int brandId = user.Brand.Id;
+            int brandId = user.Brand.Id ?? 0;
 
             var result = _service.GetQueryListLength(query, brandId);
 
@@ -108,7 +108,7 @@ namespace PnLReporter.Controllers
             var user = this.GetCurrentUserInfo();
 
             IParticipantService participantService = new ParticipantService(_context);
-            int brandId = user.Brand.Id;
+            int brandId = user.Brand.Id ?? 0;
 
             switch (user.Role + "")
             {
@@ -125,7 +125,7 @@ namespace PnLReporter.Controllers
                     }
                     break;
                 case ParticipantsRoleConst.STORE_MANAGER:
-                    int storeId = user.Store.Id;
+                    int storeId = user.Store.Id ?? 0;
                     if (!_service.CheckTransactionBelongToStore(id, storeId))
                     {
                         return Forbid();
@@ -149,8 +149,8 @@ namespace PnLReporter.Controllers
             var result = "";
 
             var user = this.GetCurrentUserInfo();
-            int storeId = user.Store.Id;
-            transaction.CreateByParticipant = new ParticipantVModel() { Id = user.Id };
+            int storeId = user.Store.Id ?? 0;
+            transaction.CreateBy = new ParticipantVModel() { Id = user.Id };
 
             if (!_service.CheckTransactionBelongToStore(transaction.Id, storeId)) return Forbid();
 
@@ -198,7 +198,7 @@ namespace PnLReporter.Controllers
             }
 
             var user = this.GetCurrentUserInfo();
-            transaction.CreateByParticipant = new ParticipantVModel() { Id = user.Id };
+            transaction.CreateBy = new ParticipantVModel() { Id = user.Id };
             transaction.Brand = new BrandVModel() { Id = user.Brand.Id };
             transaction.Store = new StoreVModel() { Id = user.Store.Id };
 

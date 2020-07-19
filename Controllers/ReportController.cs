@@ -44,7 +44,7 @@ namespace PnLReporter.Controllers
         {
             var user = this.GetCurrentUserInfo();
             int storeSize;
-            var listReport = _service.ListDataToGgSheet(user.Brand.Id, out storeSize);
+            var listReport = _service.ListDataToGgSheet(user.Brand.Id ?? 0, out storeSize);
 
             GoogleCredential credential;
 
@@ -81,7 +81,7 @@ namespace PnLReporter.Controllers
         public ActionResult GetAllTransactionOfPeriod(int periodId)
         {
             var user = this.GetCurrentUserInfo();
-            var result = _service.GetReportOfBrand(user.Brand.Id, periodId);
+            var result = _service.GetReportOfBrand(user.Brand.Id ?? 0, periodId);
 
             if (result == null) return BadRequest("Cannot get report of this brand: " + user.Brand.Id + " of account " + user.Username);
 
@@ -93,7 +93,7 @@ namespace PnLReporter.Controllers
         public ActionResult GetAllTransactionOfStore(int periodId)
         {
             var user = this.GetCurrentUserInfo();
-            var result = _service.GetReportOfStore(user.Store.Id, periodId);
+            var result = _service.GetReportOfStore(user.Store.Id ?? 0, periodId);
 
             if (result == null) return BadRequest("Cannot get report of this store: " + user.Brand.Id + " of account " + user.Username);
 

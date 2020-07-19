@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PnLReporter.Models
 {
@@ -8,12 +7,11 @@ namespace PnLReporter.Models
     {
         public TransactionCategory()
         {
+            Receipt = new HashSet<Receipt>();
             Transaction = new HashSet<Transaction>();
         }
-        [System.ComponentModel.DataAnnotations.Key]
-        [DatabaseGeneratedAttribute(DatabaseGeneratedOption.Identity)]
-        public long Id { get; set; }
 
+        public long Id { get; set; }
         public string Name { get; set; }
         public int? Type { get; set; }
         public bool? Required { get; set; }
@@ -23,6 +21,7 @@ namespace PnLReporter.Models
         public DateTime? LastModified { get; set; }
 
         public virtual Brand Brand { get; set; }
+        public virtual ICollection<Receipt> Receipt { get; set; }
         public virtual ICollection<Transaction> Transaction { get; set; }
     }
 }

@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace PnLReporter.Models
@@ -8,6 +7,7 @@ namespace PnLReporter.Models
     {
         public Store()
         {
+            Receipt = new HashSet<Receipt>();
             StoreParticipantsDetail = new HashSet<StoreParticipantsDetail>();
             Transaction = new HashSet<Transaction>();
         }
@@ -19,11 +19,9 @@ namespace PnLReporter.Models
         public bool? Status { get; set; }
         public int? BrandId { get; set; }
 
-        [JsonIgnore]
         public virtual Brand Brand { get; set; }
-        [JsonIgnore]
+        public virtual ICollection<Receipt> Receipt { get; set; }
         public virtual ICollection<StoreParticipantsDetail> StoreParticipantsDetail { get; set; }
-        [JsonIgnore]
         public virtual ICollection<Transaction> Transaction { get; set; }
     }
 }

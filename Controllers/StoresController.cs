@@ -39,7 +39,7 @@ namespace PnLReporter.Controllers
         {
             var user = this.GetCurrentUserInfo();
 
-            int brandId = user.Brand.Id;
+            int brandId = user.Brand.Id ?? 0;
 
             IEnumerable<Object> result = null;
 
@@ -61,7 +61,7 @@ namespace PnLReporter.Controllers
         {
             var user = this.GetCurrentUserInfo();
 
-            int brandId = user.Brand.Id;
+            int brandId = user.Brand.Id ?? 0;
             var result = _service.CountQueryList(query, brandId);
             return Ok(result);
         }

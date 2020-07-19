@@ -66,7 +66,7 @@ namespace PnLReporter.Controllers
 
             if (isValid)
             {
-                return Ok(_service.GetListEvidenceOfTransaction(transactionId));
+                return Ok(_service.GetListEvidenceOfReceipt(transactionId));
             }
 
             return Forbid();
@@ -82,7 +82,7 @@ namespace PnLReporter.Controllers
 
             var user = this.GetCurrentUserInfo();
 
-            if (user.Brand.Id != result.Transaction.Brand.Id) return Forbid();
+            if (user.Brand.Id != result.Receipt.Brand.Id) return Forbid();
 
             return Ok(result);
         }
@@ -97,7 +97,7 @@ namespace PnLReporter.Controllers
 
             var currentEvidence = _service.GetById(evidence.Id ?? default);
 
-            if (user.Store.Id != evidence.Transaction.Store.Id) return Forbid();
+            if (user.Store.Id != evidence.Receipt.Store.Id) return Forbid();
             var result = _service.UpdateEvidence(evidence);
             if (result == null) return NotFound();
             return Ok(result);
@@ -124,10 +124,10 @@ namespace PnLReporter.Controllers
             if (current == null) return NotFound();
 
             var user = this.GetCurrentUserInfo();
-            if (user.Store.Id != current.Transaction.Store.Id) return Forbid();
+            if (user.Store.Id != current.Receipt.Store.Id) return Forbid();
 
             var transactionService = new TransactionService(_context);
-            if (transactionService.IsTransactionCanModified(current.Transaction.Id))
+            if (transactionService.IsTransactionCanModified(current.Receipt.Id ?? 0))
             {
                 return Ok(_service.DeleteEvidence(id));
             }

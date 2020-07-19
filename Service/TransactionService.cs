@@ -65,7 +65,7 @@ namespace PnLReporter.Service
                 CategoryId = transaction.Category.Id,
                 BrandId = transaction.Brand.Id,
                 StoreId = transaction.Store.Id,
-                CreatedBy = transaction.CreateByParticipant.Id,
+                CreatedBy = transaction.CreateBy.Id,
                 CreatedTime = DateTime.UtcNow.AddHours(7)
             };
             var result = _repository.CreateTransaction(model);
@@ -74,7 +74,7 @@ namespace PnLReporter.Service
             {
                 Status = TransactionStatusConst.STORE_CREATED,
                 Transaction = new TransactionVModel() { Id = result.Id },
-                CreatedByParticipant = new ParticipantVModel() { Id = transaction.CreateByParticipant.Id }
+                CreatedByParticipant = new ParticipantVModel() { Id = transaction.CreateBy.Id }
             };
 
             _journeyService.AddStatus(journey);
@@ -276,7 +276,7 @@ namespace PnLReporter.Service
                     {
                         Status = TransactionStatusConst.STORE_MODIFIED,
                         Transaction = new TransactionVModel() { Id = transaction.Id },
-                        CreatedByParticipant = new ParticipantVModel() { Id = transaction.CreateByParticipant.Id }
+                        CreatedByParticipant = new ParticipantVModel() { Id = transaction.CreateBy.Id }
                     };
 
                     _journeyService.AddStatus(journey);
@@ -301,42 +301,9 @@ namespace PnLReporter.Service
             {
                 transList.ToList().ForEach(trans =>
                 {
-                    transVModelLst.Add(new TransactionVModel()
-                    {
-                        Id = trans.Id,
-                        Name = trans.Name,
-                        Value = trans.Value,
-                        Description = trans.Description,
-                        Category = trans.Category != null ? new TransactionCategoryVModel()
-                        {
-                            Id = trans.Category.Id,
-                            Name = trans.Category.Name,
-                            Type = trans.Category.Type
-                        } : null,
-                        Period = trans.Period != null ? new AccountingPeriodVModel()
-                        {
-                            Id = trans.Period.Id,
-                            Title = trans.Period.Title,
-                            Status = trans.Period.Status
-                        } : null,
-                        Brand = trans.Brand != null ? new BrandVModel()
-                        {
-                            Id = trans.Brand.Id,
-                            Name = trans.Brand.Name
-                        } : null,
-                        Store = trans.Store != null ? new StoreVModel()
-                        {
-                            Id = trans.Store.Id,
-                            Name = trans.Store.Name
-                        } : null,
-                        CreatedTime = trans.CreatedTime,
-                        CreateByParticipant = trans.CreatedByNavigation != null ? new ParticipantVModel()
-                        {
-                            Id = trans.CreatedBy,
-                            Username = trans.CreatedByNavigation.Username
-                        } : null,
-                        LastestStatus = jorneyService.GetLastestStatus(trans.Id)
-                    });
+                    var vmodel = TransactionVModel.ToVModel(trans);
+                    vmodel.LastestStatus = jorneyService.GetLastestStatus(trans.Id);
+                    transVModelLst.Add(vmodel);
                 });
             }
 
