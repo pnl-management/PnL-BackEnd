@@ -16,6 +16,7 @@ namespace PnLReporter.Service
         IEnumerable<Object> FilterColumns(string filter, IEnumerable<StoreVModel> list);
         int CountQueryList(string query, int brandId);
         StoreVModel GetById(int id);
+        BrandVModel GetBrandOfStore(int storeId);
     }
     public class StoreService : IStoreService
     {
@@ -78,6 +79,15 @@ namespace PnLReporter.Service
             }
 
             return result;
+        }
+
+        public BrandVModel GetBrandOfStore(int storeId)
+        {
+            var result = _repository.GetBrandOfStore(storeId);
+
+            if (result == null) return null;
+
+            return BrandVModel.ToVModel(result);
         }
 
         public StoreVModel GetById(int id)
