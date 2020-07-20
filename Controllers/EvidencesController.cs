@@ -28,22 +28,21 @@ namespace PnLReporter.Controllers
             _service = new EvidenceService(context);
         }
 
-        //Get all evidences of a transactions
-        [HttpGet("/api/transactions/{transactionId}/evidences")]
+        [HttpGet("/api/receipts/{receiptId}/evidences")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        public ActionResult GetEvidenceLst(long transactionId)
+        public ActionResult GetEvidenceLst(long receiptId)
         {
             var user = this.GetCurrentUserInfo();
             bool isValid = false;
-            var transaction = (new TransactionService(_context)).GetById(transactionId);
+            var receipt = (new ReceiptService(_context)).GetById(receiptId);
 
-            if (transaction == null) return NotFound();
+            if (receipt == null) return NotFound();
 
             switch (user.Role?? default)
             {
                 case ParticipantsRoleConst.ACCOUNTANT_ID:
                 case ParticipantsRoleConst.INVESTOR_ID:
-                    if (transaction.Brand.Id != user.Brand.Id)
+                    if (receipt.Brand.Id != user.Brand.Id)
                     {
                         isValid = false;
                     }
@@ -54,10 +53,11 @@ namespace PnLReporter.Controllers
                     
                     break;
                 case ParticipantsRoleConst.STORE_MANAGER_ID:
-                    if (transaction.Store.Id != transactionId)
+                    if (receipt.Store.Id != user.Store.Id)
                     {
                         isValid = false;
-                    } else
+                    }
+                    else
                     {
                         isValid = true;
                     }
@@ -66,13 +66,12 @@ namespace PnLReporter.Controllers
 
             if (isValid)
             {
-                return Ok(_service.GetListEvidenceOfReceipt(transactionId));
+                return Ok(_service.GetListEvidenceOfReceipt(receiptId));
             }
 
             return Forbid();
         }
 
-        // GET: api/Evidences/5
         [HttpGet("/api/evidences/{id}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public ActionResult GetEvidence(long id)
@@ -87,7 +86,6 @@ namespace PnLReporter.Controllers
             return Ok(result);
         }
 
-        // PUT: api/Evidences/5
         [HttpPut("/api/evidences/{id}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = ParticipantsRoleConst.STORE_MANAGER)]
         public IActionResult PutEvidence(long id, EvidenceVModel evidence)
@@ -103,12 +101,12 @@ namespace PnLReporter.Controllers
             return Ok(result);
         }
 
-        [HttpPost("/api/transactions/{transactionId}/evidences")]
+        [HttpPost("/api/receipts/{receiptId}/evidences")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = ParticipantsRoleConst.STORE_MANAGER)]
-        public ActionResult PostEvidence(long transactionId, List<EvidenceVModel> evidenceLst)
+        public ActionResult PostEvidence(long receiptId, List<EvidenceVModel> evidenceLst)
         {
-            var transactionService = new TransactionService(_context);
-            if (transactionService.IsTransactionCanModified(transactionId))
+            var receiptService = new ReceiptService(_context);
+            if (receiptService.IsReceiptCanModified(receiptId))
             {
                 return Created("",_service.InsertEvidences(evidenceLst));
             }

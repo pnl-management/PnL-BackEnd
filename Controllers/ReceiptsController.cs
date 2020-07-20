@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -10,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using PnLReporter.EnumInfo;
 using PnLReporter.Models;
 using PnLReporter.Service;
+using PnLReporter.ViewModels;
 
 namespace PnLReporter.Controllers
 {
@@ -62,78 +64,85 @@ namespace PnLReporter.Controllers
         }
 
         // GET: api/Receipts/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Receipt>> GetReceipt(long id)
+        [HttpGet("/api/receipts/{id}")]
+        public ActionResult GetReceipt(long id)
         {
-            var receipt = await _context.Receipt.FindAsync(id);
+            var receipt = _service.GetById(id);
 
-            if (receipt == null)
+            var user = this.GetCurrentUserInfo();
+            var role = user.Role;
+
+            switch (role ?? -100)
             {
-                return NotFound();
-            }
+                case ParticipantsRoleConst.ACCOUNTANT_ID:
+                case ParticipantsRoleConst.INVESTOR_ID:
+                    StoreService storeService = new StoreService(_context, null);
+                    var brand = storeService.GetBrandOfStore(receipt.Store.Id ?? -100);
+                    if (brand == null) return BadRequest("Cannot find brand of store");
 
-            return receipt;
+                    if (brand.Id != user.Brand.Id) return Forbid("You cannot access to brand ID: " + brand.Id);
+                    break;
+                case ParticipantsRoleConst.STORE_MANAGER_ID:
+                    if (user.Store.Id != receipt.Store.Id) return Forbid("You cannot access to store ID: " + receipt.Store.Id);
+                    break;
+            }
+            return Ok(receipt);
         }
 
-        // PUT: api/Receipts/5
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutReceipt(long id, Receipt receipt)
+        [HttpPut("/api/receipts/{id}/judge")]
+        [Authorize(Roles = ParticipantsRoleConst.ACCOUNTANT)]
+        public ActionResult JudgeReceipt(long id, String type)
         {
-            if (id != receipt.Id)
-            {
-                return BadRequest();
-            }
+            var current = _service.GetById(id);
 
-            _context.Entry(receipt).State = EntityState.Modified;
+            if (current == null) return NotFound("Not found Receipt ID: " + id);
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ReceiptExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            var user = this.GetCurrentUserInfo();
 
-            return NoContent();
+            if (current.Brand.Id != user.Brand.Id) return Forbid("You cannot access to Brand ID: " + user.Brand.Id);
+
+            if (_service.JudgeReceipt(id, type)) return Ok();
+            return BadRequest("Cannot judge receipt");
         }
 
-        // POST: api/Receipts
-        [HttpPost]
-        public async Task<ActionResult<Receipt>> PostReceipt(Receipt receipt)
+        [HttpPut("/api/receipts/{id}")]
+        [Authorize(Roles = ParticipantsRoleConst.STORE_MANAGER)]
+        public IActionResult PutReceipt(long id, ReceiptVModel receipt)
         {
-            _context.Receipt.Add(receipt);
-            await _context.SaveChangesAsync();
+            receipt.Id = id;
 
-            return CreatedAtAction("GetReceipt", new { id = receipt.Id }, receipt);
+            var user = this.GetCurrentUserInfo();
+
+            var current = _service.GetById(receipt.Id ?? -100);
+
+            if (current == null) return NotFound("Not found receipt ID: " + receipt.Id);
+
+            if (current.Store.Id != user.Store.Id) return Forbid("You cannot update receipt of Store ID: " + current.Store.Id);
+
+            receipt.LastModifiedBy = new ParticipantVModel() { Id = user.Id };
+
+            var result = _service.Update(receipt);
+
+            if (result == null) return BadRequest("Cannot Update receipt");
+
+            return Ok(result);
         }
 
-        // DELETE: api/Receipts/5
-        [HttpDelete("{id}")]
-        public async Task<ActionResult<Receipt>> DeleteReceipt(long id)
+        [HttpPost("/api/receipts")]
+        [Authorize(Roles = ParticipantsRoleConst.STORE_MANAGER)]
+        public ActionResult PostReceipt(ReceiptVModel receipt)
         {
-            var receipt = await _context.Receipt.FindAsync(id);
-            if (receipt == null)
-            {
-                return NotFound();
-            }
+            var user = this.GetCurrentUserInfo();
 
-            _context.Receipt.Remove(receipt);
-            await _context.SaveChangesAsync();
+            receipt.CreateBy = new ParticipantVModel() { Id = user.Id };
+            receipt.Status = ReceiptStatusConst.CREATED;
+            receipt.Brand = new BrandVModel() { Id = user.Brand.Id };
+            receipt.Store = new StoreVModel() { Id = user.Store.Id };
 
-            return receipt;
-        }
+            var result = _service.Create(receipt);
+            if (result == null) return BadRequest("Cannot create receipt");
 
-        private bool ReceiptExists(long id)
-        {
-            return _context.Receipt.Any(e => e.Id == id);
+            return Created("", result);
         }
 
         private UserModel GetCurrentUserInfo()
