@@ -22,7 +22,7 @@ namespace PnLReporter.Repository
         bool CheckTransactionBelongToStore(long? tranId, int? storeId);
         Transaction GetById(long tranId);
         Transaction UpdateTransaction(TransactionVModel transaction);
-        Transaction CreateTransaction(Transaction transaction);
+        Transaction CreateTransaction(Transaction transaction, List<ReceiptVModel> listReceipt);
         Transaction PutTransactionToPeriod(long tranId, int periodId);
     }
 
@@ -55,6 +55,12 @@ namespace PnLReporter.Repository
                 .Select(record => record.BrandId)
                 .FirstOrDefault();
 
+            var listStt = new List<int>()
+            {
+                TransactionStatusConst.ACC_MODIFIED,
+                TransactionStatusConst.ACC_CREATE
+            };
+
             return _context.Transaction
                 .Include(trans => trans.CreatedByNavigation)
                 .Include(trans => trans.Brand)
@@ -64,11 +70,13 @@ namespace PnLReporter.Repository
                 .Where(record =>
                     record.BrandId == investorBrand
                     &&
-                    _context.TransactionJourney
-                        .Where(jorney =>
-                            jorney.TransactionId == record.Id)
-                        .OrderByDescending(jorney => jorney.CreatedTime)
-                        .FirstOrDefault().Status == TransactionStatusConst.ACC_APPROVED
+                    listStt.Contains(
+                        _context.TransactionJourney
+                            .Where(jorney =>
+                                jorney.TransactionId == record.Id)
+                            .OrderByDescending(jorney => jorney.CreatedTime)
+                            .FirstOrDefault().Status ?? -100
+                        )
                 ).ToList();
         }
 
@@ -357,9 +365,27 @@ namespace PnLReporter.Repository
             return curTransaction;
         }
 
-        public Transaction CreateTransaction(Transaction transaction)
+        public Transaction CreateTransaction(Transaction transaction, List<ReceiptVModel> listReceipt)
         {
             _context.Transaction.Add(transaction);
+            _context.SaveChanges();
+
+            foreach (var receipt in listReceipt)
+            {
+                if (receipt.Id != null)
+                {
+                    var receiptTransaction = new RecepitTransactionDetail()
+                    {
+                        TransactionId = transaction.Id,
+                        ReceiptId = receipt.Id ?? 0,
+                        Status = true,
+                        CreatedById = transaction.CreatedBy,
+                        CreatedTime = DateTime.UtcNow.AddHours(7)
+                    };
+                    _context.RecepitTransactionDetail.Add(receiptTransaction);
+                }
+            }          
+
             _context.SaveChanges();
             return transaction;
         }

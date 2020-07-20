@@ -18,5 +18,6 @@ namespace PnLReporter.EnumInfo
         public const String PERIOD_NOT_OPEN = "Current period is not available to put transaction in";
         public const String PERIOD_STATUS_NOT_APPLY = "Current status cannot be apply to this period";
         public const String CURRENT_TIME_IS_AFTER_DEADLINE = "Current time is after deadline. Cannot open this period";
+        public const String STORE_ID_IS_EMPTY = "Current store of transaction is not found";
     }
 }

@@ -14,6 +14,7 @@ namespace PnLReporter.Repository
         IEnumerable<Store> QueryByBrand(string query, string sort, int brandId, int offset, int limit);
         int CountListQuery(string query, int brandId);
         Store GetById(int id);
+        Brand GetBrandOfStore(int storeId);
     }
     public class StoreRepository : IStoreRepository
     {
@@ -29,6 +30,31 @@ namespace PnLReporter.Repository
         public int CountListQuery(string query, int brandId)
         {
             return this.GetQueryStatement(query, "", brandId).Count();
+        }
+
+        public Brand GetBrandOfStore(int storeId)
+        {
+            var store = this.GetById(storeId);
+            if (store == null) return null;
+
+            var detail = _context.StoreParticipantsDetail
+                .Where(record => record.StoreId == store.Id)
+                .FirstOrDefault();
+
+            if (detail == null) return null;
+
+            var participantId = detail.ParticipantId;
+
+            var brandParticipant = _context.BrandParticipantsDetail
+                .Where(record => record.ParticipantsId == participantId)
+                .FirstOrDefault();
+
+            if (brandParticipant == null) return null;
+
+            var brand = _context.Brand.Find(brandParticipant.BrandId);
+
+            if (brand == null) return null;
+            return brand;
         }
 
         public Store GetById(int id)

@@ -36,7 +36,7 @@ namespace PnLReporter.Controllers
         {
             var user = this.GetCurrentUserInfo();
             
-            return Ok(_service.GetListByBrand(user.Brand.Id));
+            return Ok(_service.GetListByBrand(user.Brand.Id ?? -10));
         }
 
         [HttpGet("/api/periods/{id}")]

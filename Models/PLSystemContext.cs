@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Linq;
-using System.Linq.Dynamic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
@@ -22,6 +20,8 @@ namespace PnLReporter.Models
         public virtual DbSet<BrandParticipantsDetail> BrandParticipantsDetail { get; set; }
         public virtual DbSet<Evidence> Evidence { get; set; }
         public virtual DbSet<Participant> Participant { get; set; }
+        public virtual DbSet<Receipt> Receipt { get; set; }
+        public virtual DbSet<RecepitTransactionDetail> RecepitTransactionDetail { get; set; }
         public virtual DbSet<Store> Store { get; set; }
         public virtual DbSet<StoreParticipantsDetail> StoreParticipantsDetail { get; set; }
         public virtual DbSet<Transaction> Transaction { get; set; }
@@ -30,9 +30,6 @@ namespace PnLReporter.Models
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            if (!optionsBuilder.IsConfigured)
-            {
-            }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -135,12 +132,12 @@ namespace PnLReporter.Models
 
                 entity.Property(e => e.Description).HasColumnName("description");
 
+                entity.Property(e => e.ReceiptId).HasColumnName("receiptId");
+
                 entity.Property(e => e.Title)
                     .HasColumnName("title")
                     .HasMaxLength(50)
                     .IsUnicode(false);
-
-                entity.Property(e => e.TransactionId).HasColumnName("transactionId");
 
                 entity.Property(e => e.Url)
                     .IsRequired()
@@ -148,10 +145,10 @@ namespace PnLReporter.Models
                     .HasMaxLength(256)
                     .IsUnicode(false);
 
-                entity.HasOne(d => d.Transaction)
+                entity.HasOne(d => d.Receipt)
                     .WithMany(p => p.Evidence)
-                    .HasForeignKey(d => d.TransactionId)
-                    .HasConstraintName("FK_Evidence_Transaction");
+                    .HasForeignKey(d => d.ReceiptId)
+                    .HasConstraintName("FK_Evidence_Receipt");
             });
 
             modelBuilder.Entity<Participant>(entity =>
@@ -175,6 +172,113 @@ namespace PnLReporter.Models
                     .HasColumnName("username")
                     .HasMaxLength(50)
                     .IsUnicode(false);
+            });
+
+            modelBuilder.Entity<Receipt>(entity =>
+            {
+                entity.Property(e => e.Id).HasColumnName("ID");
+
+                entity.Property(e => e.BrandId).HasColumnName("brandId");
+
+                entity.Property(e => e.CategoryId).HasColumnName("categoryId");
+
+                entity.Property(e => e.CreatedBy).HasColumnName("createdBy");
+
+                entity.Property(e => e.CreatedTime)
+                    .HasColumnName("createdTime")
+                    .HasColumnType("datetime");
+
+                entity.Property(e => e.Description).HasColumnName("description");
+
+                entity.Property(e => e.LastModified)
+                    .HasColumnName("lastModified")
+                    .HasColumnType("datetime");
+
+                entity.Property(e => e.LastModifiedBy).HasColumnName("lastModifiedBy");
+
+                entity.Property(e => e.Name)
+                    .HasColumnName("name")
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.Status).HasColumnName("status");
+
+                entity.Property(e => e.StoreId).HasColumnName("storeId");
+
+                entity.Property(e => e.Value)
+                    .HasColumnName("value")
+                    .HasMaxLength(20)
+                    .IsUnicode(false);
+
+                entity.HasOne(d => d.Brand)
+                    .WithMany(p => p.Receipt)
+                    .HasForeignKey(d => d.BrandId)
+                    .HasConstraintName("FK_Receipt_Brand");
+
+                entity.HasOne(d => d.Category)
+                    .WithMany(p => p.Receipt)
+                    .HasForeignKey(d => d.CategoryId)
+                    .HasConstraintName("FK_Receipt_Transaction Category");
+
+                entity.HasOne(d => d.CreatedByNavigation)
+                    .WithMany(p => p.ReceiptCreatedByNavigation)
+                    .HasForeignKey(d => d.CreatedBy)
+                    .HasConstraintName("FK_Receipt_Participant");
+
+                entity.HasOne(d => d.LastModifiedByNavigation)
+                    .WithMany(p => p.ReceiptLastModifiedByNavigation)
+                    .HasForeignKey(d => d.LastModifiedBy)
+                    .HasConstraintName("FK_Receipt_Participant_2");
+
+                entity.HasOne(d => d.Store)
+                    .WithMany(p => p.Receipt)
+                    .HasForeignKey(d => d.StoreId)
+                    .HasConstraintName("FK_Receipt_Store");
+            });
+
+            modelBuilder.Entity<RecepitTransactionDetail>(entity =>
+            {
+                entity.HasKey(e => new { e.ReceiptId, e.TransactionId })
+                    .HasName("PK_Receipt-Transaction");
+
+                entity.Property(e => e.ReceiptId).HasColumnName("receiptId");
+
+                entity.Property(e => e.TransactionId).HasColumnName("transactionId");
+
+                entity.Property(e => e.CreatedById).HasColumnName("createdById");
+
+                entity.Property(e => e.CreatedTime)
+                    .HasColumnName("createdTime")
+                    .HasColumnType("datetime");
+
+                entity.Property(e => e.LastModified)
+                    .HasColumnName("lastModified")
+                    .HasColumnType("datetime");
+
+                entity.Property(e => e.LastModifiedById).HasColumnName("lastModifiedById");
+
+                entity.Property(e => e.Status).HasColumnName("status");
+
+                entity.HasOne(d => d.CreatedBy)
+                    .WithMany(p => p.RecepitTransactionDetailCreatedBy)
+                    .HasForeignKey(d => d.CreatedById)
+                    .HasConstraintName("FK_RecepitTransactionDetail_Participant_1");
+
+                entity.HasOne(d => d.LastModifiedBy)
+                    .WithMany(p => p.RecepitTransactionDetailLastModifiedBy)
+                    .HasForeignKey(d => d.LastModifiedById)
+                    .HasConstraintName("FK_RecepitTransactionDetail_Participant_2");
+
+                entity.HasOne(d => d.Receipt)
+                    .WithMany(p => p.RecepitTransactionDetail)
+                    .HasForeignKey(d => d.ReceiptId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_RecepitTransactionDetail_Receipt");
+
+                entity.HasOne(d => d.Transaction)
+                    .WithMany(p => p.RecepitTransactionDetail)
+                    .HasForeignKey(d => d.TransactionId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_RecepitTransactionDetail_Transaction");
             });
 
             modelBuilder.Entity<Store>(entity =>

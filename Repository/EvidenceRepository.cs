@@ -10,7 +10,7 @@ namespace PnLReporter.Repository
 {
     public interface IEvidenceRepository
     {
-        IEnumerable<Evidence> GetListEvidenceOfTransaction(long transactionId);
+        IEnumerable<Evidence> GetListEvidenceOfReceipt(long receiptId);
         Evidence GetById(long evidenceId);
         Evidence UpdateEvidence(EvidenceVModel evidence);
         IEnumerable<Evidence> InsertEvidences(IEnumerable<Evidence> evidencesLst);
@@ -37,17 +37,17 @@ namespace PnLReporter.Repository
         public Evidence GetById(long evidenceId)
         {
             return _context.Evidence
-                .Include(record => record.Transaction)
-                .Include(record => record.Transaction.Store)
-                .Include(record => record.Transaction.Brand)
-                .Include(record => record.Transaction.CreatedByNavigation)
+                .Include(record => record.Receipt)
+                .Include(record => record.Receipt.Store)
+                .Include(record => record.Receipt.Brand)
+                .Include(record => record.Receipt.CreatedByNavigation)
                 .Where(record => record.Id == evidenceId)
                 .FirstOrDefault();
         }
 
-        public IEnumerable<Evidence> GetListEvidenceOfTransaction(long transactionId)
+        public IEnumerable<Evidence> GetListEvidenceOfReceipt(long receiptId)
         {
-            return _context.Evidence.Where(record => record.TransactionId == transactionId).ToList();
+            return _context.Evidence.Where(record => record.ReceiptId == receiptId).ToList();
         }
 
         public IEnumerable<Evidence> InsertEvidences(IEnumerable<Evidence> evidencesLst)

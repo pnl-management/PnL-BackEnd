@@ -14,6 +14,8 @@ namespace PnLReporter.Service
     {
         IEnumerable<ReportVModel> GetReport(int brandId);
         IList<IList<object>> ListDataToGgSheet(int brandId, out int storeSize);
+        ReportVModel GetReportOfStore(int storeId, int periodId);
+        IEnumerable<ReportVModel> GetReportOfBrand(int brandId, int periodId);
     }
     public class ReportService : IReportService
     {
@@ -67,50 +69,44 @@ namespace PnLReporter.Service
                         },
                         ListTransactions = this.ParseToTransactionVModel(lisTransaction)
                     };
-
-                    //_cache.SetString(report.Id, JsonConvert.SerializeObject(report));
                     listReport.Add(report);
-
-                    /*
-                    var cacheItem = _cache.GetString(id);
-                    if (false)
-                    {
-                        var cacheParsed = JsonConvert.DeserializeObject<ReportVModel>(cacheItem);
-                        var report = new ReportVModel()
-                        {
-                            Period = new AccountingPeriodVModel()
-                            {
-                                Id = period.Id,
-                                Brand = new BrandVModel()
-                                {
-                                    Id = period.BrandId ?? default
-                                },
-                                StartDate = period.StartDate,
-                                EndDate = period.EndDate,
-                                Deadline = period.Deadline,
-                                Title = period.Title,
-                                Status = period.Status
-                            },
-                            Store = new StoreVModel()
-                            {
-                                Id = store.Id,
-                                Brand = new BrandVModel()
-                                {
-                                    Id = store.BrandId ?? default
-                                },
-                                Name = store.Name
-                            },
-                            ListTransactions = cacheParsed.ListTransactions
-                        };
-                        listReport.Add(report);
-                    }
-                    else
-                    {
-                        
-                    }*/
                 }
             }
             return listReport;
+        }
+
+        public IEnumerable<ReportVModel> GetReportOfBrand(int brandId, int periodId)
+        {
+            var listStore = _repository.GetListStoreOfBrand(brandId);
+            var result = new List<ReportVModel>();
+
+            foreach (var store in listStore)
+            {
+                var listTran = _repository.GetListTransactionOfStoreAndPeriod(store.Id, periodId);
+
+                var report = new ReportVModel()
+                {
+                    ListTransactions = listTran != null ? this.ParseToTransactionVModel(listTran) : null,
+                    Period = new AccountingPeriodVModel() { Id = periodId },
+                    Store = new StoreVModel() { Id = store.Id }
+                };
+                result.Add(report);
+            }
+
+            return result;
+        }
+
+        public ReportVModel GetReportOfStore(int storeId, int periodId)
+        {
+            var listTran = _repository.GetListTransactionOfStoreAndPeriod(storeId, periodId);
+            var report = new ReportVModel()
+            {
+                ListTransactions = listTran != null ? this.ParseToTransactionVModel(listTran) : null,
+                Period = new AccountingPeriodVModel() { Id = periodId },
+                Store = new StoreVModel() { Id = storeId }
+            };
+
+            return report;
         }
 
         public IList<IList<object>> ListDataToGgSheet(int brandId, out int storeSize)
@@ -207,7 +203,7 @@ namespace PnLReporter.Service
                             Name = trans.Store.Name
                         } : null,
                         CreatedTime = trans.CreatedTime,
-                        CreateByParticipant = trans.CreatedByNavigation != null ? new ParticipantVModel()
+                        CreateBy = trans.CreatedByNavigation != null ? new ParticipantVModel()
                         {
                             Id = trans.CreatedBy,
                             Username = trans.CreatedByNavigation.Username

@@ -118,23 +118,7 @@ namespace PnLReporter.Service
 
             foreach (TransactionCategory category in list)
             {
-                var newCate = new TransactionCategoryVModel()
-                {
-                    Id = category.Id,
-                    Name = category.Name,
-                    Brand = category.Brand != null ? new BrandVModel()
-                    {
-                        Id = category.Brand.Id,
-                        Name = category.Brand.Name,
-                        Status = category.Brand.Status,
-                        CreatedTime = category.Brand.CreatedTime
-                    } : null,
-                    Required = category.Required,
-                    Type = category.Type,
-                    Status = category.Status,
-                    CreatedTime = category.CreatedTime,
-                    LastModified = category.LastModified
-                };
+                var newCate = TransactionCategoryVModel.ToVModel(category);
 
                 result.Add(newCate);
             }

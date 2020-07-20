@@ -10,7 +10,7 @@ namespace PnLReporter.Service
 {
     public interface IEvidenceService
     {
-        IEnumerable<EvidenceVModel> GetListEvidenceOfTransaction(long transactionId);
+        IEnumerable<EvidenceVModel> GetListEvidenceOfReceipt(long receiptId);
         EvidenceVModel GetById(long evidenceId);
         EvidenceVModel UpdateEvidence(EvidenceVModel evidence);
         IEnumerable<EvidenceVModel> InsertEvidences(List<EvidenceVModel> evidencesLst);
@@ -39,9 +39,9 @@ namespace PnLReporter.Service
             return this.ParseToVModel(new List<Evidence>() { result }).FirstOrDefault();
         }
 
-        public IEnumerable<EvidenceVModel> GetListEvidenceOfTransaction(long transactionId)
+        public IEnumerable<EvidenceVModel> GetListEvidenceOfReceipt(long receiptId)
         {
-            return this.ParseToVModel(_repository.GetListEvidenceOfTransaction(transactionId));
+            return this.ParseToVModel(_repository.GetListEvidenceOfReceipt(receiptId));
         }
 
         public IEnumerable<EvidenceVModel> InsertEvidences(List<EvidenceVModel> evidencesLst)
@@ -55,7 +55,7 @@ namespace PnLReporter.Service
                     Title = evidence.Title,
                     Description = evidence.Description,
                     Url = evidence.Url,
-                    TransactionId = evidence.Transaction.Id
+                    ReceiptId = evidence.Receipt.Id
                 };
                 modelLst.Add(model);
             }
@@ -78,29 +78,7 @@ namespace PnLReporter.Service
 
             foreach (var model in listModel)
             {
-                var vmodel = new EvidenceVModel()
-                {
-                    Id = model.Id,
-                    Title = model.Title,
-                    Description = model.Description,
-                    Url = model.Url,
-                    Transaction = model.Transaction != null ? new TransactionVModel()
-                    {
-                        Id = model.Transaction.Id,
-                        Store = model.Transaction.Store != null ? new StoreVModel()
-                        {
-                            Id = model.Transaction.Store.Id
-                        } : null,
-                        Brand = model.Transaction.Brand != null ? new BrandVModel()
-                        {
-                            Id = model.Transaction.Brand.Id
-                        } : null,
-                        CreateByParticipant = model.Transaction.CreatedByNavigation != null ? new ParticipantVModel()
-                        {
-                            Id = model.Transaction.CreatedByNavigation.Id
-                        } : null
-                    } : null
-                };
+                var vmodel = EvidenceVModel.ToVModel(model);
                 result.Add(vmodel);
             }
 
