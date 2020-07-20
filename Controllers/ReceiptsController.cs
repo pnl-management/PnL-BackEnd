@@ -69,6 +69,8 @@ namespace PnLReporter.Controllers
         {
             var receipt = _service.GetById(id);
 
+            if (receipt == null) return NotFound("Not found receipt ID: " + id);
+
             var user = this.GetCurrentUserInfo();
             var role = user.Role;
 

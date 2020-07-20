@@ -39,7 +39,8 @@ namespace PnLReporter.Service
                 CategoryId = receipt.Category?.Id,
                 BrandId = receipt.Brand.Id,
                 StoreId = receipt.Store.Id,
-                CreatedTime = DateTime.UtcNow.AddHours(7)
+                CreatedTime = DateTime.UtcNow.AddHours(7),
+                CreatedBy = receipt.CreateBy.Id
             };
             model = _repository.Create(model);
 
