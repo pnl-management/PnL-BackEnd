@@ -22,7 +22,7 @@ namespace PnLReporter.ViewModels
                 Id = model.Id,
                 Url = model.Url,
                 Title = model.Title,
-                Receipt = null,
+                Receipt = ReceiptVModel.ToVModel(model.Receipt),
                 Description = model.Description
             };
 

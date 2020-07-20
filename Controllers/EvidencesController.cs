@@ -95,7 +95,7 @@ namespace PnLReporter.Controllers
 
             var currentEvidence = _service.GetById(evidence.Id ?? default);
 
-            if (user.Store.Id != evidence.Receipt.Store.Id) return Forbid();
+            if (user.Store.Id != currentEvidence.Receipt.Store.Id) return Forbid();
             var result = _service.UpdateEvidence(evidence);
             if (result == null) return NotFound();
             return Ok(result);
@@ -124,8 +124,8 @@ namespace PnLReporter.Controllers
             var user = this.GetCurrentUserInfo();
             if (user.Store.Id != current.Receipt.Store.Id) return Forbid();
 
-            var transactionService = new TransactionService(_context);
-            if (transactionService.IsTransactionCanModified(current.Receipt.Id ?? 0))
+            var receiptService = new ReceiptService(_context);
+            if (receiptService.IsReceiptCanModified(current.Receipt.Id ?? 0))
             {
                 return Ok(_service.DeleteEvidence(id));
             }
