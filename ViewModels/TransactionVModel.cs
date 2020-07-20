@@ -23,6 +23,8 @@ namespace PnLReporter.ViewModels
         public ParticipantVModel CreateBy { get; set; }
         public TransactionJourneyVModel LastestStatus { get; set; }
 
+        public List<ReceiptVModel> ListReceipt { get; set; }
+
         public static TransactionVModel ToVModel(Transaction model)
         {
             if (model == null) return null;

@@ -190,7 +190,7 @@ namespace PnLReporter.Controllers
         // POST: api/stores/transactions
         [HttpPost("/api/transactions")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = ParticipantsRoleConst.ACCOUNTANT)]
-        public ActionResult PostTransaction(TransactionVModel transaction, List<ReceiptVModel> listReceipt)
+        public ActionResult PostTransaction(TransactionVModel transaction)
         {
             if (transaction.Category == null || transaction.Category.Id < 0)
             {
@@ -206,7 +206,7 @@ namespace PnLReporter.Controllers
             transaction.CreateBy = new ParticipantVModel() { Id = user.Id };
             transaction.Brand = new BrandVModel() { Id = user.Brand.Id };
 
-            var result = _service.CreateTransaction(transaction, listReceipt);
+            var result = _service.CreateTransaction(transaction, transaction.ListReceipt);
 
             return Created("", result);
         }
