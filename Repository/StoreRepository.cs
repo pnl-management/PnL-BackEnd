@@ -60,24 +60,33 @@ namespace PnLReporter.Repository
         public Store GetById(int id)
         {
             Store result;
-
-            string json = _distributedCache.GetString(id + "");
-            if (json == null)
+            if (_distributedCache != null)
             {
-                result = _context.Store
-                    .Include(record => record.Brand)
-                    .Where(record => record.Id == id)
-                    .FirstOrDefault();
-
-                if (result != null)
+                string json = _distributedCache.GetString(id + "");
+                if (json == null)
                 {
-                    var options = new DistributedCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromDays(1));
-                    _distributedCache.SetString(id + "", JsonConvert.SerializeObject(result), options);
+                    result = _context.Store
+                        .Include(record => record.Brand)
+                        .Where(record => record.Id == id)
+                        .FirstOrDefault();
+
+                    if (result != null)
+                    {
+                        var options = new DistributedCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromDays(1));
+                        _distributedCache.SetString(id + "", JsonConvert.SerializeObject(result), options);
+                    }
+                }
+                else
+                {
+                    result = JsonConvert.DeserializeObject<Store>(json);
                 }
             }
             else
             {
-                result = JsonConvert.DeserializeObject<Store>(json);
+                result = _context.Store
+                        .Include(record => record.Brand)
+                        .Where(record => record.Id == id)
+                        .FirstOrDefault();
             }
 
             return result;
