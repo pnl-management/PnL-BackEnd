@@ -78,7 +78,7 @@ namespace PnLReporter.Controllers
         }
 
         [HttpGet]
-        [Route("Index")]
+        [Route("index")]
         public ActionResult<IEnumerable<TransactionVModel>> GetTransactionOnIndexPg()
         {
             var user = this.GetCurrentUserInfo();

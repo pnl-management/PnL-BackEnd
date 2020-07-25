@@ -15,6 +15,7 @@ namespace PnLReporter.Repository
         Receipt Update(ReceiptVModel vmodel);
         IEnumerable<Receipt> GetListByBrand(int brandId);
         IEnumerable<Receipt> GetListByStore(int storeId);
+        IEnumerable<Receipt> GetListReceiptByTransactionId(long transactionId);
         Receipt GetById(long id);
     }
     public class ReceiptRepository : IReceiptRepository
@@ -85,6 +86,19 @@ namespace PnLReporter.Repository
             _context.SaveChanges();
 
             return model;
+        }
+
+        public IEnumerable<Receipt> GetListReceiptByTransactionId(long transactionId)
+        {
+            var listId = _context.RecepitTransactionDetail
+                .Where(record => record.TransactionId == transactionId)
+                .Select(record => record.ReceiptId);
+
+            return _context.Receipt
+                .Include(record => record.Evidence)
+                .Include(record => record.CreatedByNavigation)
+                .Where(record => listId.Contains(record.Id))
+                .OrderByDescending(record => record.CreatedTime);
         }
     }
 }

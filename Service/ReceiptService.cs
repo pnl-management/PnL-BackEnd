@@ -18,6 +18,7 @@ namespace PnLReporter.Service
         ReceiptVModel Update(ReceiptVModel receipt);
         bool IsReceiptCanModified(long receiptId);
         bool JudgeReceipt(long id, String type);
+        IEnumerable<ReceiptVModel> GetListReceiptOfTransaction(long transactionId);
     }
     public class ReceiptService : IReceiptService
     {
@@ -55,6 +56,22 @@ namespace PnLReporter.Service
             if (result == null) return null;
 
             return ReceiptVModel.ToVModel(result);
+        }
+
+        public IEnumerable<ReceiptVModel> GetListReceiptOfTransaction(long transactionId)
+        {
+            var list = _repository.GetListReceiptByTransactionId(transactionId);
+
+            if (list == null) return null;
+
+            var result = new List<ReceiptVModel>();
+            foreach (var model in list)
+            {
+                var vmodel = ReceiptVModel.ToVModel(model);
+                if (vmodel != null) result.Add(vmodel);
+            }
+
+            return result;
         }
 
         public IEnumerable<ReceiptVModel> GetReceiptByBrand(int brandId)

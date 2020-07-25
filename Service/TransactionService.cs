@@ -151,7 +151,13 @@ namespace PnLReporter.Service
 
             if (transaction != null)
             {
-                return this.ParseToTransactionVModel(new List<Transaction>{transaction}).FirstOrDefault();
+                var result = this.ParseToTransactionVModel(new List<Transaction>{transaction}).FirstOrDefault();
+                ReceiptService reSer = new ReceiptService(_context);
+
+                var listReceipt = reSer.GetListReceiptOfTransaction(tranId);
+                result.ListReceipt = listReceipt.ToList();
+
+                return result;
             }
             return null;
         }
