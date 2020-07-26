@@ -102,14 +102,14 @@ namespace PnLReporter.Controllers
             return Ok(store);
         }
 
-        /*[HttpDelete("/api/stores-cache/{id}")]
+        [HttpDelete("/api/stores-cache/{id}")]
         public ActionResult ClearCache(int id)
         {
             _distributedCache.Remove(id + "");
             return Ok();
         }
 
-        // PUT: api/Stores/5
+        /*// PUT: api/Stores/5
         [HttpPut("{id}")]
         public async Task<IActionResult> PutStore(int id, Store store)
         {

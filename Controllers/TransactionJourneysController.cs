@@ -90,10 +90,11 @@ namespace PnLReporter.Controllers
             transactionJourney.CreatedByParticipant = new ParticipantVModel() { Id = user.Id };
 
             TransactionJourneyVModel result;
+            
             try
             {
                 result = _service.JudgeTransaction(transactionJourney, type, user.Role + "");
-            } 
+            }
             catch (Exception e)
             {
                 return BadRequest(e.Message);
